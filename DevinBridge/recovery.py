@@ -418,10 +418,13 @@ def tick(coord, notifier=None) -> dict:
     for t in coord.list_tasks():
         if t.get("scope") != "production":
             continue
-        # supersession resolution for finished children
+        # supersession resolution for finished children — once the
+        # parent is terminal (ESCALATED/VERIFIED_RECOVERED) stop
+        # re-firing on_child_done, or it ping-pongs RETRY_FAILED forever
         rec = t.get("recovery") or {}
         cid = rec.get("child_id")
-        if cid:
+        if cid and rec.get("state") not in ("ESCALATED",
+                                            "VERIFIED_RECOVERED"):
             c = coord.get_task(cid)
             if c and c.get("status") in ("COMPLETE", "FAILED"):
                 on_child_done(coord, c)
