@@ -67,9 +67,21 @@ def build_context(coord, obs: dict) -> dict:
         reverse=True) if t["status"] == "COMPLETE"][:8]
     failed = [{"id": t["id"], "error": str(t.get("last_error") or "")[:200]}
               for t in tasks.values() if t["status"] == "FAILED"][-8:]
-    open_t = [t["id"] for t in tasks.values()
-              if t["status"] in ("READY", "DISPATCHED", "RUNNING",
-                                 "VERIFYING", "NEEDS_APPROVAL")]
+    def _dispatchable(t):
+        """Work that can actually run NOW — a READY task held by
+        not_before, a human gate, or a non-production scope does not
+        count as queue content."""
+        if t["status"] in ("DISPATCHED", "RUNNING", "VERIFYING",
+                           "NEEDS_APPROVAL"):
+            return True
+        if t["status"] != "READY":
+            return False
+        if float(t.get("not_before") or 0) > time.time():
+            return False
+        if t.get("human_gate"):
+            return False
+        return t.get("scope") == "production"
+    open_t = [t["id"] for t in tasks.values() if _dispatchable(t)]
     prog = read_json(
         coord.root / "autonomy_scope" / "CDP_PROGRAM.json", {})
     return {
@@ -174,7 +186,7 @@ def _consult_thread(context: dict) -> None:
         try:
             cli.start()
             ses = cli.session_new(context["worktree"], model=MODEL,
-                                  mode="plan", timeout=REQ_TIMEOUT)
+                                  mode="plan", timeout=180)
             sid = ses.get("sessionId", "")
             kinds = ", ".join(context["allowed_kinds"])
             res = cli.session_prompt(
@@ -270,8 +282,6 @@ def validate_proposal(d: dict, coord, obs: dict) -> tuple[bool, str]:
                for x in prog.get("allowed_paths", [])]
     def _in_scope(p):
         p = str(p).replace("\\", "/")
-        if any(a in (".", "*") for a in allowed):
-            return not Path(p).is_absolute() and ".." not in Path(p).parts
         return not Path(p).is_absolute() and ".." not in Path(p).parts \
             and any(p == a or p.startswith(a + "/") for a in allowed)
     if not d.get("evidence_refs"):
