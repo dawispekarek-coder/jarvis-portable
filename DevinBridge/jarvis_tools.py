@@ -177,6 +177,59 @@ def pending_approvals() -> str:
         ensure_ascii=False)
 
 
+def devin_task(a: dict) -> str:
+    """Show one task's full detail: prompt, acceptance, worktree, state,
+    errors, evidence — so Jarvis can inspect work before driving it."""
+    c = _coordinator()
+    t = c.get_task(str(a.get("task_id") or ""))
+    if not t:
+        return json.dumps({"ok": False, "error": "unknown task"})
+    keep = ("id", "title", "status", "approved", "human_gate", "scope",
+            "kind", "priority", "attempts", "max_attempts", "worktree",
+            "acceptance", "prompt", "last_error", "evidence_refs",
+            "declared_followups", "recovery", "not_before", "created_at")
+    return json.dumps({k: t.get(k) for k in keep}, ensure_ascii=False,
+                      default=str)
+
+
+def devin_next() -> str:
+    """Which task the dispatcher would run next — with the reason if
+    none is eligible. Read-only; never dispatches."""
+    c = _coordinator()
+    cand, why = c.next_eligible()
+    return json.dumps({"next": (cand or {}).get("id"),
+                       "title": (cand or {}).get("title"),
+                       "reason": why}, ensure_ascii=False)
+
+
+def devin_dispatch(a: dict) -> str:
+    """Dispatch a READY+approved task to a SWE-2 worker. The coordinator
+    enforces all gates itself (approval, scope, not_before, one worker
+    per worktree) — this call cannot bypass them."""
+    c = _coordinator()
+    tid = str(a.get("task_id") or "")
+    if not tid:
+        return json.dumps({"ok": False, "error": "task_id required"})
+    res = c.dispatch(tid)
+    t = c.get_task(tid) or {}
+    return json.dumps({"ok": bool(res.get("dispatched")), "task_id": tid,
+                       "status": t.get("status"),
+                       "worker_pid": t.get("worker_pid"),
+                       "reason": res.get("reason")},
+                      ensure_ascii=False)
+
+
+def devin_verify(a: dict) -> str:
+    """Run acceptance checks on a finished task — returns the machine
+    verdict (VERIFIED/FAILED/UNKNOWN), never the agent's claim."""
+    c = _coordinator()
+    tid = str(a.get("task_id") or "")
+    if not tid:
+        return json.dumps({"ok": False, "error": "task_id required"})
+    res = c.verify(tid)
+    return json.dumps(res, ensure_ascii=False, default=str)
+
+
 def approve_batch(a: dict) -> str:
     """Decide ALL pending requests of one task in a single audited
     batch — replaces the high-risk approval drip-feed. Scope is
@@ -213,6 +266,18 @@ TOOLS = {
     "approve_batch": {"fn": approve_batch,
                       "desc": "decide all pending approvals of one task "
                               "in a single audited batch (task_id, approved)"},
+    "devin_task": {"fn": devin_task,
+                   "desc": "full detail of one queue task "
+                           "(prompt/acceptance/state/evidence)"},
+    "devin_next": {"fn": devin_next,
+                   "desc": "which task runs next + eligibility reason "
+                           "(read-only)"},
+    "devin_dispatch": {"fn": devin_dispatch,
+                       "desc": "dispatch a READY+approved task to a "
+                               "SWE-2 worker (all gates enforced)"},
+    "devin_verify": {"fn": devin_verify,
+                     "desc": "run acceptance checks → machine verdict "
+                             "VERIFIED/FAILED/UNKNOWN"},
     "wow_qa": {"fn": _wow_qa_status,
                "desc": "WoW client/addon automatable QA status (read-only)"},
     "web_fetch": {"fn": _web_fetch,

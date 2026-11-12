@@ -121,7 +121,14 @@ def propose(coord) -> dict:
         # ---- source: reconcile exhausted failures (NOT a blind retry —
         # if attempts were exhausted with the same prompt, the planner
         # cannot reproduce it; a human must re-scope first)
-        if status in ("FAILED", "NEEDS_REVIEW"):
+        # Under an ongoing CDP program the recovery pipeline owns FAILED
+        # parents (RCA + bounded ladder) — generating reconcile
+        # proposals here only re-clogs the store every tick.
+        _prog = read_json(coord.root / "autonomy_scope"
+                          / "CDP_PROGRAM.json", {}) \
+            if status in ("FAILED", "BLOCKED") else {}
+        _legacy_only = not _prog.get("ongoing")
+        if status in ("FAILED", "NEEDS_REVIEW") and _legacy_only:
             _mk("failure_reconcile", tid,
                 f"Reconcile {status.lower()} task {tid}",
                 (f"Task {tid} ('{t.get('title','')[:80]}') ended in "
@@ -134,7 +141,7 @@ def propose(coord) -> dict:
                 [f"task:{tid}", f"error:{t.get('last_error','')[:120]}"],
                 acceptance=t.get("acceptance"),
                 priority=40)
-        if status == "BLOCKED":
+        if status == "BLOCKED" and _legacy_only:
             _mk("blocked_reconcile", tid,
                 f"Unblock {tid} (human decision needed)",
                 (f"Task {tid} was BLOCKED. Review the denial reason, "
