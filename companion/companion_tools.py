@@ -275,9 +275,19 @@ def build_registry(store,task,settings=None):
  register('dreamina_lali_pooli_status','Read verified Lali/Pooli Dreamina Seedance 2.0 Mini current start-frame-only 15s Reel state and spend cap. No browser, no credits, no publishing.',{},dreamina_start_status)
  register('dreamina_lali_pooli_prepare','Read the prepared single Start Image and motion prompt. First frame ONLY, not Multiframes or Omni Reference, no automatic spending. Paid generation requires explicit owner approval after checking price.',{},dreamina_start_plan)
  from devin_bridge_tools import (foreverroute_goal,devin_queue_status,
-                                 devin_bridge_queue)
+                                 devin_bridge_queue,devin_next,devin_task,
+                                 devin_dispatch,devin_verify,devin_enqueue,
+                                 devin_approve,pending_approvals,approve_batch)
  register('foreverroute_goal','Načti skutečnou vlastníkovu specifikaci ForeverRoute a stav hlavního cíle GOAL-FOREVERROUTE-PLAYABLE-1TO60. Jen čtení.',{},foreverroute_goal)
  register('devin_queue_status','Aktuální stav autonomní DevinBridge fronty: počty podle stavu, běžící úkoly, čekající schválení, zdraví daemonu. Jen čtení.',{},devin_queue_status)
  register('devin_bridge_queue','Podrobný výpis GOAL/RCV úkolů DevinBridge: stavy, poslední chyby, blokace. Jen čtení.',{},devin_bridge_queue)
+ register('devin_next','Který úkol by dispatcher spustil jako další, včetně důvodu když nic není eligible. Jen čtení.',{},devin_next)
+ register('devin_task','Kompletní detail jednoho úkolu: prompt, acceptance kritéria, stav, evidence, chyby. Jen čtení.',{'task_id':text_schema(60)},devin_task,required=['task_id'])
+ register('pending_approvals','Seznam aktuálně čekajících žádostí o schválení v DevinBridge. Jen čtení.',{},pending_approvals)
+ register('devin_dispatch','Spusť READY+schválený úkol přes normální coordinator gates (schválení, scope, not_before, 1 worker/worktree) — nemůže je obejít.',{'task_id':text_schema(60)},devin_dispatch,required=['task_id'],write=True)
+ register('devin_verify','Ověř dokončený úkol přes acceptance checky; vrátí strojový verdikt VERIFIED/FAILED/UNKNOWN, nikdy jen prohlášení agenta.',{'task_id':text_schema(60)},devin_verify,required=['task_id'],write=True)
+ register('devin_enqueue','Zařaď reálnou práci do existující DevinBridge fronty (vznikne approved=False; schválení je zvláštní auditované rozhodnutí).',{'title':text_schema(160),'prompt':text_schema(4000),'worktree':text_schema(300),'priority':{'type':'number'},'acceptance':{'type':'array'}},devin_enqueue,required=['title','prompt'],write=True)
+ register('devin_approve','Schválení/zamítnutí zařazeného úkolu — auditované rozhodnutí owner kanálu.',{'task_id':text_schema(60),'approved':{'type':'boolean'}},devin_approve,required=['task_id'],write=True)
+ register('approve_batch','Rozhodni VŠECHNY pending žádosti jednoho úkolu najednou jako jeden auditovaný balík s jasným rozsahem.',{'task_id':text_schema(60),'approved':{'type':'boolean'}},approve_batch,required=['task_id'],write=True)
  registry.desktop=desktop
  return registry

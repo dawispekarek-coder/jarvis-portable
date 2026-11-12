@@ -85,3 +85,84 @@ def devin_bridge_queue():
     return {"tasks": tasks[-25:], "total": len(tasks),
             "note": "FAILED/BLOCKED jsou pravdivé stavy; COMPLETE = nezávisle ověřeno",
             "verified": True}
+
+
+# --- Queue control: real actions via the DevinBridge CLI (not a second queue) ---
+
+BRIDGE_REPO = BRIDGE.parent  # C:\Users\Dawis\ForeverRouteJarvis
+
+
+def _python_exe():
+    for cand in (Path(r"C:\Users\Dawis\AppData\Local\Programs\Python\Python312\python.exe"),
+                 Path(r"C:\Users\Dawis\ForeverRouteJarvis\.venv\Scripts\python.exe")):
+        if cand.is_file():
+            return str(cand)
+    import sys
+    return sys.executable
+
+
+def _run_tool(name, args=None, timeout=120):
+    """Call `python -m DevinBridge.jarvis_tools run <name>` — the same
+    coordinator instance the daemon uses. Returns parsed JSON or the
+    raw stdout; never fabricates a result."""
+    import subprocess
+    cmd = [_python_exe(), "-m", "DevinBridge.jarvis_tools", "run", name]
+    if args is not None:
+        cmd += ["--json", json.dumps(args)]
+    try:
+        p = subprocess.run(cmd, cwd=str(BRIDGE_REPO), capture_output=True,
+                           text=True, timeout=timeout)
+    except subprocess.TimeoutExpired:
+        return {"ok": False, "error": f"tool {name} timeout after {timeout}s"}
+    except OSError as exc:
+        return {"ok": False, "error": f"spawn failed: {exc}"}
+    out = (p.stdout or "").strip()
+    try:
+        return json.loads(out)
+    except ValueError:
+        return {"ok": p.returncode == 0, "stdout": out[:3000],
+                "stderr": (p.stderr or "")[-500:], "rc": p.returncode}
+
+
+def devin_next():
+    """Which task the dispatcher would run next, with reason if none."""
+    return _run_tool("devin_next")
+
+
+def devin_task(task_id):
+    """Full detail of one task: prompt, acceptance, status, evidence."""
+    return _run_tool("devin_task", {"task_id": task_id})
+
+
+def devin_dispatch(task_id):
+    """Dispatch a READY+approved task through normal coordinator gates."""
+    return _run_tool("devin_dispatch", {"task_id": task_id}, timeout=180)
+
+
+def devin_verify(task_id):
+    """Run acceptance checks on a finished task -> VERIFIED/FAILED/UNKNOWN."""
+    return _run_tool("devin_verify", {"task_id": task_id}, timeout=240)
+
+
+def devin_enqueue(title, prompt, worktree="", priority=50, acceptance=None):
+    """Queue real work via the existing coordinator (approved=False)."""
+    return _run_tool("devin_enqueue", {
+        "title": title, "prompt": prompt, "worktree": worktree,
+        "priority": priority, "acceptance": acceptance or []})
+
+
+def devin_approve(task_id, approved=True):
+    """Approve/reject a queued task — audited owner-channel decision."""
+    return _run_tool("devin_approve", {"task_id": task_id, "approved": approved})
+
+
+def pending_approvals():
+    """List currently pending approval requests."""
+    return _run_tool("pending_approvals")
+
+
+def approve_batch(task_id, approved=True):
+    """Decide ALL pending requests of one task in a single audited batch."""
+    return _run_tool("approve_batch",
+                     {"task_id": task_id, "approved": approved,
+                      "decided_by": "jarvis-companion"})
