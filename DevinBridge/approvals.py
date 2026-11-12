@@ -115,6 +115,33 @@ class ApprovalManager:
                 return r
         return None
 
+    def batch_pending(self) -> dict:
+        """Group pending requests by task — repeated high-risk asks from
+        one task become ONE batch a decider resolves in a single call,
+        instead of an approval drip-feed."""
+        groups: dict[str, list[str]] = {}
+        for r in self.pending():
+            groups.setdefault(str(r.get("task_id") or "?"), []).append(
+                r["request_id"])
+        return {k: v for k, v in groups.items() if v}
+
+    def decide_batch(self, task_id: str, approved: bool,
+                     decided_by: str) -> dict:
+        """One decision for every pending request of a task — audited
+        as a batch so the scope is explicit, not N separate approvals."""
+        ids = self.batch_pending().get(task_id) or []
+        if not ids:
+            return {"ok": False, "error": f"no pending requests for {task_id}"}
+        results = [self.decide(rid, approved,
+                               f"{decided_by} (batch:{len(ids)} tasks' requests)")
+                   for rid in ids]
+        ok_n = sum(1 for r in results if r.get("ok") or r.get("decided"))
+        self._audit("batch_decision", task_id=task_id, count=len(ids),
+                    applied=ok_n, approved=approved,
+                    decided_by=decided_by)
+        return {"ok": True, "decided": ok_n, "total": len(ids),
+                "approved": approved}
+
     # ---------------------------------------------------------- decisions
     def decide(self, request_id: str, approved: bool, decided_by: str,
                expected_session: str = "", expected_fp: str = "") -> dict:

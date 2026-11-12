@@ -196,6 +196,20 @@ def _paths_from(task: dict) -> list[str]:
                   and "/" in p)
 
 
+def failure_fingerprint(t: dict, cls: dict | None = None) -> str:
+    """Root-cause fingerprint: failing checks + implicated paths +
+    diagnosis category. Two differently-named tasks that fail the SAME
+    acceptance on the SAME files share one fingerprint — that is the
+    dedup signal, not the task id."""
+    fails = failing_checks(t)
+    base = "|".join(sorted(
+        str(c.get("check") or c.get("path") or "") for c in fails))
+    paths = "|".join(sorted(cls["paths"] if cls else _paths_from(t)))
+    cat = (cls or {}).get("category", "")
+    return hashlib.sha256(
+        f"{cat}|{base}|{paths}".encode()).hexdigest()[:16]
+
+
 def plan_recovery(coord, task_id: str) -> dict:
     """Detect+diagnose a FAILED task and persist an RCA record. Does
     NOT dispatch — returns the decision for tick()/CLI."""
@@ -295,21 +309,52 @@ def maybe_spawn_recovery(coord, task_id: str, notifier=None) -> dict:
         return _wait(f"grant rejected: {greason}")
 
     rid = cls["id"]
+    fp = failure_fingerprint(t, cls)
+    # Root-cause dedup: another task already burned all recovery
+    # attempts on this exact failure — do NOT spawn a renamed retry.
+    # A retry is only legal as the parent's own bounded ladder step.
+    if attempts == 0:
+        for other in coord.list_tasks():
+            if other["id"] == task_id:
+                continue
+            orec = other.get("recovery") or {}
+            if (orec.get("failure_fp") == fp
+                    and int(orec.get("attempts", 0)) >= MAX_RECOVERY_ATTEMPTS):
+                return _wait(
+                    f"root-cause {fp} already exhausted on "
+                    f"{other['id']} — needs a new hypothesis, not a retry")
     child_id = f"RCV-{task_id}-{attempts + 1}"
     fails = failing_checks(t)
     fail_txt = "\n".join(f"- {c.get('check')}: "
                          f"{(c.get('tail') or c.get('error') or '')[:400]}"
                          for c in fails)[:1600]
     paths = "\n".join(f"  {p}" for p in cls["paths"]) or "  (none recorded)"
+    # Recovery ladder — each attempt gets a DIFFERENT mandate, so a
+    # retry is never a renamed resubmit of the same failed approach:
+    #   1st: fix the implementation root cause
+    #   2nd: reconcile produced artifact against each failing check
+    #   exhausted: escalate — no third attempt under any name
+    if attempts == 0:
+        mandate = (
+            "Fix the ROOT CAUSE so the original acceptance checks pass. "
+            "Do NOT weaken or edit the tests to force them green; do not "
+            "change expected values without evidence. Keep changes "
+            "minimal and inside this repository.")
+    else:
+        mandate = (
+            "RECONCILE STEP (final attempt): do NOT re-implement from "
+            "scratch. Compare the produced artifact against EACH failing "
+            "check above one by one. For every check either (a) repair "
+            "the artifact so the check passes, or (b) write down with "
+            "evidence why the check itself is wrong — tests and expected "
+            "values still may not be edited. If a gap cannot be closed "
+            "in-scope, say so explicitly instead of partial fixes.")
     prompt = (
         f"RECOVERY {rid}: the previous task '{t.get('title','')}' FAILED "
         f"its acceptance checks.\n\nDiagnosis ({cls['category']}, "
         f"{cls['confidence']} confidence):\n{cls['detail'][:400]}\n\n"
         f"Failing checks:\n{fail_txt}\n\nRelevant files:\n{paths}\n\n"
-        "Fix the ROOT CAUSE so the original acceptance checks pass. "
-        "Do NOT weaken or edit the tests to force them green; do not "
-        "change expected values without evidence. Keep changes minimal "
-        "and inside this repository.")
+        + mandate)
     prompt += ("\nForbidden files — never edit: "
                "DB/forever/quest.lua, DB/forever/xp.lua.")
     if t.get("repair_directive"):
@@ -341,7 +386,8 @@ def maybe_spawn_recovery(coord, task_id: str, notifier=None) -> dict:
         def _mark(x):
             r = dict(x.get("recovery") or {})
             r.update({"id": rid, "attempts": attempts + 1,
-                      "child_id": child_id, "state": "COOLDOWN"})
+                      "child_id": child_id, "state": "COOLDOWN",
+                      "failure_fp": fp})
             x["recovery"] = r
         coord._mutate(task_id, _mark)
         st = _load(coord.root / STATE_FILE)
@@ -356,7 +402,8 @@ def maybe_spawn_recovery(coord, task_id: str, notifier=None) -> dict:
     def _mark(x):
         r = dict(x.get("recovery") or {})
         r.update({"id": rid, "attempts": attempts + 1,
-                  "child_id": child_id, "state": "RECOVERY_DISPATCHED"})
+                  "child_id": child_id, "state": "RECOVERY_DISPATCHED",
+                  "failure_fp": fp})
         x["recovery"] = r
     coord._mutate(task_id, _mark)
     disp = coord.dispatch(child_id)

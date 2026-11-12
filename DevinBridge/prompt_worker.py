@@ -458,7 +458,11 @@ def run_with(coord, task_id: str, followup: str = "") -> int:
                     "Outside-worktree writes are DENIED, not awaiting approval. "
                     "If a step cannot be done in-scope, document the blocker "
                     "and continue independent permitted work. Run tests, "
-                    "record concrete evidence; avoid false PASS.\n\n" + prompt)
+                    "record concrete evidence; avoid false PASS. End your "
+                    "report with exactly one verdict line: 'VERDICT: VERIFIED' "
+                    "when you produced and checked the evidence, "
+                    "'VERDICT: FAILED' when a check failed, or "
+                    "'VERDICT: UNKNOWN' when you could not verify.\n\n" + prompt)
 
         def on_update(upd):
             _beat(task_id, {"state": "running", "session_id": sid,

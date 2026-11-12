@@ -177,6 +177,21 @@ def pending_approvals() -> str:
         ensure_ascii=False)
 
 
+def approve_batch(a: dict) -> str:
+    """Decide ALL pending requests of one task in a single audited
+    batch — replaces the high-risk approval drip-feed. Scope is
+    explicit: only that task's currently pending requests."""
+    from .approvals import ApprovalManager
+    c = _coordinator()
+    tid = str(a.get("task_id") or "")
+    if not tid:
+        return json.dumps({"ok": False, "error": "task_id required"})
+    res = ApprovalManager(c.root).decide_batch(
+        tid, approved=bool(a.get("approved", True)),
+        decided_by=str(a.get("decided_by") or "chat-owner"))
+    return json.dumps(res)
+
+
 TOOLS = {
     "get_time": {"fn": get_time, "desc": "current local time"},
     "get_date": {"fn": get_date, "desc": "current local date"},
@@ -195,6 +210,9 @@ TOOLS = {
     "devin_live_status": {"fn": devin_live_status, "desc": "read-only status of existing Devin Desktop sessions and Git"},
     "pending_approvals": {"fn": pending_approvals,
                           "desc": "actions awaiting human approval"},
+    "approve_batch": {"fn": approve_batch,
+                      "desc": "decide all pending approvals of one task "
+                              "in a single audited batch (task_id, approved)"},
     "wow_qa": {"fn": _wow_qa_status,
                "desc": "WoW client/addon automatable QA status (read-only)"},
     "web_fetch": {"fn": _web_fetch,

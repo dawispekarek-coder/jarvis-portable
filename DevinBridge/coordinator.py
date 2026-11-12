@@ -94,6 +94,22 @@ SAFE_TEST_RUNNERS = {
 }
 
 
+def _task_heartbeat(root: Path, task_id: str) -> dict:
+    """Machine-readable worker heartbeat (runs/<id>.live.json) — lets a
+    status reader see what a worker is doing even when the queue file
+    read is slow or the worker is mid-ACP-call."""
+    p = root / "runs" / f"{task_id}.live.json"
+    d = read_json(p, {}) if p.is_file() else {}
+    age = None
+    try:
+        mt = p.stat().st_mtime if p.is_file() else None
+        age = round(_now() - mt, 1) if mt else None
+    except OSError:
+        pass
+    return {"state": d.get("state"), "session_id": d.get("session_id"),
+            "last_update": d.get("last_update"), "age_s": age}
+
+
 def _now() -> float:
     return time.time()
 
@@ -692,7 +708,12 @@ class Coordinator:
             results.append({"check": "git_head_moved", "ok": moved,
                             "detail": f"{t.get('base_head','')[:8]}→{head[:8]}"})
             ok_all = moved
-        st_note = {"checks": results, "verified_at": utcnow()}
+        # machine verdict — a task is VERIFIED only by passed checks,
+        # UNKNOWN when the evidence itself is missing
+        verdict = ("VERIFIED" if ok_all else
+                   ("FAILED" if results else "UNKNOWN"))
+        st_note = {"checks": results, "verified_at": utcnow(),
+                   "verdict": verdict}
         if ok_all:
             self._transition(task_id, "COMPLETE", evidence=st_note,
                              result_head=self._git_head(t["worktree"]),
@@ -953,7 +974,10 @@ class Coordinator:
             "model": self.model,
             "counts": counts,
             "running": [{"id": t["id"], "session_id": t["session_id"],
-                         "status": t["status"]} for t in running],
+                         "status": t["status"],
+                         **({"heartbeat": _task_heartbeat(self.root, t["id"])}
+                            if t["status"] == "RUNNING" else {})}
+                        for t in running],
             "next_eligible": (cand or {}).get("id"),
             "next_eligible_reason": why,
             "global_holds": self.global_holds(),
