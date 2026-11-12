@@ -1,0 +1,241 @@
+"""Canonical companion service: existing visual shell, durable conversations and task streams."""
+from __future__ import annotations
+import asyncio,json,uuid,time,platform,types,urllib.parse,os,secrets
+from pathlib import Path
+from contextlib import asynccontextmanager
+from fastapi import FastAPI,Request,WebSocket,WebSocketDisconnect,HTTPException
+from fastapi.responses import FileResponse,HTMLResponse,JSONResponse,Response
+from fastapi.staticfiles import StaticFiles
+from companion_store import Store,TERMINAL
+from companion_tools import build_registry
+from companion_registry import ToolError
+import companion_settings as defaults
+
+def create_app(root=None,start_worker=True):
+ settings=types.SimpleNamespace(**{k:getattr(defaults,k) for k in ('ROOT','BASE','STATE','ARTIFACTS','REPO','MODEL','OLLAMA','PORT','VERSION','build_id')})
+ if root:
+  settings.ROOT=Path(root);settings.BASE=settings.ROOT/'BrainCore';settings.STATE=settings.BASE/'companion.sqlite';settings.ARTIFACTS=settings.ROOT/'CompanionArtifacts'
+ ui=settings.ROOT/'OriginalJarvisUI';store=Store(settings.STATE);identity=defaults.build_id()
+ control_path=settings.BASE/'companion_control.key'
+ if not control_path.exists():control_path.write_text(secrets.token_urlsafe(32),encoding='ascii')
+ control_token=control_path.read_text(encoding='ascii').strip()
+ registry=build_registry(store,{'id':'status','conversation_id':'status','goal':'status'},settings)
+ @asynccontextmanager
+ async def lifespan(app):
+  maintenance=None
+  if start_worker:
+   from companion_worker import ensure_worker
+   ensure_worker(settings)
+   async def keep_worker():
+    while True:
+     await asyncio.sleep(3);await asyncio.to_thread(ensure_worker,settings)
+   maintenance=asyncio.create_task(keep_worker())
+  try:yield
+  finally:
+   if maintenance:
+    maintenance.cancel()
+    try:await maintenance
+    except asyncio.CancelledError:pass
+ app=FastAPI(title='JARVIS Companion',lifespan=lifespan,docs_url=None,redoc_url=None);app.state.store=store;app.state.settings=settings
+ allowed_hosts={'127.0.0.1','localhost','[::1]'}
+ def trusted_host(host):return host.split(':')[0] in allowed_hosts
+ def trusted_origin(origin,host):return not origin or origin in ('http://'+host,'http://127.0.0.1:'+str(settings.PORT),'http://localhost:'+str(settings.PORT))
+ @app.middleware('http')
+ async def boundary(req,call_next):
+  host=req.headers.get('host','')
+  if not trusted_host(host) or not trusted_origin(req.headers.get('origin'),host) or req.headers.get('sec-fetch-site')=='cross-site':return JSONResponse({'error':'untrusted_origin'},403)
+  response=await call_next(req);response.headers['X-Content-Type-Options']='nosniff';response.headers['X-Frame-Options']='DENY';response.headers['Cache-Control']='no-store';return response
+ def client(req):
+  key=req.headers.get('x-jarvis-client') or req.query_params.get('client')
+  if not key or not 8<=len(key)<=200:raise HTTPException(400,'client_identity_required')
+  return store.conversation(key)
+ def own(id,cid):
+  try:task=store.get(id)
+  except KeyError:raise HTTPException(404,'task_not_found')
+  if task['conversation_id']!=cid:raise HTTPException(404,'task_not_found')
+  return task
+ @app.get('/')
+ def home():
+  text=(ui/'index.html').read_text(encoding='utf-8-sig');text=text.replace('</head>','<script src="/companion-ui.js"></script></head>')
+  return HTMLResponse(text)
+ @app.get('/companion-ui.js')
+ def companion_js():return FileResponse(Path(__file__).with_name('companion_ui.js'),media_type='application/javascript')
+ @app.get('/health')
+ def health():return {'status':'online','service':'RealJarvis V2 companion','build':identity,'worker':store.service_status('worker'),'production_attached':False,'coding_agent_enabled':True,'code_scope':'private_proposals_only','tool_scope':[x['name'] for x in registry.catalog() if x['available']]}
+ @app.get('/api/health')
+ def api_health():return {'status':'online','name':'JARVIS 2.1 Companion','build':identity,'model':{'provider':'ollama-local','model':settings.MODEL,'configured':True,'default_chat':True},'tools':len(registry.entries),'plugins':[],'agents':[{'id':'companion','name':'JARVIS'}],'production_attached':False,'permission_mode':'bounded-autonomy','image_model':'external_sdxl_experimental_text_only_not_master','voice':{'wake_word':''}}
+ @app.get('/api/tools')
+ def tools():return registry.catalog()
+ @app.post('/companion/reload')
+ async def reload_service(req:Request):
+  supplied=req.headers.get('x-jarvis-control','')
+  if not secrets.compare_digest(supplied,control_token):raise HTTPException(403,'local_launcher_only')
+  async def stop():await asyncio.sleep(.3);os._exit(0)
+  asyncio.create_task(stop());return {'restarting':True,'tasks_continue_in_worker':True}
+ @app.get('/api/capabilities')
+ def capabilities():return {'build':identity,'tools':registry.catalog(),'worker':store.service_status('worker'),'model_weights_retrained':False,'memory_persistent':True,'task_persistent':True,'scope':'Actual loaded companion registry. Availability differs from verified task completion.'}
+ @app.get('/api/agents')
+ def agents():return [{'id':'companion','name':'JARVIS','description':'Trvalé úkoly a skutečné nástroje'}]
+ @app.get('/api/plugins')
+ def plugins():return []
+ @app.get('/api/processes')
+ def processes():return []
+ @app.get('/api/stats')
+ def stats():
+  import psutil
+  m=psutil.virtual_memory();d=psutil.disk_usage(str(settings.ROOT.anchor));n=psutil.net_io_counters()
+  return {'cpu':psutil.cpu_percent(),'cpu_count':psutil.cpu_count(),'ram':{'percent':m.percent,'used_gb':round(m.used/1e9,2),'total_gb':round(m.total/1e9,2)},'disk':{'percent':d.percent,'used_gb':round(d.used/1e9,2),'total_gb':round(d.total/1e9,2)},'net':{'sent_mb':round(n.bytes_sent/1e6,2),'recv_mb':round(n.bytes_recv/1e6,2)},'os':{'system':platform.system(),'release':platform.release(),'node':platform.node()},'gpu':{'available':False}}
+ @app.get('/api/chatgpt/status')
+ def chatgpt():return {'connected':False,'provider':'local-ollama'}
+ @app.get('/api/image-models')
+ def image_models():return {'selected':'','models':[]}
+ @app.get('/api/tts/status')
+ async def voice_status():
+  from companion_voice import tts_status
+  return await asyncio.to_thread(tts_status)
+ @app.post('/api/tts')
+ async def tts(req:Request):
+  from companion_voice import synthesize
+  try:
+   body=await req.json();raw=await asyncio.to_thread(synthesize,body.get('text',''));return Response(raw,media_type='audio/wav')
+  except (ValueError,TypeError):return JSONResponse({'error':'invalid_speech'},400)
+  except Exception:return JSONResponse({'error':'voice_temporarily_unavailable'},503)
+ @app.get('/companion/voice')
+ def voice():
+  from companion_voice import tts_status,stt_status
+  return {'tts':tts_status(),'stt':stt_status(settings.ROOT/'SpeechModels')}
+ @app.post('/companion/stt')
+ async def stt(req:Request):
+  client(req)
+  from companion_voice import transcribe
+  length=req.headers.get('content-length','0')
+  if length.isdigit() and int(length)>15000000:return JSONResponse({'error':'audio_too_large'},413)
+  raw=await req.body()
+  try:return await asyncio.to_thread(transcribe,raw,settings.ROOT/'SpeechModels')
+  except ValueError as exc:return JSONResponse({'error':str(exc)},400)
+  except Exception as exc:return JSONResponse({'error':'speech_unavailable','detail':type(exc).__name__},503)
+ @app.get('/companion/state')
+ def state(req:Request):
+  cid=client(req);tasks=store.tasks(cid)
+  brief=req.query_params.get('brief')=='1'
+  for t in tasks:
+   t.pop('state',None)
+   if brief:t['answer']=t['answer'][:400]
+  return {'conversation_id':cid,'build':identity,'tasks':tasks[:12] if brief else tasks,'history':[] if brief else store.history(cid),'schedules':store.schedules(cid),'worker':store.service_status('worker')}
+ @app.post('/companion/tasks')
+ async def submit(req:Request):
+  cid=client(req)
+  try:
+   body=await req.json();return store.submit(cid,body['goal'],body.get('request_id'))
+  except (KeyError,ValueError,TypeError):return JSONResponse({'error':'invalid_task'},400)
+ @app.get('/companion/tasks/{id}')
+ def task(req:Request,id:str):return own(id,client(req))
+ @app.get('/companion/tasks/{id}/artifacts')
+ def artifacts(req:Request,id:str):
+  own(id,client(req));root=(settings.ARTIFACTS/id).resolve()
+  return {'files':[{'name':str(p.relative_to(root)).replace('\\','/'),'bytes':p.stat().st_size} for p in root.rglob('*') if p.is_file()][:50] if root.exists() else []}
+ @app.post('/companion/tasks/{id}/{action}')
+ async def task_action(req:Request,id:str,action:str):
+  own(id,client(req))
+  try:
+   if action=='cancel':return store.cancel(id)
+   if action=='approve':return store.approve(id)
+   if action=='resume':return store.resume(id)
+   if action=='playback':store.event(id,'playback_confirmed',{'at':time.time(),'scope':'Browser reported ended event'});return {'ok':True}
+   raise HTTPException(404,'unknown_action')
+  except ValueError as exc:return JSONResponse({'error':str(exc)},409)
+ @app.get('/companion/artifacts/{id}/{path:path}')
+ def artifact(req:Request,id:str,path:str):
+  own(id,client(req));root=(settings.ARTIFACTS/id).resolve();p=(root/path).resolve()
+  if not p.is_relative_to(root) or not p.is_file():raise HTTPException(404,'artifact_not_found')
+  return FileResponse(p,filename=p.name)
+ @app.get('/api/tool-learning/status')
+ def tool_learning_status():
+  from companion_learning import status
+  return status(settings)
+ @app.get('/api/knowledge/status')
+ def knowledge_status():
+  import knowledge
+  return knowledge.status()
+ @app.get('/api/knowledge/search')
+ @app.get('/api/memory/search')
+ async def knowledge_search(q:str=''):
+  import knowledge
+  return {'results':await asyncio.to_thread(knowledge.search,q[:250])}
+ @app.get('/api/learning/status')
+ def learning_status():
+  from experience_learning import summary
+  return summary()
+ @app.websocket('/ws')
+ async def chat(ws:WebSocket):
+  host=ws.headers.get('host','');origin=ws.headers.get('origin')
+  if not trusted_host(host) or not trusted_origin(origin,host):await ws.close(code=1008);return
+  key=ws.query_params.get('client') or 'legacy-local-desktop'
+  if not 8<=len(key)<=200:await ws.close(code=1008);return
+  cid=store.conversation(key);await ws.accept();lock=asyncio.Lock();seen_tasks={};media_sent=set();last_seq=0;first_sync=True
+  try:last_seq=max(0,int(ws.query_params.get('after','0')))
+  except ValueError:pass
+  async def send(type,**kwargs):
+   async with lock:await ws.send_json({'type':type,**kwargs})
+  await send('info',text='JARVIS Companion • trvalá paměť a úkoly',build=identity)
+  async def updates():
+   nonlocal last_seq,first_sync
+   while True:
+    rows=store.history_after(cid,last_seq) if last_seq else store.history(cid,60)
+    for m in rows:
+     if m['seq']>last_seq:
+      last_seq=m['seq'];await send('user' if m['role']=='user' else 'assistant',text=m['content'],speak=False,historical=first_sync,message_seq=m['seq'],task_id=m['task_id'])
+      if m['role']=='assistant':await send('done')
+    for t in store.tasks(cid,12):
+     old=seen_tasks.get(t['id']);seen_tasks[t['id']]=t['status']
+     if old==t['status']:continue
+     if t['status']=='RUNNING':await send('thinking',text='Pracuji na úkolu: '+t['goal'][:100],task_id=t['id'])
+     if t['status']=='WAITING_APPROVAL':await send('info',text='Úkol čeká na potvrzení konkrétní akce v přehledu Úkoly.',task_id=t['id']);await send('done')
+     if t['status']=='CANCELLED':await send('info',text='Úkol byl zastaven.',task_id=t['id']);await send('done')
+     if t['status'] in TERMINAL and t['id'] not in media_sent:
+      media_sent.add(t['id'])
+      for result in store.tool_results(t['id']):
+       value=(result.get('result') or {}).get('value',{})
+       if result['name']=='image_search' and value.get('items'):await send('media',kind='images',items=value['items'],query=value.get('query',''),tool='image_search')
+       if result['name']=='web_research':
+        from in_app_media import link_cards
+        cards=link_cards(value)
+        if cards:await send('media',kind='search',items=cards,query=value.get('query',''),tool='web_search')
+    first_sync=False;await asyncio.sleep(.35)
+  updater=asyncio.create_task(updates())
+  try:
+   while True:
+    msg=await ws.receive_json();typ=msg.get('type')
+    if typ=='ping':await send('pong');continue
+    text=str(msg.get('text') or msg.get('command') or '').strip()[:6000]
+    normalized=text.casefold().strip().rstrip('.')
+    if typ=='cancel' or normalized in ('stop','zastav','/stop','/cancel'):
+     for t in store.tasks(cid):
+      if t['status'] in ('QUEUED','RUNNING','WAITING_APPROVAL'):store.cancel(t['id'])
+     await send('info',text='Zastavuji vlastní běžící úkoly.');await send('done');continue
+    if typ not in ('chat','command'):await send('info',text='Použij zprávu nebo přehled Úkoly.');continue
+    if not text:continue
+    if msg.get('attachments'):await send('assistant',text='Přílohu zatím neumím zpracovat. Textový úkol mohu provést.',speak=False);await send('done');continue
+    if normalized in ('ok','pokračuj','pokracuj','/continue'):
+     rows=store.tasks(cid);running=next((t for t in rows if t['status'] in ('RUNNING','QUEUED')),None)
+     if running:await send('info',text='Pokračuji v běžícím úkolu: '+running['goal'][:100]);continue
+     previous=next((t for t in rows if t['status'] in ('PARTIAL','FAILED')),None)
+     if previous:
+      try:item=store.resume(previous['id']);await send('accepted',task_id=item['id'],status=item['status']);continue
+      except ValueError:await send('info',text='Nejdřív je potřeba zkontrolovat výsledek rozpracovaného zápisu.');await send('done');continue
+    item=store.submit(cid,text,str(msg.get('request_id') or uuid.uuid4()));await send('accepted',task_id=item['id'],status=item['status']);await send('thinking',text='Úkol je uložený. Připravuji skutečné kroky…',task_id=item['id'])
+  except WebSocketDisconnect:pass
+  finally:
+   updater.cancel()
+   try:await updater
+   except (asyncio.CancelledError,RuntimeError,WebSocketDisconnect):pass
+ @app.api_route('/api/{path:path}',methods=['GET','POST','PUT','PATCH','DELETE'])
+ def unavailable(path:str):return JSONResponse({'error':'unsupported','message':'Tato funkce není připojená k tomuto běhu.'},501)
+ @app.get('/{path:path}')
+ def assets(path:str):
+  p=(ui/path).resolve()
+  if p.is_relative_to(ui.resolve()) and p.is_file():return FileResponse(p)
+  return home()
+ return app
+
+app=create_app()

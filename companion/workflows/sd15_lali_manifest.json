@@ -1,0 +1,11 @@
+{
+  "character": "lali",
+  "source": "H:\\RealJarvis\\OptionalPlugins\\JarvisGodot2D\\LaliPooli2D_Pilot\\studio_library\\refs\\lali\\fullbody.png",
+  "source_sha256": "3ec275007c97aa12342517b6d18584fcb4ea3a071b84112c2b642feff0a507e0",
+  "input_copy": "H:\\RealJarvis\\OptionalPlugins\\ComfyUI\\input\\jarvis_reference_lali_3ec275007c97.png",
+  "workflow": "H:\\RealJarvis\\V2Autonomy_20261027\\BrainCore\\workflows\\sd15_lali_reference_api.json",
+  "mode": "SD1.5 img2img study; no identity lock",
+  "approved_for_publication": false,
+  "animation_completed": false,
+  "reference_source_unchanged": true
+}

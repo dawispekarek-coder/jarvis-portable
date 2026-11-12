@@ -1,0 +1,67 @@
+"""Free experimental SDXL model. One original concept image at a time; never a final reel."""
+from __future__ import annotations
+import io, json, hashlib, uuid, urllib.request, urllib.error
+from pathlib import Path
+from PIL import Image
+from companion_2dimg2motion import GODOT
+OUTPUT=GODOT/"training"/"wholeframe_experiments"/"provider_studies"
+URL="https://stable-diffusion-xl.endpoints.kepler.ai.cloud.ovh.net/api/text2image"
+CHARACTERS={
+ "lali":"original friendly female raccoon with expressive warm brown eyes, small coral pink ear bow, rose pink hoodie with a tiny white heart, naturally striped fluffy raccoon tail, gray-brown cream fur",
+ "pooli":"original playful male raccoon with expressive warm brown eyes, blue hoodie over a cream shirt, brown gray cream fur, striped fluffy raccoon tail",
+}
+POSES={
+ "front":"standing balanced upright, full frontal view, both feet and both paws visible, tail visible",
+ "side":"perfect left-facing anatomically accurate full profile, visible muzzle and true body depth, tail curved clear of feet",
+ "three_quarter":"true full-body three-quarter view, both paws visible, expressive face with strong volumetric anatomy",
+ "back":"true rear fullbody view, hood and striped tail visible, both feet and ears",
+}
+def available():
+ return {"verified":True,"provider":"OVHcloud SDXL 1.0","url":URL,
+         "anonymous_free":True,"anonymous_limit":"2 requests/minute/IP/model",
+         "configured":True,"image_to_image":False,"reference_identity_lock":False,
+         "model_study_only":True,"can_draw_commercial_ready_characters":False,
+         "scope":"Free text-to-image network service; production multi-frame consistency unverified"}
+def draw_study(character="lali",pose="front"):
+ if character not in CHARACTERS or pose not in POSES:
+  raise ValueError("Unsupported character or pose")
+ prompt=(
+  "Single original professional 2D children's animation full-body character design, "
+  +CHARACTERS[character]+", "+POSES[pose]+". "
+  "Appealing original modern hand-drawn cartoon, clean shapes, polished expressive eyes, "  "beautiful precise linework, subtle soft color shading, believable anatomy and costume, "
+  "consistent silhouette, no visible puppet seams, entire figure completely within a "
+  "1024 by 1024 image with plenty of empty white margin above head and under feet, "
+  "crisp white plain background, one single character, no props, no lettering."
+ )
+ negative=("cropped, cut off, duplicate, multiple characters, extra legs, extra arms, "
+   "floating body parts, mechanical joints, dissected, collage, chibi stickman, "
+   "missing tail, missing paws, missing ears, low quality, text, watermark, "
+   "speech bubbles, labels, picture frames")
+ data=json.dumps({"prompt":prompt,"negative_prompt":negative}).encode("utf-8")
+ req=urllib.request.Request(URL,data=data,method="POST",headers={
+  "Content-Type":"application/json","Accept":"application/octet-stream",
+  "User-Agent":"Jarvis2DStudio/experimental"})
+ try:
+  with urllib.request.urlopen(req,timeout=110) as r:
+   if r.status!=200:raise RuntimeError("image endpoint HTTP "+str(r.status))
+   raw=r.read(10_000_000)
+ except urllib.error.HTTPError as e:
+  raise RuntimeError("image endpoint HTTP "+str(e.code)) from e
+ with Image.open(io.BytesIO(raw)) as im:
+  im.verify()
+ with Image.open(io.BytesIO(raw)) as im:
+  if im.format!="PNG" or im.width<512 or im.height<512:
+   raise RuntimeError("unexpected generated image format or size")
+  size=list(im.size)
+ OUTPUT.mkdir(parents=True,exist_ok=True)
+ name=f"{character}_{pose}_{uuid.uuid4().hex[:12]}"
+ out=OUTPUT/(name+".png")
+ with out.open("xb") as f:f.write(raw)
+ report={"name":name,"character":character,"pose":pose,"image_file":str(out),
+  "size":size,"sha256":hashlib.sha256(raw).hexdigest(),
+  "provider":"OVHcloud SDXL anonymous","model_drew_real_pixels":True,
+  "reference_image_used":False,"matches_approved_reference":False,
+  "professional_quality_approved":False,"reel_completed":False,"publish_allowed":False,
+  "scope":"one original unapproved text-to-image study only; reference lock unavailable"}
+ (OUTPUT/(name+".json")).write_text(json.dumps(report,indent=2),encoding="utf-8")
+ return {"verified":True,**report}

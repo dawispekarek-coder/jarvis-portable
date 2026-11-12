@@ -1,0 +1,28 @@
+"""Fixed, local-only video render tool. Does not publish or download."""
+import json,subprocess,uuid
+from pathlib import Path
+
+ROOT=Path(r'H:\RealJarvis\OptionalPlugins\JarvisVideo')
+PY=ROOT/'.venv'/'Scripts'/'python.exe'
+SCRIPT=ROOT/'render_pair.py'
+
+def status():
+    ready=PY.is_file() and SCRIPT.is_file()
+    return {'verified':ready,'ready':ready,'workspace':str(ROOT),
+        'duration_seconds':15,'resolution':[720,1280],
+        'scope':'Original fixed 2D pilot only; never publishes to social networks'}
+
+def render():
+    if not status()['ready']:raise RuntimeError('reel_renderer_missing')
+    target='reel_kapka_hvezdicka_'+uuid.uuid4().hex[:8]+'.mp4'
+    result=subprocess.run([str(PY),str(SCRIPT),'--output',target],
+        cwd=str(ROOT),capture_output=True,text=True,encoding='utf-8',
+        timeout=120,creationflags=getattr(subprocess,'CREATE_NO_WINDOW',0))
+    if result.returncode:raise RuntimeError('reel_render_failed: '+result.stderr[-700:])
+    data=json.loads(result.stdout.strip().splitlines()[-1])
+    p=ROOT/target
+    if p.resolve()!=Path(data['path']).resolve() or not p.is_file():
+        raise RuntimeError('unexpected_reel_output')
+    return {'verified':True,'render':data,'preview_file':str(p),
+        'published':False,'story':'A rainy day is brightened by a friend',
+        'scope':'Local MP4 output only'}

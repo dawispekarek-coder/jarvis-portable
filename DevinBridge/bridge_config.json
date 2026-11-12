@@ -1,0 +1,12 @@
+{
+    "model":  "swe-2-flash-medium",
+    "mode":  "safe",
+    "queue_root":  "__INSTALL_ROOT__\\DevinBridge\\autonomy_scope",
+    "github_token_file":  "",
+    "poll_seconds":  45,
+    "max_retries":  2,
+    "devin_exe":  "%LOCALAPPDATA%\\Programs\\Devin\\resources\\app\\extensions\\windsurf\\devin\\bin\\devin.exe",
+    "protected_worktrees":  [],
+    "approval_host":  "127.0.0.1",
+    "authorized_worktrees":  []
+}

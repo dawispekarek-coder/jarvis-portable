@@ -1,0 +1,17 @@
+{
+    "model":  "swe-2-high",
+    "mode":  "safe",
+    "queue_root":  "C:\\Users\\Dawis\\ForeverRouteJarvis\\DevinBridge\\autonomy_scope",
+    "github_token_file":  "C:\\Users\\Dawis\\ForeverRouteJarvis\\github_token.dpapi",
+    "poll_seconds":  45,
+    "max_retries":  1,
+    "devin_exe":  "C:\\Users\\Dawis\\AppData\\Local\\Programs\\Devin\\resources\\app\\extensions\\windsurf\\devin\\bin\\devin.exe",
+    "protected_worktrees":  [
+                                "C:\\Users\\Dawis\\Saved Games\\ForeverRoute-Devin-1to60-20261110\\ForeverRoute",
+                                "C:\\Users\\Dawis\\Saved Games\\ForeverRoute-db70338"
+                            ],
+    "approval_host":  "100.85.14.66",
+    "authorized_worktrees":  [
+                                 "C:\\Users\\Dawis\\ForeverRouteJarvis\\DevinBridge\\autonomy_scope\\workspaces\\foreverroute-route-audit"
+                             ]
+}

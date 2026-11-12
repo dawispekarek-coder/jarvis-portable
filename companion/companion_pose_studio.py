@@ -1,0 +1,93 @@
+"""Constrained, unapproved whole-character keypose generation with local Flux2 Klein.
+Runs candidates in isolated drafts; never modifies canonical references or publishes video.
+"""
+from __future__ import annotations
+from pathlib import Path
+import json,hashlib,subprocess,sys,time,uuid,os
+ROOT=Path(r'H:\RealJarvis\OptionalPlugins\JarvisGodot2D\LaliPooli2D_Pilot\studio_library')
+WORK=ROOT/'character_understanding'
+WAN=Path(r'H:\RealJarvis\OptionalPlugins\WanGP')
+PY=WAN/'.venv312'/'Scripts'/'python.exe'
+MODEL=WAN/'ckpts'/'flux-2-klein-4b_quanto_bf16_int8.safetensors'
+PHRASES={
+ 'wave_open':'The same character cheerfully waves hello. The arm on the RIGHT SIDE OF THE PICTURE comes from its original shoulder and elbow, the wrist bends naturally, and a LARGE OPEN PALM faces camera with one pink center paw-pad and four pink finger pads clearly visible. The opposite arm stays near the belly. The bushy ringed tail stays attached behind the LEFT hip and is NOT part of the arm.',
+ 'wave_side':'DISTINCT SIDE WAVE FRAME B: the waving arm reaches HORIZONTALLY FAR OUT to picture-right at shoulder level, nearly straight elbow, wrist turned and OPEN PALM pink pads FACING viewer. This is NOT an upward greeting pose by the head. Clearly different shoulder and wrist positions than working reference A. The shoulder, elbow, wrist, paws and the tail are all connected anatomically to the right body parts. Other arm relaxed and tail behind left hip.',
+ 'wave_return':'The waving arm bends DOWN AND INWARD at the shoulder and elbow so the OPEN PALM with pink center and four pink finger pads is beside the CHEST noticeably BELOW the head, not beside the ear and not stretched sideways. Shoulder, elbow, wrist, palm clearly and anatomically connected. Exact identical Pooli style. The fluffy striped tail remains separate behind the left hip.', 'neutral':'The same character stands relaxed facing forward with BOTH arms and paws hanging comfortably at its sides. Each paw grows from its own shoulder and elbow, both hands visible. The fluffy ringed tail is behind the left hip and separate from the arms.',
+ 'three_quarter':'The same character stands at THREE-QUARTER right-facing angle, clearly displaying its full body including ears, two legs, both paws and ringed tail. The arms attach correctly at shoulders. Consistent clothing and markings from image 1.'
+}
+
+def _full_ref(who):return ROOT/'identity_lock_v1'/(who+'_identity_reference.png')
+def _model_ready():return MODEL.is_file() and MODEL.stat().st_size>4_000_000_000 and PY.is_file()
+def _latest():
+    files=sorted((WORK/'pose_candidates').glob('*.json'),key=lambda p:p.stat().st_mtime,reverse=True) if (WORK/'pose_candidates').exists() else []
+    return files[:8]
+
+def _active_job():
+    f=WORK/'pose_candidates'/'active_job.json'
+    if not f.exists():return None
+    try:j=json.loads(f.read_text(encoding='utf-8'))
+    except (ValueError,OSError):return None
+    import psutil
+    if j.get('pid') and psutil.pid_exists(j['pid']):
+        try:
+            if 'run_pose_and_catalog.py' in ' '.join(psutil.Process(j['pid']).cmdline()):return j
+        except psutil.Error:pass
+    return None
+
+def resource_health():
+    """Conservative fail-closed gate for heavy GPU generation on 6 GB GTX1060 / 16 GB RAM."""
+    import shutil, psutil
+    free_h=shutil.disk_usage(str(WAN)).free/(1024**3)
+    free_ram=psutil.virtual_memory().available/(1024**3)
+    reasons=[]
+    if free_h < 15:reasons.append('Disk H free %.1f GB: require at least 15 GB for safe image generation' % free_h)
+    # Memory is monitored for information only; user requested no RAM-based blocking or auto-termination.
+    return {'safe_for_heavy_generation':not reasons,'free_disk_h_gb':round(free_h,2),'available_ram_gb':round(free_ram,2),'minimum_disk_h_gb':15,'minimum_ram_gb':None,'blockers':reasons}
+def status():
+    folder=WORK/'pose_candidates';folder.mkdir(parents=True,exist_ok=True)
+    items=[]
+    for path in sorted(folder.glob('*.json'),key=lambda f:f.stat().st_mtime,reverse=True)[:7]:
+        if path.name=='active_job.json':continue
+        try:
+            j=json.loads(path.read_text(encoding='utf-8'))
+            if 'character' in j:items.append({'file':str(path),'character':j.get('character'),'pose':j.get('pose'),'status':j.get('status'),'approved':False})
+        except (ValueError,OSError):pass
+    return {'verified':True,'model_available':_model_ready(),'engine':'WanGP FLUX.2 Klein 4B local','active_job':_active_job(),'supported_poses':list(PHRASES),'candidates':items,'auto_anatomy_approved':False,'publish_allowed':False,'resources':resource_health()}
+def generate(character='pooli',pose='wave_open'):
+    if character not in ('pooli','lali') or pose not in PHRASES:raise ValueError('unsupported character/pose')
+    if not _model_ready() or not _full_ref(character).is_file():raise RuntimeError('model or immutable identity missing')
+    resources=resource_health()
+    if not resources['safe_for_heavy_generation']:return {'verified':True,'status':'BLOCKED_LOW_RESOURCES','character':character,'pose':pose,'resources':resources,'created_job':False}
+    if _active_job():return {'verified':False,'status':'already_generating','job':_active_job()}
+    import psutil
+    for p in psutil.process_iter(['cmdline']):
+        if 'run_pose_and_catalog.py' in ' '.join(p.info.get('cmdline') or []):
+            return {'verified':False,'status':'another_pose_generation_running'}
+    folder=WORK/'pose_candidates';folder.mkdir(parents=True,exist_ok=True)
+    runid=uuid.uuid4().hex[:12];name=(character+'_FLUX2_'+pose+'_'+runid).upper()
+    from companion_character_database import plan as library_plan
+    picked=library_plan(character,action='wave' if pose.startswith('wave') else pose)
+    if not picked['verified'] or not picked['references']:raise RuntimeError('No verified master in character database')
+    masters=[x for x in picked['references'] if x['kind']=='master']
+    if not masters:raise RuntimeError('Canonical master required for every new pose')
+    work=[x for x in picked['references'] if x['kind']=='pose' and x['status']=='approved_working']
+    details=[x for x in picked['references'] if x['kind']=='detail']
+    refs=[x['path'] for x in (work[:1]+masters[:1]+details[:1] if work and pose.startswith('wave') else masters[:1]+details[:1])]
+    identity=('boy raccoon Pooli with the same blue cap and zipped blue hoodie' if character=='pooli' else 'girl raccoon Lali with the same pink hair bow')
+    prompt='Draw a NEW COMPLETE single-character 2D animation keypose of the SAME '+identity+' from reference image 1, preserving identical facial marking, eyes, fur, body proportions and shading. '+PHRASES[pose]+' Show complete ears, two shoulders and arms, two paws, two legs, two feet and ringed tail with safe margins against pale cream studio background. Anatomically reconstruct occluded body parts and join each arm at the shoulder naturally, no cutout puppet. A polished original cohesive illustration, no other objects or text.'
+    if work and pose.startswith('wave'):
+        prompt+=' Reference image 1 is the approved working wave pose and MUST control the drawing style. Reference image 2 is the immutable canonical original identity. If reference image 3 is present, it is the original OPEN PAW DETAIL with pink pads. Keep the exact character appearance and never redraw as a new design.'
+    elif len(refs)>1:prompt+=' Reference image 2 is the open paw detail with pink pads.'
+    cfg={'model_type':'flux2_klein_4b','image_mode':1,'video_prompt_type':'KI','image_refs':refs,'remove_background_images_ref':0,'prompt':prompt,'negative_prompt':'','resolution':'512x768','num_inference_steps':6,'seed':744230864,'batch_size':1}
+    config=WAN/'settings'/(name+'.json');config.write_text(json.dumps(cfg,indent=2),encoding='utf-8')
+    entry={'character':character,'pose':pose,'status':'GENERATING_UNAPPROVED','runid':runid,'config':str(config),'canonical':str(_full_ref(character)),'canonical_sha256':hashlib.sha256(_full_ref(character).read_bytes()).hexdigest(),'selected_approved_refs':refs,'anatomy_approved':False,'publish_allowed':False,'started_at':time.time()}
+    metadata=folder/(name+'.json');metadata.write_text(json.dumps(entry,indent=2),encoding='utf-8')
+    log=folder/(name+'.log')
+    fd=log.open('wb')
+    try:
+        proc=subprocess.Popen([str(PY),str(WAN/'run_pose_and_catalog.py'),config.name,metadata.name],cwd=str(WAN),stdout=fd,stderr=subprocess.STDOUT,stdin=subprocess.DEVNULL,creationflags=getattr(subprocess,'CREATE_NO_WINDOW',0)|getattr(subprocess,'CREATE_NEW_PROCESS_GROUP',0))
+    finally:fd.close()
+    entry['pid']=proc.pid;entry['log']=str(log)
+    metadata.write_text(json.dumps(entry,indent=2),encoding='utf-8')
+    (folder/'active_job.json').write_text(json.dumps(entry,indent=2),encoding='utf-8')
+    return {'verified':True,'status':'STARTED_NOT_APPROVED','pid':proc.pid,'character':character,'pose':pose,'metadata':str(metadata),'log':str(log),'review_required':True}

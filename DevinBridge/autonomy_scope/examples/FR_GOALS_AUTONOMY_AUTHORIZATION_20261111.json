@@ -1,0 +1,44 @@
+{
+  "program": "FR-GOALS-24H-20261111",
+  "granted_at_utc": "2026-11-11T17:47:54Z",
+  "worktree": "C:\\Users\\Dawis\\ForeverRouteJarvis\\DevinBridge\\autonomy_scope\\workspaces\\foreverroute-route-audit",
+  "allowed_task_ids": [
+    "GOAL-FR-WP-*",
+    "GOAL-FR-HYJAL-*"
+  ],
+  "kinds": [
+    "analyze",
+    "repair-small",
+    "test-add"
+  ],
+  "allowed_paths": [
+    "docs/",
+    "tools/",
+    "tests/",
+    "data/"
+  ],
+  "attempts_per_task": 3,
+  "amendments": [
+    {
+      "at_utc": "2026-11-11T20:05:00Z",
+      "by": "owner",
+      "change": "attempts_per_task 1 -> 3 (bounded same-scope repair retries)",
+      "scope": "unchanged: same expiry, budget, kinds, worktree, task ids"
+    }
+  ],
+  "max_tokens": 200000,
+  "max_cost_usd": 5.0,
+  "expires_epoch": 1794587740.0,
+  "expires_utc": "2026-11-12T17:47:54Z",
+  "renewals": "none without owner approval",
+  "prohibited": [
+    "DB/forever/quest.lua",
+    "DB/forever/xp.lua",
+    "push",
+    "merge",
+    "publish",
+    "WoW client files",
+    "SavedVariables"
+  ],
+  "extended_note": "aligned to 24h trial end by owner delegation 2026-11-12 (same window, same scope)"
+}

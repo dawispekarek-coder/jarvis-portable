@@ -1,0 +1,11 @@
+{
+  "character": "pooli",
+  "source": "H:\\RealJarvis\\OptionalPlugins\\JarvisGodot2D\\LaliPooli2D_Pilot\\studio_library\\refs\\pooli\\fullbody.png",
+  "source_sha256": "6bd98d4045339336b4515fbd56924a162ed849cc51baece86a7f24e6893eac7d",
+  "input_copy": "H:\\RealJarvis\\OptionalPlugins\\ComfyUI\\input\\jarvis_reference_pooli_6bd98d404533.png",
+  "workflow": "H:\\RealJarvis\\V2Autonomy_20261027\\BrainCore\\workflows\\sd15_pooli_reference_api.json",
+  "mode": "SD1.5 img2img study; no identity lock",
+  "approved_for_publication": false,
+  "animation_completed": false,
+  "reference_source_unchanged": true
+}

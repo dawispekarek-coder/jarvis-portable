@@ -1,0 +1,248 @@
+sections=728 catalog_rows=4679
+rows: PICKUP=52922 OBJECTIVE=51902 TURNIN=52922
+
+== finding counts ==
+  GATE_BELOW_CATALOG_MIN: 18
+  GATE_SLACK_ORDERBOUND: 2017
+  GATE_SLACK_POSITION: 87
+  NO_CATALOG_ROW: 158
+  PREREQ_MINLEVEL_INVERSION: 709
+  PREREQ_NOT_IN_SECTION: 1231
+  PREREQ_SATISFIED_XSECTION: 6938
+  PREREQ_TURNIN_AFTER_PICKUP: 3024
+  QUEST_LEVEL_FAR_ABOVE_BAND: 180
+  ROUTE_PREREQ_NOT_IN_CATALOG: 3630
+  ROUTE_PREREQ_REVERSED_VS_CATALOG: 640
+  NO_CATALOG_ROW distinct qids=37 with_endpoint_rows=37 without=0 with_authored_prereqs=6
+
+== PROVEN findings (shipped data contradiction) ==
+  PREREQ_MINLEVEL_INVERSION q119 Return to Verner: 28x in 28 sections
+      17-22 CR Alliance Dwarf Hunter  (registry prereq 118 minLevel=14 > quest minLevel=13)
+      17-22 CR Alliance Dwarf Paladin  (registry prereq 118 minLevel=14 > quest minLevel=13)
+      17-22 CR Alliance Dwarf Priest  (registry prereq 118 minLevel=14 > quest minLevel=13)
+      17-22 CR Alliance Dwarf Rogue  (registry prereq 118 minLevel=14 > quest minLevel=13)
+      17-22 CR Alliance Dwarf Shaman  (registry prereq 118 minLevel=14 > quest minLevel=13)
+      17-22 CR Alliance Dwarf Warrior  (registry prereq 118 minLevel=14 > quest minLevel=13)
+      ... +22 more
+  PREREQ_MINLEVEL_INVERSION q291 The Reports: 11x in 11 sections
+      7-12 CR Alliance Dwarf Hunter  (registry prereq 287 minLevel=7 > quest minLevel=1)
+      7-12 CR Alliance Dwarf Paladin  (registry prereq 287 minLevel=7 > quest minLevel=1)
+      7-12 CR Alliance Dwarf Priest  (registry prereq 287 minLevel=7 > quest minLevel=1)
+      7-12 CR Alliance Dwarf Rogue  (registry prereq 287 minLevel=7 > quest minLevel=1)
+      7-12 CR Alliance Dwarf Shaman  (registry prereq 287 minLevel=7 > quest minLevel=1)
+      7-12 CR Alliance Dwarf Warrior  (registry prereq 287 minLevel=7 > quest minLevel=1)
+      ... +5 more
+  PREREQ_MINLEVEL_INVERSION q554 Stormpike's Deciphering: 28x in 28 sections
+      35-40 CR Alliance High_Order_Skyborne Mage  (registry prereq 551 minLevel=30 > quest minLevel=28)
+      40-45 CR Alliance Dwarf Hunter  (registry prereq 551 minLevel=30 > quest minLevel=28)
+      40-45 CR Alliance Dwarf Paladin  (registry prereq 551 minLevel=30 > quest minLevel=28)
+      40-45 CR Alliance Dwarf Priest  (registry prereq 551 minLevel=30 > quest minLevel=28)
+      40-45 CR Alliance Dwarf Rogue  (registry prereq 551 minLevel=30 > quest minLevel=28)
+      40-45 CR Alliance Dwarf Shaman  (registry prereq 551 minLevel=30 > quest minLevel=28)
+      ... +22 more
+  PREREQ_MINLEVEL_INVERSION q874 Mahren Skyseer: 4x in 4 sections
+      26-30 CR Horde Tauren Druid  (registry prereq 913 minLevel=10 > quest minLevel=9)
+      26-30 CR Horde Tauren Hunter  (registry prereq 913 minLevel=10 > quest minLevel=9)
+      26-30 CR Horde Tauren Shaman  (registry prereq 913 minLevel=10 > quest minLevel=9)
+      26-30 CR Horde Tauren Warrior  (registry prereq 913 minLevel=10 > quest minLevel=9)
+  PREREQ_MINLEVEL_INVERSION q917 Webwood Egg: 5x in 5 sections
+      1-7 CR Alliance NightElf Druid  (registry prereq 916 minLevel=3 > quest minLevel=1)
+      1-7 CR Alliance NightElf Hunter  (registry prereq 916 minLevel=3 > quest minLevel=1)
+      1-7 CR Alliance NightElf Priest  (registry prereq 916 minLevel=3 > quest minLevel=1)
+      1-7 CR Alliance NightElf Rogue  (registry prereq 916 minLevel=3 > quest minLevel=1)
+      1-7 CR Alliance NightElf Warrior  (registry prereq 916 minLevel=3 > quest minLevel=1)
+  PREREQ_MINLEVEL_INVERSION q1082 Update for Sentinel Thenysil: 4x in 2 sections
+      30-35 CR Alliance Gnome Warlock  (registry prereq 1083 minLevel=20 > quest minLevel=17)
+      30-35 CR Alliance Human Warlock  (registry prereq 1083 minLevel=20 > quest minLevel=17)
+  PREREQ_MINLEVEL_INVERSION q1271 Feast at the Blue Recluse: 28x in 28 sections
+      35-40 CR Alliance High_Order_Skyborne Mage  (registry prereq 1258 minLevel=33 > quest minLevel=30)
+      40-45 CR Alliance Dwarf Hunter  (registry prereq 1258 minLevel=33 > quest minLevel=30)
+      40-45 CR Alliance Dwarf Paladin  (registry prereq 1258 minLevel=33 > quest minLevel=30)
+      40-45 CR Alliance Dwarf Priest  (registry prereq 1258 minLevel=33 > quest minLevel=30)
+      40-45 CR Alliance Dwarf Rogue  (registry prereq 1258 minLevel=33 > quest minLevel=30)
+      40-45 CR Alliance Dwarf Shaman  (registry prereq 1258 minLevel=33 > quest minLevel=30)
+      ... +22 more
+  PREREQ_MINLEVEL_INVERSION q1435 The Burning of Spirits: 28x in 28 sections
+      30-35 CR Horde Orc Hunter  (registry prereq 1433 minLevel=30 > quest minLevel=25)
+      30-35 CR Horde Orc Mage  (registry prereq 1433 minLevel=30 > quest minLevel=25)
+      30-35 CR Horde Orc Rogue  (registry prereq 1433 minLevel=30 > quest minLevel=25)
+      30-35 CR Horde Orc Shaman  (registry prereq 1433 minLevel=30 > quest minLevel=25)
+      30-35 CR Horde Orc Warlock  (registry prereq 1433 minLevel=30 > quest minLevel=25)
+      30-35 CR Horde Orc Warrior  (registry prereq 1433 minLevel=30 > quest minLevel=25)
+      ... +22 more
+  PREREQ_MINLEVEL_INVERSION q2976 A Grim Discovery: 28x in 28 sections
+      40-45 CR Horde Orc Hunter  (registry prereq 2974 minLevel=38 > quest minLevel=37)
+      40-45 CR Horde Orc Mage  (registry prereq 2974 minLevel=38 > quest minLevel=37)
+      40-45 CR Horde Orc Rogue  (registry prereq 2974 minLevel=38 > quest minLevel=37)
+      40-45 CR Horde Orc Shaman  (registry prereq 2974 minLevel=38 > quest minLevel=37)
+      40-45 CR Horde Orc Warlock  (registry prereq 2974 minLevel=38 > quest minLevel=37)
+      40-45 CR Horde Orc Warrior  (registry prereq 2974 minLevel=38 > quest minLevel=37)
+      ... +22 more
+  PREREQ_MINLEVEL_INVERSION q4298 Becoming a Parent: 26x in 26 sections
+      45-50 CR Alliance Dwarf Hunter  (registry prereq 4297 minLevel=38 > quest minLevel=37)
+      45-50 CR Alliance Dwarf Priest  (registry prereq 4297 minLevel=38 > quest minLevel=37)
+      45-50 CR Alliance Dwarf Rogue  (registry prereq 4297 minLevel=38 > quest minLevel=37)
+      45-50 CR Alliance Dwarf Shaman  (registry prereq 4297 minLevel=38 > quest minLevel=37)
+      45-50 CR Alliance Dwarf Warrior  (registry prereq 4297 minLevel=38 > quest minLevel=37)
+      45-50 CR Alliance Gnome Mage  (registry prereq 4297 minLevel=38 > quest minLevel=37)
+      ... +20 more
+  PREREQ_TURNIN_AFTER_PICKUP q143 Messenger to Westfall: 4x in 4 sections
+      12-17 CR Alliance Dwarf Hunter  (registry prereq 121 turned only in later band(s): 17-22 CR Alliance Dwarf Hunter)
+      12-17 CR Alliance Gnome Priest  (registry prereq 121 turned only in later band(s): 17-22 CR Alliance Dwarf Hunter)
+      12-17 CR Alliance Human Warlock  (registry prereq 121 turned only in later band(s): 17-22 CR Alliance Dwarf Hunter)
+      12-17 CR Alliance NightElf Hunter  (registry prereq 121 turned only in later band(s): 17-22 CR Alliance Dwarf Hunter)
+  PREREQ_TURNIN_AFTER_PICKUP q144 Messenger to Westfall: 10x in 10 sections
+      12-17 CR Alliance Dwarf Rogue  (registry prereq 143 turned only in later band(s): 17-22 CR Alliance Dwarf Rogue)
+      12-17 CR Alliance Dwarf Shaman  (registry prereq 143 turned only in later band(s): 17-22 CR Alliance Dwarf Rogue)
+      12-17 CR Alliance Gnome Mage  (registry prereq 143 turned only in later band(s): 17-22 CR Alliance Dwarf Rogue)
+      12-17 CR Alliance Gnome Rogue  (registry prereq 143 turned only in later band(s): 17-22 CR Alliance Dwarf Rogue)
+      12-17 CR Alliance High_Order_Skyborne Druid  (registry prereq 143 turned only in later band(s): 17-22 CR Alliance Dwarf Rogue)
+      12-17 CR Alliance High_Order_Skyborne Hunter  (registry prereq 143 turned only in later band(s): 17-22 CR Alliance Dwarf Rogue)
+      ... +4 more
+  PREREQ_TURNIN_AFTER_PICKUP q231 A Daughter's Love: 2x in 2 sections
+      35-40 CR Alliance Gnome Priest  (registry prereq 229 turned only in later band(s): 40-45 CR Alliance Gnome Priest)
+      35-40 CR Alliance Human Mage  (registry prereq 229 turned only in later band(s): 40-45 CR Alliance Gnome Priest)
+  PREREQ_TURNIN_AFTER_PICKUP q353 Stormpike's Delivery: 23x in 23 sections
+      12-17 CR Alliance High_Order_Skyborne Druid  (registry prereq 1097 turned only in later band(s): 12-17 CR Alliance Dwarf Hunter)
+      12-17 CR Alliance High_Order_Skyborne Hunter  (registry prereq 1097 turned only in later band(s): 12-17 CR Alliance Dwarf Hunter)
+      12-17 CR Alliance High_Order_Skyborne Rogue  (registry prereq 1097 turned only in later band(s): 12-17 CR Alliance Dwarf Hunter)
+      12-17 CR Alliance High_Order_Skyborne Warrior  (registry prereq 1097 turned only in later band(s): 12-17 CR Alliance Dwarf Hunter)
+      12-17 CR Alliance Human Warrior  (registry prereq 1097 turned only in later band(s): 12-17 CR Alliance Dwarf Hunter)
+      7-12 CR Alliance Dwarf Hunter  (registry prereq 1097 turned only in later band(s): 12-17 CR Alliance Dwarf Hunter)
+      ... +17 more
+  PREREQ_TURNIN_AFTER_PICKUP q427 At War With The Scarlet Crusade: 1x in 1 sections
+      1-7 CR Horde Undead Paladin  (registry prereq 383 turned only in later band(s): 7-12 CR Horde Undead Paladin)
+  PREREQ_TURNIN_AFTER_PICKUP q455 The Algaz Gauntlet: 11x in 11 sections
+      17-22 CR Alliance Dwarf Hunter  (registry prereq 468 turned only in later band(s): 22-25 CR Alliance Dwarf Hunter)
+      17-22 CR Alliance Dwarf Priest  (registry prereq 468 turned only in later band(s): 22-25 CR Alliance Dwarf Hunter)
+      17-22 CR Alliance High_Order_Skyborne Druid  (registry prereq 468 turned only in later band(s): 22-25 CR Alliance Dwarf Hunter)
+      17-22 CR Alliance High_Order_Skyborne Hunter  (registry prereq 468 turned only in later band(s): 22-25 CR Alliance Dwarf Hunter)
+      17-22 CR Alliance High_Order_Skyborne Rogue  (registry prereq 468 turned only in later band(s): 22-25 CR Alliance Dwarf Hunter)
+      17-22 CR Alliance High_Order_Skyborne Warrior  (registry prereq 468 turned only in later band(s): 22-25 CR Alliance Dwarf Hunter)
+      ... +5 more
+  PREREQ_TURNIN_AFTER_PICKUP q492 A New Plague: 3x in 3 sections
+      1-7 CR Horde Undead Paladin  (registry prereq 369 turned only in later band(s): 7-12 CR Horde Undead Paladin)
+      1-7 CR Horde Undead Priest  (registry prereq 369 turned only in later band(s): 7-12 CR Horde Undead Paladin)
+      1-7 CR Horde Undead Warlock  (registry prereq 369 turned only in later band(s): 7-12 CR Horde Undead Paladin)
+  PREREQ_TURNIN_AFTER_PICKUP q714 Gyro... What?: 24x in 24 sections
+      35-40 CR Alliance Dwarf Hunter  (registry prereq 713 turned only in later band(s): 40-45 CR Alliance Dwarf Hunter)
+      35-40 CR Alliance Dwarf Paladin  (registry prereq 713 turned only in later band(s): 40-45 CR Alliance Dwarf Hunter)
+      35-40 CR Alliance Dwarf Priest  (registry prereq 713 turned only in later band(s): 40-45 CR Alliance Dwarf Hunter)
+      35-40 CR Alliance Dwarf Rogue  (registry prereq 713 turned only in later band(s): 40-45 CR Alliance Dwarf Hunter)
+      35-40 CR Alliance Dwarf Shaman  (registry prereq 713 turned only in later band(s): 40-45 CR Alliance Dwarf Hunter)
+      35-40 CR Alliance Dwarf Warrior  (registry prereq 713 turned only in later band(s): 40-45 CR Alliance Dwarf Hunter)
+      ... +18 more
+  PREREQ_TURNIN_AFTER_PICKUP q851 Verog the Dervish: 7x in 7 sections
+      7-12 CR Horde Orc Mage  (registry prereq 850 turned only in later band(s): 12-17 CR Horde Orc Mage)
+      7-12 CR Horde Orc Rogue  (registry prereq 850 turned only in later band(s): 12-17 CR Horde Orc Mage)
+      7-12 CR Horde Tauren Shaman  (registry prereq 850 turned only in later band(s): 12-17 CR Horde Orc Mage)
+      7-12 CR Horde Troll Mage  (registry prereq 850 turned only in later band(s): 12-17 CR Horde Orc Mage)
+      7-12 CR Horde Troll Rogue  (registry prereq 850 turned only in later band(s): 12-17 CR Horde Orc Mage)
+      7-12 CR Horde Undead Mage  (registry prereq 850 turned only in later band(s): 12-17 CR Horde Orc Mage)
+      ... +1 more
+  PREREQ_TURNIN_AFTER_PICKUP q1091 Kaela's Update: 14x in 7 sections
+      17-22 CR Alliance Dwarf Warrior  (registry prereq 1079 turned only in later band(s): 22-25 CR Alliance Dwarf Warrior)
+      17-22 CR Alliance Gnome Warrior  (registry prereq 1079 turned only in later band(s): 22-25 CR Alliance Dwarf Warrior)
+      17-22 CR Alliance Human Hunter  (registry prereq 1079 turned only in later band(s): 22-25 CR Alliance Dwarf Warrior)
+      17-22 CR Alliance Human Paladin  (registry prereq 1079 turned only in later band(s): 22-25 CR Alliance Dwarf Warrior)
+      17-22 CR Alliance NightElf Druid  (registry prereq 1079 turned only in later band(s): 22-25 CR Alliance Dwarf Warrior)
+      17-22 CR Alliance NightElf Priest  (registry prereq 1079 turned only in later band(s): 22-25 CR Alliance Dwarf Warrior)
+      ... +1 more
+  PREREQ_TURNIN_AFTER_PICKUP q1285 Daelin's Men: 24x in 24 sections
+      35-40 CR Alliance Dwarf Hunter  (registry prereq 1259 turned only in later band(s): 40-45 CR Alliance Dwarf Hunter)
+      35-40 CR Alliance Dwarf Paladin  (registry prereq 1259 turned only in later band(s): 40-45 CR Alliance Dwarf Hunter)
+      35-40 CR Alliance Dwarf Priest  (registry prereq 1259 turned only in later band(s): 40-45 CR Alliance Dwarf Hunter)
+      35-40 CR Alliance Dwarf Rogue  (registry prereq 1259 turned only in later band(s): 40-45 CR Alliance Dwarf Hunter)
+      35-40 CR Alliance Dwarf Shaman  (registry prereq 1259 turned only in later band(s): 40-45 CR Alliance Dwarf Hunter)
+      35-40 CR Alliance Dwarf Warrior  (registry prereq 1259 turned only in later band(s): 40-45 CR Alliance Dwarf Hunter)
+      ... +18 more
+  PREREQ_TURNIN_AFTER_PICKUP q1302 James Hyal: 15x in 15 sections
+      35-40 CR Alliance Dwarf Hunter  (registry prereq 1301 turned only in later band(s): 40-45 CR Alliance Dwarf Hunter)
+      35-40 CR Alliance Dwarf Priest  (registry prereq 1301 turned only in later band(s): 40-45 CR Alliance Dwarf Hunter)
+      35-40 CR Alliance Dwarf Rogue  (registry prereq 1301 turned only in later band(s): 40-45 CR Alliance Dwarf Hunter)
+      35-40 CR Alliance Dwarf Shaman  (registry prereq 1301 turned only in later band(s): 40-45 CR Alliance Dwarf Hunter)
+      35-40 CR Alliance Dwarf Warrior  (registry prereq 1301 turned only in later band(s): 40-45 CR Alliance Dwarf Hunter)
+      35-40 CR Alliance Gnome Rogue  (registry prereq 1301 turned only in later band(s): 40-45 CR Alliance Dwarf Hunter)
+      ... +9 more
+  PREREQ_TURNIN_AFTER_PICKUP q1319 The Black Shield: 2x in 2 sections
+      35-40 CR Alliance Gnome Warlock  (registry prereq 1253 turned only in later band(s): 40-45 CR Alliance Gnome Warlock)
+      35-40 CR Alliance Human Warlock  (registry prereq 1253 turned only in later band(s): 40-45 CR Alliance Gnome Warlock)
+  PREREQ_TURNIN_AFTER_PICKUP q1371 Gizmo for Warug: 3x in 3 sections
+      35-40 CR Alliance NightElf Hunter  (registry prereq 1369 turned only in later band(s): 40-45 CR Alliance NightElf Hunter)
+      35-40 CR Alliance NightElf Priest  (registry prereq 1369 turned only in later band(s): 40-45 CR Alliance NightElf Hunter)
+      35-40 CR Alliance NightElf Rogue  (registry prereq 1369 turned only in later band(s): 40-45 CR Alliance NightElf Hunter)
+  PREREQ_TURNIN_AFTER_PICKUP q1792 Whirlwind Weapon: 5x in 5 sections
+      30-35 CR Alliance Dwarf Warrior  (registry prereq 1713 turned only in later band(s): 35-40 CR Alliance Dwarf Warrior)
+      30-35 CR Alliance Gnome Warrior  (registry prereq 1713 turned only in later band(s): 35-40 CR Alliance Dwarf Warrior)
+      30-35 CR Alliance High_Order_Skyborne Warrior  (registry prereq 1713 turned only in later band(s): 35-40 CR Alliance Dwarf Warrior)
+      30-35 CR Alliance Human Warrior  (registry prereq 1713 turned only in later band(s): 35-40 CR Alliance Dwarf Warrior)
+      30-35 CR Alliance NightElf Warrior  (registry prereq 1713 turned only in later band(s): 35-40 CR Alliance Dwarf Warrior)
+  PREREQ_TURNIN_AFTER_PICKUP q2641 Sprinkle's Secret Ingredient: 4x in 4 sections
+      45-50 CR Alliance Human Warrior  (registry prereq 2606 turned only in later band(s): 50-55 CR Alliance Human Warrior)
+      45-50 CR Alliance NightElf Hunter  (registry prereq 2606 turned only in later band(s): 50-55 CR Alliance Human Warrior)
+      45-50 CR Alliance NightElf Priest  (registry prereq 2606 turned only in later band(s): 50-55 CR Alliance Human Warrior)
+      45-50 CR Alliance NightElf Rogue  (registry prereq 2606 turned only in later band(s): 50-55 CR Alliance Human Warrior)
+  PREREQ_TURNIN_AFTER_PICKUP q2662 Noggenfogger Elixir: 4x in 4 sections
+      45-50 CR Alliance Human Warrior  (registry prereq 2661 turned only in later band(s): 50-55 CR Alliance Human Warrior)
+      45-50 CR Alliance NightElf Hunter  (registry prereq 2661 turned only in later band(s): 50-55 CR Alliance Human Warrior)
+      45-50 CR Alliance NightElf Priest  (registry prereq 2661 turned only in later band(s): 50-55 CR Alliance Human Warrior)
+      45-50 CR Alliance NightElf Rogue  (registry prereq 2661 turned only in later band(s): 50-55 CR Alliance Human Warrior)
+  PREREQ_TURNIN_AFTER_PICKUP q4005 Aquementas: 2x in 2 sections
+      50-55 CR Alliance Human Warrior  (registry prereq 4084 turned only in later band(s): 55-60 CR Alliance Human Warrior)
+      50-55 CR Alliance NightElf Druid  (registry prereq 4084 turned only in later band(s): 55-60 CR Alliance Human Warrior)
+  PREREQ_TURNIN_AFTER_PICKUP q4021 Counterattack!: 4x in 4 sections
+      7-12 CR Horde Tauren Hunter  (registry prereq 852 turned only in later band(s): 12-17 CR Horde Tauren Hunter)
+      7-12 CR Horde Undead Paladin  (registry prereq 852 turned only in later band(s): 12-17 CR Horde Tauren Hunter)
+      7-12 CR Horde Undead Rogue  (registry prereq 852 turned only in later band(s): 12-17 CR Horde Tauren Hunter)
+      7-12 CR Horde Undead Warlock  (registry prereq 852 turned only in later band(s): 12-17 CR Horde Tauren Hunter)
+  PREREQ_TURNIN_AFTER_PICKUP q4961 Cleansing of the Orb of Orahil: 2x in 2 sections
+      35-40 CR Alliance Gnome Warlock  (registry prereq 1799 turned only in later band(s): 40-45 CR Alliance Gnome Warlock)
+      35-40 CR Alliance Human Warlock  (registry prereq 1799 turned only in later band(s): 40-45 CR Alliance Gnome Warlock)
+  PREREQ_TURNIN_AFTER_PICKUP q5041 Supplies for the Crossroads: 3x in 3 sections
+      12-17 CR Horde Tauren Hunter  (registry prereq 871 turned only in later band(s): 17-22 CR Horde Tauren Hunter)
+      7-12 CR Horde Tauren Shaman  (registry prereq 871 turned only in later band(s): 17-22 CR Horde Tauren Hunter)
+      7-12 CR Horde Tauren Warrior  (registry prereq 871 turned only in later band(s): 17-22 CR Horde Tauren Hunter)
+
+== top CANDIDATE findings ==
+  PREREQ_NOT_IN_SECTION q1268 Suspicious Hoofprints: 288x bands=30-35 (authored prereq 1252 has no turnin anywhere in this route; turned only in other profile(s): 40-45 CR Alliance Dwarf Hunter, 40-45 CR Alliance Dwarf Paladin, 40-45 CR Alliance Dwarf Priest, 40-45 CR Alliance Dwarf Rogue, 40-45 CR Alliance Dwarf Shaman, 40-45 CR Alliance Dwarf Warrior +18 more)
+  PREREQ_TURNIN_AFTER_PICKUP q1282 They Call Him Smiling Jim: 217x bands=35-40 (authored prereq 1252 turned only in later band(s): 40-45 CR Alliance Dwarf Hunter)
+  PREREQ_TURNIN_AFTER_PICKUP q1284 Suspicious Hoofprints: 194x bands=35-40 (authored prereq 1252 turned only in later band(s): 40-45 CR Alliance Dwarf Hunter)
+  PREREQ_TURNIN_AFTER_PICKUP q2581 Snickerfang Jowls: 192x bands=45-50,50-55 (authored prereq 2583 turned at row(s) [111] later in this section)
+  PREREQ_NOT_IN_SECTION q1282 They Call Him Smiling Jim: 172x bands=35-40 (authored prereq 1251 has no turnin anywhere in this route; turned only in other profile(s): 30-35 CR Horde Orc Hunter, 30-35 CR Horde Orc Rogue, 30-35 CR Horde Orc Shaman, 30-35 CR Horde Orc Warlock, 30-35 CR Horde Orc Warrior, 30-35 CR Horde Tauren Druid +18 more)
+  PREREQ_TURNIN_AFTER_PICKUP q2585 The Decisive Striker: 144x bands=45-50,50-55 (authored prereq 2583 turned at row(s) [111] later in this section)
+  PREREQ_MINLEVEL_INVERSION q1106 Martek the Exiled: 112x bands=30-35,35-40 (authored prereq 1104 minLevel=28 > quest minLevel=26)
+  PREREQ_TURNIN_AFTER_PICKUP q8366 Southsea Shakedown: 96x bands=40-45,45-50 (authored prereq 2875 turned at row(s) [51] later in this section)
+  PREREQ_TURNIN_AFTER_PICKUP q2601 The Basilisk's Bite: 96x bands=45-50,50-55 (authored prereq 2583 turned at row(s) [111] later in this section)
+  PREREQ_TURNIN_AFTER_PICKUP q2603 Vulture's Vigor: 96x bands=45-50,50-55 (authored prereq 2583 turned at row(s) [111] later in this section)
+  PREREQ_TURNIN_AFTER_PICKUP q1268 Suspicious Hoofprints: 96x bands=30-35 (authored prereq 1269 turned only in later band(s): 35-40 CR Horde Orc Hunter)
+  GATE_SLACK_ORDERBOUND q1104 Salt Flat Venom: 56x bands=26-30,30-35 (levelGate=22 < minLevel=28; orderGate=29 already covers)
+  GATE_SLACK_ORDERBOUND q1105 Hardened Shells: 56x bands=26-30,30-35 (levelGate=22 < minLevel=28; orderGate=29 already covers)
+  GATE_SLACK_ORDERBOUND q577 Some Assembly Required: 56x bands=35-40 (levelGate=30 < minLevel=31; orderGate=35 already covers)
+  GATE_SLACK_ORDERBOUND q628 Excelsior: 56x bands=35-40 (levelGate=30 < minLevel=31; orderGate=37 already covers)
+  GATE_SLACK_ORDERBOUND q621 Zanzil's Secret: 56x bands=40-45,45-50 (levelGate=30 < minLevel=35; orderGate=43 already covers)
+  GATE_SLACK_ORDERBOUND q974 Finding the Source: 56x bands=50-55,55-60 (levelGate=47 < minLevel=51; orderGate=54 already covers)
+  PREREQ_MINLEVEL_INVERSION q4294 ... and a Batch of Ooze: 56x bands=55-60 (authored prereq 3882 minLevel=49 > quest minLevel=48)
+  GATE_SLACK_ORDERBOUND q705 Pearl Diving: 54x bands=35-40 (levelGate=22 < minLevel=30; orderGate=36 already covers)
+  PREREQ_TURNIN_AFTER_PICKUP q5149 Pamela's Doll: 54x bands=50-55,55-60 (authored prereq 5601 turned at row(s) [305] later in this section)
+  PREREQ_MINLEVEL_INVERSION q5821 Bodyguard for Hire: 48x bands=30-35,35-40 (authored prereq 5943 minLevel=32 > quest minLevel=30)
+  PREREQ_NOT_IN_SECTION q2767 Rescue OOX-22/FE!: 48x bands=40-45,45-50 (registry prereq 2766 has no turnin anywhere in this route; never turned in any profile)
+  PREREQ_TURNIN_AFTER_PICKUP q8365 Pirate Hats Ahoy!: 48x bands=40-45,45-50 (authored prereq 2875 turned at row(s) [51] later in this section)
+  GATE_SLACK_ORDERBOUND q648 Rescue OOX-17/TN!: 48x bands=45-50,50-55 (levelGate=40 < minLevel=43; orderGate=47 already covers)
+  PREREQ_NOT_IN_SECTION q648 Rescue OOX-17/TN!: 48x bands=45-50,50-55 (registry prereq 351 has no turnin anywhere in this route; never turned in any profile)
+  GATE_SLACK_ORDERBOUND q836 Rescue OOX-09/HL!: 48x bands=45-50,50-55 (levelGate=40 < minLevel=43; orderGate=47 already covers)
+  PREREQ_NOT_IN_SECTION q836 Rescue OOX-09/HL!: 48x bands=45-50,50-55 (registry prereq 485 has no turnin anywhere in this route; never turned in any profile)
+  PREREQ_TURNIN_AFTER_PICKUP q3914 Linken's Sword: 48x bands=50-55 (registry prereq 3913 turned at row(s) [230] later in this section (RC repair reorders registry edges in-section))
+  PREREQ_TURNIN_AFTER_PICKUP q3908 It's a Secret to Everybody: 48x bands=50-55 (registry prereq 3845 turned at row(s) [194] later in this section (RC repair reorders registry edges in-section))
+  PREREQ_TURNIN_AFTER_PICKUP q3845 It's a Secret to Everybody: 48x bands=50-55 (registry prereq 3844 turned at row(s) [233] later in this section (RC repair reorders registry edges in-section))
+  PREREQ_MINLEVEL_INVERSION q3128 Natural Materials: 48x bands=45-50 (authored prereq 7003 minLevel=45 > quest minLevel=40)
+  PREREQ_TURNIN_AFTER_PICKUP q5211 Defenders of Darrowshire: 47x bands=55-60 (registry prereq 5241 turned at row(s) [308] later in this section (RC repair reorders registry edges in-section))
+  PREREQ_TURNIN_AFTER_PICKUP q2641 Sprinkle's Secret Ingredient: 44x bands=45-50,50-55 (registry prereq 2606 turned at row(s) [17] later in this section (RC repair reorders registry edges in-section))
+  PREREQ_TURNIN_AFTER_PICKUP q2662 Noggenfogger Elixir: 42x bands=45-50,50-55 (registry prereq 2661 turned at row(s) [68] later in this section (RC repair reorders registry edges in-section))
+  PREREQ_TURNIN_AFTER_PICKUP q3912 Meet at the Grave: 41x bands=50-55 (registry prereq 3909 turned at row(s) [164] later in this section (RC repair reorders registry edges in-section))
+  PREREQ_TURNIN_AFTER_PICKUP q5092 Clear the Way: 38x bands=50-55 (authored prereq 5090 turned at row(s) [257] later in this section)
+  PREREQ_TURNIN_AFTER_PICKUP q1338 Stormpike's Order: 33x bands=12-17,7-12 (authored prereq 353 turned at row(s) [59] later in this section)
+  PREREQ_TURNIN_AFTER_PICKUP q6383 The Ashenvale Hunt: 32x bands=17-22 (authored prereq 235 turned at row(s) [174] later in this section)
+  PREREQ_TURNIN_AFTER_PICKUP q581 Hunt for Yenniku: 29x bands=30-35 (authored prereq 596 turned only in later band(s): 35-40 CR Horde Orc Hunter)
+  GATE_SLACK_ORDERBOUND q163 Raven Hill: 28x bands=17-22,22-25 (levelGate=1 < minLevel=17; orderGate=19 already covers)
+
+wrote C:\Users\Dawis\ForeverRouteJarvis\DevinBridge\autonomy_scope\workspaces\foreverroute-route-audit\tools\audit_56x13_findings.refresh.tmp.csv

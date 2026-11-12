@@ -1,0 +1,107 @@
+"""Jarvis production stages: idea -> illustrated 8-panel previsualization -> approved scene keyframes -> videos."""
+import json,urllib.request,hashlib,uuid,time
+from pathlib import Path
+from PIL import Image,ImageDraw,ImageFont,ImageOps
+ROOT=Path(r"H:\RealJarvis\OptionalPlugins\JarvisGodot2D\LaliPooli2D_Pilot\studio_library")
+M=ROOT/"identity_lock_v1"/"identity_manifest.json"
+OUT=ROOT/"story_to_video"
+BEATS=["setup","problem","discovery","decision","attempt","complication","resolution","payoff"]
+def canonical():
+ m=json.loads(M.read_text(encoding="utf8"))
+ for who in ("lali","pooli"):
+  c=m["characters"][who];p=Path(c["canonical"])
+  if not p.is_file() or hashlib.sha256(p.read_bytes()).hexdigest()!=c["hash"]:raise RuntimeError("Canonical identity mismatch: "+who)
+ return m
+def plan(goal):
+ prompt=("Create an ORIGINAL, visually understandable, silent 20-second Lali and Pooli raccoon cartoon in CZECH. "
+ "Lali is the girl with a pink bow; Pooli the boy in a blue cap. Never change their looks. "
+ "Invent a clever everyday-life problem and emotionally satisfying payoff. Return ONLY valid JSON object "
+ "with title, idea, shots: exactly 8 distinct shots, one for each beat in exact order: "+", ".join(BEATS)+". "
+ "Each shot has beat, camera (WIDE/MEDIUM/CLOSE), action (clear physical action), prop, lali_emotion, "
+ "pooli_emotion, setting, positions (left/center/right). Include unique scene transitions and "
+ "coherent physical continuity. No subtitles or words on the video. Input: "+(goal or "Invent the best original story yourself."))
+ data={"model":"qwen3.5:4b-q4_K_M","messages":[{"role":"user","content":prompt}],
+       "stream":False,"format":"json","think":False,
+       "options":{"temperature":0.55,"num_predict":2600,"num_ctx":8192}}
+ req=urllib.request.Request("http://127.0.0.1:11434/api/chat",
+  data=json.dumps(data,ensure_ascii=False).encode(),headers={"Content-Type":"application/json"})
+ with urllib.request.urlopen(req,timeout=170) as response:
+  return json.loads(json.load(response)["message"]["content"])
+def validate(s):
+ shots=s.get("shots")
+ if not isinstance(shots,list) or len(shots)!=8:raise ValueError("Need 8 distinct shots")
+ for i,x in enumerate(shots):
+  if x.get("beat","").lower().strip()!=BEATS[i]:raise ValueError("Wrong beat "+str(i))
+  for k in ("action","prop","lali_emotion","pooli_emotion","camera","setting"):
+   if not str(x.get(k,"")).strip():raise ValueError("Missing "+k+" in "+str(i))
+ if len({x["action"].strip().lower() for x in shots})!=8:raise ValueError("Duplicate actions")
+ return s
+def font(size):
+ try:return ImageFont.truetype(r"C:\Windows\Fonts\segoeui.ttf",size)
+ except OSError:return ImageFont.load_default()
+def cut(im):
+ im=im.convert("RGBA")
+ pix=im.load()
+ for y in range(im.height):
+  for x in range(im.width):
+   r,g,b,a=pix[x,y];v=min(r,g,b)
+   pix[x,y]=(r,g,b,255 if v<225 else max(0,min(255,int((255-v)*8))))
+ return im
+def draw_board(story,m,dest):
+ W,H=360,350;im=Image.new("RGB",(W*4,H*2+72),"#fff9f3");dr=ImageDraw.Draw(im)
+ masters={who:cut(Image.open(m["characters"][who]["canonical"])) for who in ("lali","pooli")}
+ dr.text((18,8),story.get("title","Lali & Pooli")[:50],font=font(25),fill="#362c33")
+ dr.text((18,42),"8 SCEN / PLANOVACI OBRAZKY - ne hotove klicove snimky",font=font(15),fill="#725c68")
+ for i,scene in enumerate(story["shots"]):
+  x=(i%4)*W;y=72+(i//4)*H
+  dr.rounded_rectangle((x+8,y+6,x+W-8,y+H-8),radius=9,fill="white",outline="#d8b9b3",width=2)
+  bg=["#f4dcd9","#f0e6d0","#e7e3f9","#d8ebed","#f7e5ce","#e2ebdf","#eee4f8","#fbdfe4"][i]
+  dr.rectangle((x+17,y+19,x+W-17,y+228),fill=bg)
+  dr.rectangle((x+17,y+199,x+W-17,y+228),fill="#c6aa96")
+  dr.rectangle((x+31,y+43,x+88,y+194),fill="#ab7b64",outline="#715045",width=3)
+  dr.ellipse((x+76,y+116,x+82,y+122),fill="#f7dfaa")
+  dr.rounded_rectangle((x+235,y+151,x+324,y+213),radius=12,fill="#b5a7c5")
+  for who,relative in (("lali",.31),("pooli",.67)):
+   asset=ImageOps.contain(masters[who],(120,135))
+   px=x+int(relative*W)-asset.width//2
+   im.paste(asset,(px,y+222-asset.height),asset)
+  dr.text((x+18,y+236),f"{i+1:02d} {BEATS[i].upper()} / {scene['camera']}",font=font(15),fill="#663a52")
+  text=str(scene["action"]);line="";rows=[]
+  for token in text.split():
+   attempt=(line+" "+token).strip()
+   if dr.textbbox((0,0),attempt,font=font(14))[2]>W-40 and line:
+    rows.append(line);line=token
+   else:line=attempt
+  if line:rows.append(line)
+  for j,part in enumerate(rows[:3]):dr.text((x+18,y+266+19*j),part,font=font(14),fill="#302931")
+ p=dest/"storyboard_8_scenes.png";im.save(p);return p
+def prepare_reel(goal=""):
+ m=canonical()
+ errors=[];story=None
+ for i in range(2):
+  try:story=validate(plan(goal+(" REQUIRE EXACTLY 8 SHOTS, correct beat fields." if i else "")));break
+  except Exception as exc:errors.append(str(exc))
+ if story is None:raise RuntimeError("8-scene story generation failed: "+"; ".join(errors))
+ d=OUT/(time.strftime("%Y%m%d_%H%M%S")+"_"+uuid.uuid4().hex[:6]);d.mkdir(parents=True)
+ board=draw_board(story,m,d);(d/"keyframes").mkdir()
+ (d/"story.json").write_text(json.dumps(story,ensure_ascii=False,indent=2),encoding="utf8")
+ state={"stage":"STORYBOARD_PREVIS","idea":story.get("idea",""),"title":story.get("title",""),
+        "scenes":8,"board":str(board),"video_render_allowed":False,
+        "notes":"Rough panels use existing canonical character images for planning only. Before video, draw eight high-quality full-frame scene illustrations with identity checks; never animate the cutouts."}
+ (d/"production_state.json").write_text(json.dumps(state,ensure_ascii=False,indent=2),encoding="utf8")
+ return {"verified":True,"title":state["title"],"idea":state["idea"],"scenes":8,
+         "stage":state["stage"],"storyboard_image":str(board),"workdir":str(d),
+         "next":"Draw and verify 8 production keyframe images before VACE videos","video_started":False}
+def video_gate(run_dir):
+ d=Path(run_dir);state=json.loads((d/"production_state.json").read_text(encoding="utf8"))
+ if state.get("scenes")!=8 or not (d/"storyboard_8_scenes.png").is_file():raise RuntimeError("Need 8 storyboard panels first")
+ missing=[f"{i:02d}.png" for i in range(1,9) if not (d/"keyframes"/f"{i:02d}.png").is_file()]
+ if missing:return {"video_render_allowed":False,"missing_illustrations":missing}
+ qa=d/"keyframes"/"qa.json"
+ if not qa.is_file():return {"video_render_allowed":False,"reason":"Missing independent visual identity and anatomy review"}
+ review=json.loads(qa.read_text(encoding="utf8"))
+ ok=all(review.get(f"{i:02d}",{}).get("identity_ok") is True and review.get(f"{i:02d}",{}).get("action_ok") is True for i in range(1,9))
+ return {"video_render_allowed":ok,"reason":"8 images checked" if ok else "Failed visual review"}
+if __name__=="__main__":
+ import sys
+ print(json.dumps(prepare_reel(" ".join(sys.argv[2:])) if len(sys.argv)<2 or sys.argv[1]=="prepare" else video_gate(sys.argv[2]),ensure_ascii=False,indent=2))

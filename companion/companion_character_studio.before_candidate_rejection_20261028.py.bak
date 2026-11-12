@@ -1,0 +1,92 @@
+"""Locked reusable character assets; never generate replacements for each Reel."""
+from pathlib import Path
+from PIL import Image
+import hashlib,json,shutil,re,uuid
+from companion_2dimg2motion import GODOT
+ROOT=GODOT/"studio_library"
+IDX=ROOT/"library.json"
+SRC=GODOT/"assets"
+WHO=("lali","pooli")
+POSES={"front","side","back","three_quarter","happy","sad","angry","surprised","blink","laughing","sitting","walk","turn","sit","idle"}
+def sha(p):return hashlib.sha256(Path(p).read_bytes()).hexdigest()
+def copy(a,b):
+ if not a.is_file():raise RuntimeError("Missing reference: "+str(a))
+ b.parent.mkdir(parents=True,exist_ok=True)
+ if b.exists():
+  if sha(a)!=sha(b):raise RuntimeError("Immutable image conflict: "+str(b))
+ else:shutil.copy2(a,b)
+ return {"file":str(b.relative_to(ROOT)).replace("\\","/"),"sha":sha(b)}
+def load():
+ if not IDX.is_file():raise RuntimeError("Studio not initialized")
+ return json.loads(IDX.read_text(encoding="utf8"))
+def save(d):
+ tmp=IDX.with_suffix(".pending")
+ if tmp.exists():raise RuntimeError("Unfinished studio write")
+ tmp.parent.mkdir(parents=True,exist_ok=True)
+ tmp.write_text(json.dumps(d,indent=2),encoding="utf8")
+ tmp.replace(IDX)
+def init():
+ if IDX.exists():return status()
+ d={"schema":1,"policy":"Reuse official original art; never recreate characters per reel; no sliced limbs; owner approval of new master required; no auto Instagram.","common":{},"characters":{}}
+ for f in ("official_character_sheet.png","official_expressions.png"):
+  d["common"][f]=copy(SRC/f,ROOT/"refs"/f)
+ for w in WHO:
+  refs={"fullbody":copy(SRC/"sprites"/(w+"_official_fullpose_cutout.png"),ROOT/"refs"/w/"fullbody.png"),"emotions":{}}
+  for e in ("happy","sad","angry","surprised","blink","laughing"):
+   p=SRC/"approved_expression_library"/(w+"_"+e+"_approved_reference.png")
+   if p.exists():refs["emotions"][e]=copy(p,ROOT/"refs"/w/(e+".png"))
+  d["characters"][w]={"references":refs,"candidates":{},"approved":{}}
+ save(d)
+ return status()
+def status():
+ d=load();invalid=[]
+ def chk(r):
+  p=(ROOT/r["file"]).resolve()
+  if not p.is_relative_to(ROOT.resolve()) or not p.is_file() or sha(p)!=r["sha"]:invalid.append(r["file"])
+ for r in d["common"].values():chk(r)
+ for w in WHO:
+  e=d["characters"][w]
+  chk(e["references"]["fullbody"])
+  for r in e["references"]["emotions"].values():chk(r)
+  for r in e["approved"].values():chk(r)
+ return {"verified":not invalid,"reference_integrity":not invalid,"invalid":invalid,"library":str(ROOT),
+  "locked_character_designs":list(WHO),
+  "saved_expressions":{w:len(d["characters"][w]["references"]["emotions"]) for w in WHO},
+  "approved_pose_sets":{w:sorted(d["characters"][w]["approved"]) for w in WHO},
+  "unapproved_candidates":{w:len(d["characters"][w]["candidates"]) for w in WHO},
+  "publishable_animation_ready":False}
+def ingest(who,pose,image_name):
+ if who not in WHO or pose not in POSES:raise ValueError("Character or pose invalid")
+ if not re.fullmatch(r"(lali|pooli)_(front|side|three_quarter|back)_[0-9a-f]{12}\.png",image_name) or not image_name.startswith(who+"_"):
+  raise ValueError("Only generated study filenames accepted")
+ p=GODOT/"training"/"wholeframe_experiments"/"provider_studies"/image_name
+ with Image.open(p) as im:
+  if im.format!="PNG" or min(im.size)<512:raise ValueError("Invalid drawing")
+ d=load();cid=who+"_"+pose+"_"+uuid.uuid4().hex[:12]
+ d["characters"][who]["candidates"][cid]={"pose":pose,**copy(p,ROOT/"candidates"/who/(cid+".png"))}
+ save(d)
+ return {"verified":True,"candidate_id":cid,"approved":False,"originals_untouched":True}
+def approve(who,candidate_id,approval_phrase):
+ if who not in WHO:raise ValueError("Character invalid")
+ if approval_phrase!="SCHVALUJI MASTER "+candidate_id:raise ValueError("Explicit owner approval needed")
+ d=load();r=d["characters"][who]["candidates"].get(candidate_id)
+ if not r:raise ValueError("Candidate absent")
+ p=ROOT/r["file"]
+ if sha(p)!=r["sha"]:raise RuntimeError("Candidate modified")
+ if r["pose"] in d["characters"][who]["approved"]:raise RuntimeError("Approved pose already locked")
+ d["characters"][who]["approved"][r["pose"]]=copy(p,ROOT/"masters"/who/(candidate_id+".png"))
+ save(d)
+ return {"verified":True,"locked":True,"single_pose_only":True,"reel_ready":False}
+def story_plan(story):
+ if not 1<=len(story)<=1600:raise ValueError("Story size invalid")
+ d=load();need={"lali":{"front","happy"},"pooli":{"front","walk"}}
+ if any(s in story.casefold() for s in ("home","domu","prichazi")):need["pooli"].update(("side","turn"))
+ reused={};missing=[]
+ for w in WHO:
+  reused[w]={}
+  for p in sorted(need[w]):
+   r=d["characters"][w]["approved"].get(p)
+   if r and (ROOT/r["file"]).is_file() and sha(ROOT/r["file"])==r["sha"]:reused[w][p]=str(ROOT/r["file"])
+   else:missing.append(w+"/"+p)
+ return {"verified":True,"reused":reused,"missing":missing,"regenerate_original_characters":False,
+   "render_ready":False,"scope":"Plan from locked master assets; missing full-body animation must be drawn"}

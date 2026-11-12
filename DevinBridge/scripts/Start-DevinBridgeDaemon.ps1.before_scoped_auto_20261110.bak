@@ -1,0 +1,61 @@
+# Start-DevinBridgeDaemon.ps1 — opt-in DevinBridge daemon launcher.
+#
+# SAFE BY DEFAULT: starts the monitoring/dashboard loop only. The bridge
+# stays in "safe" mode — no autonomous dispatch — unless a human also
+# creates  DevinBridge\AUTONOMOUS_ENABLED.flag  AND runs
+# `python -m DevinBridge.cli mode autonomous` (both are required).
+#
+# Single-instance is enforced inside daemon.py via a named Windows mutex,
+# so a double-start (login task + manual) is a harmless no-op.
+#
+# Scheduled-task registration (run once, as the user):
+#   schtasks /create /tn "RealJarvis DevinBridge" /sc onlogon ^
+#     /tr "powershell.exe -NoProfile -WindowStyle Hidden -File `"$PSCommandPath`"" /f
+#
+# Removal: schtasks /delete /tn "RealJarvis DevinBridge" /f
+
+$ErrorActionPreference = "Stop"
+$BridgeRoot = Split-Path -Parent $PSScriptRoot      # ...\DevinBridge
+$PkgParent  = Split-Path -Parent $BridgeRoot        # repo root containing the package
+$LogDir     = Join-Path $BridgeRoot "logs"
+$LogFile    = Join-Path $LogDir ("daemon_{0:yyyyMMdd}.log" -f (Get-Date))
+$HealthFile = Join-Path $BridgeRoot "daemon_health.json"
+
+New-Item -ItemType Directory -Force -Path $LogDir | Out-Null
+
+# --- crude rotation: keep 14 daily logs --------------------------------
+Get-ChildItem $LogDir -Filter "daemon_*.log" |
+    Sort-Object LastWriteTime -Descending |
+    Select-Object -Skip 14 |
+    Remove-Item -Force -ErrorAction SilentlyContinue
+
+# --- health probe (read by Jarvis UI / watchdog) ------------------------
+function Write-Health($state) {
+    $state | ConvertTo-Json -Depth 5 |
+        Set-Content -Path $HealthFile -Encoding UTF8
+}
+
+Write-Health @{
+    state     = "starting"
+    pid       = $PID
+    started   = (Get-Date).ToUniversalTime().ToString("o")
+    mode      = "safe"
+}
+
+try {
+    # Daemon runs forever; stdout/stderr append to the daily log.
+    # --interval is optional; bridge_config.json poll_seconds wins.
+    $py = "python"
+    Push-Location $PkgParent
+    & $py -m DevinBridge.daemon *>> $LogFile
+    $code = $LASTEXITCODE
+    Write-Health @{ state = "exited"; exit_code = $code;
+                    ended = (Get-Date).ToUniversalTime().ToString("o") }
+    exit $code
+} catch {
+    Write-Health @{ state = "failed"; error = "$_";
+                    ended = (Get-Date).ToUniversalTime().ToString("o") }
+    throw
+} finally {
+    Pop-Location -ErrorAction SilentlyContinue
+}

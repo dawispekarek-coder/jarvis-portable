@@ -1,0 +1,73 @@
+{
+    "program_id":  "FOREVERROUTE_CONTINUOUS_V1",
+    "ongoing":  true,
+    "owner_authorized":  true,
+    "owner_intent":  "Continue developing ForeverRoute 1-60 without daily reapproval; 2026-11-11",
+    "worktrees":  [
+                      "C:\\Users\\Dawis\\ForeverRouteJarvis\\DevinBridge\\autonomy_scope\\workspaces\\foreverroute-route-audit"
+                  ],
+    "kinds":  [
+                  "analyze",
+                  "docs",
+                  "test-add",
+                  "repair-small"
+              ],
+    "allowed_paths":  [
+                          "docs/autonomy",
+                          "tools",
+                          "tests",
+                          "ForeverRoute_PlannerV4.lua",
+                          "ForeverRoute_RuntimeContract.lua",
+                          "ForeverRoute_QuestExpedition.lua",
+                          "Generated"
+                      ],
+    "max_dispatches_per_hour":  12,
+    "max_failures_per_24h":  6,
+    "max_parallel_workers":  1,
+    "allow_publish":  false,
+    "allow_push":  false,
+    "allow_install":  false,
+    "sources":  [
+                    {
+                        "max_rows":  50000,
+                        "path":  "tools/audit_56x13_findings.csv",
+                        "max_age_s":  604800,
+                        "type":  "findings_csv"
+                    },
+                    {
+                        "type":  "test_results",
+                        "path":  "tools/nav_regression_results.json",
+                        "max_age_s":  86400
+                    },
+                    {
+                        "type":  "test_results",
+                        "path":  "tools/liveqa_results.json",
+                        "max_age_s":  604800
+                    },
+                    {
+                        "type":  "route_recalc_metrics",
+                        "path":  "tools/route_recalc_results_20261111.json",
+                        "max_age_s":  604800
+                    }
+                ],
+    "prohibited":  [
+                       "live-WoW",
+                       "SavedVariables",
+                       "DB/forever/quest.lua",
+                       "DB/forever/xp.lua",
+                       "remote network push",
+                       "release",
+                       "editing protected Desktop worktrees",
+                       "paid API enrollment"
+                   ],
+    "attempts_per_task":  2,
+    "max_tokens":  200000,
+    "max_reported_tokens_per_24h":  1500000,
+    "legacy_recovery_task_ids":  [
+                                     "FR-HYJAL-20261111-02",
+                                     "FR-LIVE-20261111-03",
+                                     "FR-LIVE-20261111-04"
+                                 ],
+    "cached_read_weight":  0.5,
+    "max_raw_reported_tokens_per_24h":  3000000
+}

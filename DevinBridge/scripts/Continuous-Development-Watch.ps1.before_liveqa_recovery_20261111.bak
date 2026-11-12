@@ -1,0 +1,143 @@
+# One-shot read-only health check; Task Scheduler calls every 10 min overnight.
+$ErrorActionPreference='Stop'
+$root='C:\Users\Dawis\ForeverRouteJarvis'
+$bridge=Join-Path $root 'DevinBridge'
+$statefile=Join-Path $bridge 'continuous_autonomy_watch_state.json'
+$log=Join-Path $bridge 'continuous_autonomy_watch.log'
+# Passive game-state probe, no AddOns changes and no simulated game input.
+$qa=Join-Path $bridge 'live_qa\qa_observer.py'
+if(Test-Path $qa){
+ $py='C:\Users\Dawis\AppData\Local\Programs\Python\Python312\python.exe'
+ try{& $py -B $qa *> $null}catch{}
+}
+$services=@('RealJarvis ForeverRoute Scoped Autonomy','RealJarvis DevinObserver READ ONLY','RealJarvis Devin Approvals')
+$problems=New-Object System.Collections.Generic.List[string]
+foreach($n in $services){
+  $t=Get-ScheduledTask -TaskName $n -ErrorAction SilentlyContinue
+  if(!$t){$problems.Add("Service missing: $n");continue}
+  if($t.State -ne 'Running'){
+    # Start only an already-owned installed service, never dispatch a task.
+    try{Start-ScheduledTask -TaskName $n; Start-Sleep -Seconds 3
+      $t=Get-ScheduledTask -TaskName $n -ErrorAction Stop}catch{}
+    if($t.State -ne 'Running'){$problems.Add("Service not running: $n")}
+  }
+}
+$dashboard=Join-Path $bridge 'dashboard_state.json'
+if(!(Test-Path $dashboard)){$problems.Add('Dashboard unavailable')}
+else{
+  $age=((Get-Date)-(Get-Item $dashboard).LastWriteTime).TotalSeconds
+  if($age -gt 300){$problems.Add("Dashboard stale: $([int]$age) seconds")}
+}
+if(!(Get-NetTCPConnection -LocalPort 8765 -State Listen -ErrorAction SilentlyContinue)){
+  $problems.Add('Phone status/approvals port 8765 not listening')
+}
+$queue=Join-Path $bridge 'coordinator_state.json'
+if(Test-Path $queue){
+  try{
+    $st=Get-Content $queue -Raw -Encoding UTF8 | ConvertFrom-Json
+    foreach($t in $st.tasks.PSObject.Properties){
+      $x=$t.Value
+      if($x.status -notin @('PENDING','READY')){continue}
+      foreach($dep in @($x.depends_on)){
+        $parent=$st.tasks.PSObject.Properties[$dep].Value
+        if($parent.status -in @('FAILED','BLOCKED','NEEDS_REVIEW')){
+          $r=$parent.recovery
+          if($r.state -ne 'RECOVERY_DISPATCHED' -and $r.state -ne 'COOLDOWN'){
+            $problems.Add("Blocked: $($t.Name) depends on $dep ($($parent.status))")
+          }
+        }
+      }
+    }
+  }catch{$problems.Add('Coordinator state unreadable')}
+}else{$problems.Add('Coordinator state missing')}
+# Long-running work health: a running daemon is NOT evidence of progress.
+$programPath=Join-Path $bridge 'autonomy_scope\CDP_PROGRAM.json'
+try{
+  $grant=Get-Content $programPath -Raw -Encoding UTF8|ConvertFrom-Json
+  if(!$grant.ongoing -or !$grant.owner_authorized){
+    $problems.Add('Continuous development mandate missing or not authorized')
+  }
+}catch{$problems.Add('Continuous development mandate unreadable')}
+$workers=@(Get-CimInstance Win32_Process|Where-Object{
+  $_.Name -eq 'python.exe' -and $_.CommandLine -match 'DevinBridge.prompt_worker'})
+# A process that exists but has no heartbeat is NOT healthy.
+if($workers.Count -gt 0){
+ try{
+  $st=Get-Content (Join-Path $bridge 'coordinator_state.json') -Raw|ConvertFrom-Json
+  foreach($x in $st.tasks.PSObject.Properties){
+   if($x.Value.status -ne 'RUNNING'){continue}
+   $heartbeat=Join-Path $bridge ('runs\'+$x.Name+'.live.json')
+   if(!(Test-Path $heartbeat)){
+    $problems.Add("Worker $($x.Name) has no heartbeat")
+   }elseif(((Get-Date)-(Get-Item $heartbeat).LastWriteTime).TotalMinutes -gt 35){
+    $problems.Add("Worker $($x.Name) has a stale heartbeat over 35 min")
+   }
+  }
+ }catch{$problems.Add('Cannot check worker heartbeat')}
+}
+if((Test-Path (Join-Path $bridge 'PAUSED.flag')) -and
+   !(Test-Path (Join-Path $bridge 'CONTINUOUS_RELOAD_PENDING.flag'))){
+ $problems.Add('Jarvis paused with no pending maintenance reload')
+}
+$pendingProposals=0
+try{
+  $props=Get-Content (Join-Path $bridge 'proposals.json') -Raw|ConvertFrom-Json
+  $pendingProposals=@($props.proposals.PSObject.Properties|Where-Object{
+    $_.Value.status -eq 'OPEN' -and $_.Value.provenance.source -eq 'cdp_issue'}).Count
+}catch{$problems.Add('CDP proposals unreadable')}
+if($workers.Count -eq 0){
+  $events=Join-Path $bridge 'coordinator_events.jsonl'
+  $age=if(Test-Path $events){((Get-Date)-(Get-Item $events).LastWriteTime).TotalMinutes}else{9999}
+  $cdpReason=''
+  try{
+   $loop=Get-Content (Join-Path $bridge 'cdp_loop_state.json') -Raw|ConvertFrom-Json
+   $cdpReason=[string]$loop.handoff.reason
+  }catch{}
+  if($pendingProposals -gt 0 -and $age -gt 25){
+    if($cdpReason -like 'hourly pacing*' -and $age -lt 70){
+      # This is an expected temporary pace, NOT an unattended stall.
+    }else{
+      $problems.Add("DEVIN IDLE: $pendingProposals CDP proposals waiting $([int]$age) min; $cdpReason")
+    }
+  }
+  if($pendingProposals -eq 0 -and $age -gt 60){
+    $problems.Add('DEVIN IDLE: no current actionable evidence; Jarvis should report STOP or ask for new proof')
+  }
+}# On one maintenance cycle, reload the recovery code only after no worker remains.
+if(Test-Path (Join-Path $bridge 'CONTINUOUS_RELOAD_PENDING.flag')){
+ $reload=Join-Path $bridge 'scripts\Reload-CdpWhenIdle.ps1'
+ & powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -File $reload *> $null
+}
+# Refresh authoritative route audit periodically without colliding with workers.
+if($workers.Count -eq 0){
+ $csv=Join-Path $bridge 'autonomy_scope\workspaces\foreverroute-route-audit\tools\audit_56x13_findings.csv'
+ if((Test-Path $csv) -and ((Get-Date)-(Get-Item $csv).LastWriteTime).TotalHours -gt 3){
+  $refresh=Join-Path $bridge 'scripts\Refresh-ForeverRouteEvidence.ps1'
+  & powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -File $refresh *> $null
+ }
+}
+$names=@($problems|Sort-Object -Unique)
+$sig=($names -join ' | ')
+$lastSent=''
+if(Test-Path $statefile){
+  try{$lastSent=(Get-Content $statefile -Raw|ConvertFrom-Json).notified_signature}catch{}
+}
+$delivered=$false
+if($sig -and $sig -ne $lastSent){
+  $env:PYTHONPATH=$root
+  $env:JARVIS_NIGHT_ALERT=$sig.Substring(0,[Math]::Min(850,$sig.Length))
+  $py='C:\Users\Dawis\AppData\Local\Programs\Python\Python312\python.exe'
+  $notify=Join-Path $bridge 'scripts\night_watch_notify.py'
+  $out=@(& $py -B $notify 2>&1)
+  $delivered=($LASTEXITCODE -eq 0 -and ($out -join '') -match 'NTFY_OK')
+  if($delivered){$lastSent=$sig}
+}
+if(!$sig){$lastSent=''}
+$result=[ordered]@{
+  checked_at=(Get-Date).ToUniversalTime().ToString('o')
+  signature=$sig
+  notified_signature=$lastSent
+  problems=$names
+}
+[System.IO.File]::WriteAllText($statefile,($result|ConvertTo-Json -Depth 5),(New-Object System.Text.UTF8Encoding($false)))
+Add-Content $log ('{0} {1} alert_sent={2}' -f (Get-Date -Format 's'),$(if($sig){$sig}else{'HEALTHY'}),$delivered)

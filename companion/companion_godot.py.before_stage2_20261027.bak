@@ -1,0 +1,97 @@
+"""Godot 2D: visual observation and bounded verified learning for Lali/Pooli."""
+from __future__ import annotations
+from pathlib import Path
+import ctypes, io, base64, json, subprocess, urllib.request, time
+from PIL import Image, ImageGrab
+from companion_store import Store
+from companion_settings import STATE
+
+EXE = Path(r"H:\RealJarvis\OptionalPlugins\Godot4.7.2\Godot_v4.7.2-stable_win64.exe")
+PROJECT = Path(r"H:\RealJarvis\OptionalPlugins\JarvisGodot2D\LaliPooli2D_Pilot")
+REF = PROJECT / "assets" / "official_character_sheet.png"
+POOLI = Path(r"H:\RealJarvis\OptionalPlugins\JarvisBlender3D\References\05_Pooli_otocka.jpg")
+OBS = PROJECT.parent / "observations"
+
+def status():
+    import psutil
+    tasks = [p for p in psutil.process_iter(['pid','name']) if 'godot' in (p.info.get('name') or '').lower()]
+    files = [PROJECT/'project.godot', PROJECT/'scenes'/'Main.tscn', REF, POOLI]
+    return {'verified':all(p.is_file() for p in files) and EXE.is_file(),
+            'ready':EXE.is_file(),'project_exists':(PROJECT/'project.godot').is_file(),
+            'processes':[p.pid for p in tasks],
+            'reference_paths':[str(REF),str(POOLI)],
+            'project':str(PROJECT),
+            'real_character_rig_completed':False,
+            'scope':'2D editor + approved flat images; no articulated characters, no finished Reel'}
+
+def _foreground_godot():
+    import psutil
+    user32=ctypes.windll.user32
+    hwnd=user32.GetForegroundWindow()
+    pid=ctypes.c_ulong()
+    user32.GetWindowThreadProcessId(hwnd,ctypes.byref(pid))
+    proc=psutil.Process(pid.value)
+    if 'godot' not in proc.name().lower():
+        raise RuntimeError('Godot is not foreground window: activate its preview/editor first')
+    return proc.pid
+
+def observe():
+    pid=_foreground_godot()
+    if not REF.is_file() or not POOLI.is_file():
+        raise RuntimeError('approved user image references missing')
+    OBS.mkdir(exist_ok=True,parents=True)
+    snap=ImageGrab.grab(bbox=(0,0,1920,1080),all_screens=True).convert('RGB')
+    stamp=str(int(time.time()))
+    out=OBS/('godot_window_'+stamp+'.jpg')
+    snap.save(out,quality=80)
+    snap.thumbnail((1200,750))
+    def b64(img):
+        fp=io.BytesIO();img.save(fp,format='JPEG',quality=70)
+        return base64.b64encode(fp.getvalue()).decode('ascii')
+    with Image.open(POOLI) as im:
+        refer=b64(im.convert('RGB'))
+    prompt=('First image is a REAL CURRENT WINDOWS GODOT 2D SCREEN with the app open, '
+            'second is the APPROVED LOOK of Pooli raccoon boy. '
+            'Report in Czech what is visibly present. Is this the Godot editor, a playing scene, '
+            'or an error? Is it one static image or a layered rig? '
+            'Do NOT claim full character animation. State one safe next training task. '
+            'Pooli must retain his original face and no makeup; do not invent unseen features. '
+            'Max 90 Czech words.')
+    payload={'model':'qwen3.5:4b-q4_K_M','messages':[{'role':'user','content':prompt,
+        'images':[b64(snap),refer]}], 'stream':False,'think':False,
+        'options':{'num_predict':175,'temperature':0.1,'num_ctx':4096}}
+    req=urllib.request.Request('http://127.0.0.1:11434/api/chat',
+       data=json.dumps(payload).encode('utf-8'),headers={'Content-Type':'application/json'})
+    with urllib.request.urlopen(req,timeout=110) as f:
+        reply=json.load(f).get('message',{}).get('content','')
+    if not reply.strip(): raise RuntimeError('empty_response_from_vision_model')
+    return {'verified':True,'screen_observed':True,'reference_used':True,
+            'pid':pid,'screenshot':str(out),'observation':reply[:1600],
+            'scope':'real Godot screenshot interpreted with local image model'}
+
+def learn_one_step():
+    info=status()
+    if not info['verified']:raise RuntimeError('Godot or reference project missing')
+    viewed=observe()
+    proc=subprocess.run([str(EXE),'--headless','--path',str(PROJECT),'--quit-after','4'],
+        stdout=subprocess.PIPE,stderr=subprocess.STDOUT,text=True,timeout=25,errors='replace')
+    if proc.returncode or any(x in proc.stdout for x in ('SCRIPT ERROR','ERROR:')):
+        raise RuntimeError('Godot smoke test did not pass: '+proc.stdout[-800:])
+    note=('Vizuální trénink v Godot 4.7.2 byl proveden: reálné okno snímáno přes ImageGrab, '
+          'lokální vision model porovnal obraz s oficiální předlohou Pooli. '
+          'Ověřeno spuštění projektu bez Godot SCRIPT ERROR. '
+          'Zatím se hýbe jen CELÝ schválený obrázek, NE jednotlivé části těla; '
+          'teprve připravit vrstvy sprite, AnimationPlayer/Bone2D, pravidlo konzistence. '
+          'Godot projekt: '+str(PROJECT)+'; obrazovy model muze chybne urcit druh zvirat a detaily obliceje; referencni vzhled urcuji jen uzivatelem schvalene obrazky. ')
+    Store(STATE).remember('godot_2d_visual_training',note,'verified_local_training')
+    journal = PROJECT / 'training' / 'verified_steps.jsonl'
+    journal.parent.mkdir(parents=True,exist_ok=True)
+    record = {'timestamp':time.strftime('%Y-%m-%dT%H:%M:%S%z'),'result':'VERIFIED',
+              'test':'Godot 2D visual screen and headless run',
+              'screenshot':viewed['screenshot'],'reference_verified':True,
+              'character_rig_done':False,'model_comment_unverified':viewed['observation'][:1200]}
+    with journal.open('a',encoding='utf-8') as f:
+        f.write(json.dumps(record,ensure_ascii=False)+'\n')
+    return {'verified':True,'training_step':'Godot onscreen + local vision + headless smoke',
+            'observation':viewed['observation'],'screenshot':viewed['screenshot'],
+            'recorded_in_longterm_memory':True, 'real_character_rig_completed':False}

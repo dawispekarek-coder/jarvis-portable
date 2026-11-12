@@ -1,0 +1,5 @@
+{"ts": 1794428395.1715722, "tool": "browser_click", "args_sig": "862ec0f8db3444e7", "decision": "auto_approved", "window_active": true}
+{"ts": 1794428395.1735787, "tool": "desktop_click", "args_sig": "27b10fa7ab2b1e55", "decision": "human_gate", "window_active": true}
+{"ts": 1794428395.174573, "tool": "artifact_write", "args_sig": "ad505c002bf3c5fc", "decision": "human_gate", "window_active": true}
+{"ts": 1794428395.1866062, "tool": "browser_click", "args_sig": "335bbf16a8d58a56", "decision": "human_gate", "window_active": false}
+{"ts": 1794428395.1961343, "tool": "browser_click", "args_sig": "335bbf16a8d58a56", "decision": "auto_approved", "window_active": true}

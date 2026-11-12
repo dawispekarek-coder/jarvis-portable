@@ -1,0 +1,88 @@
+"""Render original full-frame 8 scene keyframes using Flux.2 Klein reference editing.
+Require canonical characters; storyboard layout images are never passed as video frames.
+Run AFTER story exists. The local GPU is reserved for one model at a time.
+"""
+from __future__ import annotations
+import json,sys,shutil,hashlib
+from pathlib import Path
+from PIL import Image,ImageDraw,ImageFont,ImageOps
+from companion_reel_pipeline import canonical,video_gate,BEATS
+ROOT=Path(r"H:\RealJarvis\OptionalPlugins\WanGP")
+def run(workdir,limit=8):
+ d=Path(workdir)
+ state_path=d/"production_state.json"
+ state=json.loads(state_path.read_text(encoding="utf8"))
+ story=json.loads((d/"story.json").read_text(encoding="utf8"))
+ m=canonical()
+ if state.get("scenes")!=8 or len(story["shots"])!=8:
+  raise RuntimeError("Incomplete eight-scene storyboard")
+ keyframes=d/"keyframes";keyframes.mkdir(exist_ok=True)
+ lali=m["characters"]["lali"]["reference"]
+ pooli=m["characters"]["pooli"]["reference"]
+ for p in (lali,pooli):
+  if not Path(p).is_file():raise RuntimeError("Reference missing "+p)
+ sys.path.insert(0,str(ROOT))
+ from shared.api import init
+ session=init(root=ROOT,cli_args=["--attention","sdpa","--profile","4"])
+ for idx,s in enumerate(story["shots"][:limit],start=1):
+  target=keyframes/f"{idx:02d}.png"
+  if target.is_file():
+   with Image.open(target) as im:im.verify()
+   print("SKIP_EXISTING",idx,flush=True);continue
+  prompt=(f"Professional ORIGINAL 2D hand-drawn animation film keyframe {idx} of 8, vertical portrait 9:16. "
+   "Reference image 1 is the IMMUTABLE design of Lali, a raccoon girl with her exact pink bow, "
+   "face, striped tail, ears, proportions and fur markings. Reference image 2 is Pooli, a raccoon boy "
+   "with his exact blue hat/hoodie, distinctive face, tail and proportions. "
+   "COMPOSE BOTH characters into ONE coherent polished illustrative scene. "
+   "Neither should resemble another species. No white reference background, no collage, no stickers. "
+   "Physically believable FULL BODIES, complete paws and tails, no missing limbs or cropped characters. "
+   "Keep the same consistent storybook watercolor/ink outlines and colors from scene to scene. "
+   f"Location: {story.get('location',s['setting'])}. Exact shot setting: {s['setting']}. "
+   f"Shot framing: {s['camera']}. Story moment and ACTION: {s['action']}. "
+   f"Visible object: {s['prop']}. Lali emotion: {s['lali_emotion']}; Pooli emotion: {s['pooli_emotion']}. "
+   "All objects remain separately recognizable; clear spatial composition, expressive poses, "
+   "no subtitles, words, text, watermark or speech bubbles.")
+  settings={
+   "model_type":"flux2_klein_4b","image_mode":1,
+   "prompt":prompt,"negative_prompt":"text, speech bubbles, mascot redesign, cropped limbs, extra paws, merged objects, white-background cutouts, cheap puppet animation",
+   "image_refs":[lali,pooli],"video_prompt_type":"I",
+   "image_refs_relative_size":42,
+   "remove_background_images_ref":1,
+   "resolution":"576x1024","num_inference_steps":4,
+   "guidance_scale":1,"embedded_guidance_scale":1,
+   "seed":774321+idx,"batch_size":1,
+   "output_filename":f"lali_pooli_scene_{idx:02d}"
+  }
+  print("START_SCENE",idx,"/",len(story["shots"]),flush=True)
+  job=session.submit_task(settings);result=job.result()
+  if not result.success:
+   msg=";".join(x.message for x in (result.errors or []))
+   raise RuntimeError(f"Scene {idx} failed: {msg}")
+  candidates=[Path(str(x)) for x in (result.generated_files or [])]
+  files=[f for f in candidates if f.suffix.lower() in (".png",".jpg",".jpeg",".webp")]
+  if not files:raise RuntimeError(f"No image file from scene {idx}: {candidates}")
+  with Image.open(files[0]) as im:
+   if min(im.size)<384:raise RuntimeError(f"Generated scene too small: {im.size}")
+   im.convert("RGB").save(target)
+  print("SAVED_SCENE",idx,str(target),flush=True)
+ done=[(keyframes/f"{idx:02d}.png").is_file() for idx in range(1,9)]
+ state["keyframes_created"]=sum(done)
+ state["stage"]="EIGHT_KEYFRAMES_UNREVIEWED" if all(done) else "KEYFRAMES_IN_PROGRESS"
+ state["video_render_allowed"]=False
+ state_path.write_text(json.dumps(state,ensure_ascii=False,indent=2),encoding="utf8")
+ if all(done):
+  imgs=[Image.open(keyframes/f"{i:02d}.png").convert("RGB") for i in range(1,9)]
+  w,h=360,520
+  board=Image.new("RGB",(4*w,2*h),"#fffaf4")
+  dr=ImageDraw.Draw(board)
+  for i,im in enumerate(imgs):
+   im=ImageOps.contain(im,(w-12,h-48))
+   x=(i%4)*w+(w-im.width)//2;y=(i//4)*h+38+(h-48-im.height)//2
+   board.paste(im,(x,y))
+   dr.text(((i%4)*w+12,(i//4)*h+8),f"{i+1:02d} {BEATS[i]}",fill="#333333")
+  sheet=d/"storyboard_8_illustrated_scenes.png";board.save(sheet)
+  print("EIGHT_ILLUSTRATED_SCENES_READY",sheet,flush=True)
+  print("NEXT_VISUAL_REVIEW_REQUIRED",json.dumps(video_gate(d)),flush=True)
+ return {"count":sum(done),"stage":state["stage"],"workdir":str(d)}
+if __name__=="__main__":
+ print(json.dumps(run(sys.argv[1],int(sys.argv[2]) if len(sys.argv)>2 else 8),ensure_ascii=False))

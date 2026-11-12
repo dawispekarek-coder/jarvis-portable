@@ -1,0 +1,34 @@
+{
+    "program_id":  "FR_NIGHT_RECOVERY_20261110",
+    "authorized_by":  "owner explicitly asked for unattended overnight autonomous repair",
+    "worktree":  "C:\\Users\\Dawis\\ForeverRouteJarvis\\DevinBridge\\autonomy_scope\\workspaces\\foreverroute-route-audit",
+    "allowed_task_ids":  [
+                             "FR-REPAIR-20261110-01"
+                         ],
+    "recovery_parents":  [
+                             "FR-REPAIR-20261110-01"
+                         ],
+    "kinds":  [
+                  "repair-small"
+              ],
+    "allowed_paths":  [
+                          "tools",
+                          "tests",
+                          "docs/autonomy"
+                      ],
+    "attempts_per_task":  2,
+    "max_tokens":  200000,
+    "expires_epoch":  1794380400,
+    "source_head":  "5f41114c128337a0534cb0bbb361bad580db68ac",
+    "prohibited":  [
+                       "live Wow",
+                       "SavedVariables",
+                       "WoW release",
+                       "network push",
+                       "merge",
+                       "install",
+                       "DB/forever/quest.lua",
+                       "DB/forever/xp.lua",
+                       "protected worktrees"
+                   ]
+}

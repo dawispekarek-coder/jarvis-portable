@@ -1,0 +1,108 @@
+"""Free experimental SDXL model. One original concept image at a time; never a final reel."""
+from __future__ import annotations
+import io, json, hashlib, uuid, urllib.request, urllib.error
+from pathlib import Path
+from PIL import Image
+from companion_2dimg2motion import GODOT
+OUTPUT=GODOT/"training"/"wholeframe_experiments"/"provider_studies"
+URL="https://stable-diffusion-xl.endpoints.kepler.ai.cloud.ovh.net/api/text2image"
+CHARACTERS={
+ "lali":"original female raccoon Lali, long brown hair, brown eyes, exactly one pink hair bow, pink dress with white heart, pink shoes, fluffy brown striped tail, complete full body",
+ "pooli":"original male raccoon Pooli, gray and white fur, blue eyes, blue baseball cap backwards, blue hoodie, dark trousers, blue shoes, fluffy striped tail, complete full body",
+}
+POSES={
+ "front":"standing balanced upright, full frontal view, both feet and both paws visible, tail visible",
+ "side":"perfect left-facing anatomically accurate full profile, visible muzzle and true body depth, tail curved clear of feet",
+ "three_quarter":"true full-body three-quarter view, both paws visible, expressive face with strong volumetric anatomy",
+ "back":"true rear fullbody view, hood and striped tail visible, both feet and ears",
+}
+def available():
+ return {"verified":True,"provider":"OVHcloud SDXL 1.0","url":URL,
+         "anonymous_free":True,"anonymous_limit":"2 requests/minute/IP/model",
+         "configured":True,"image_to_image":False,"reference_identity_lock":False,
+         "model_study_only":True,"can_draw_commercial_ready_characters":False,
+         "scope":"Free text-to-image network service; production multi-frame consistency unverified"}
+def draw_study(character="lali",pose="front"):
+ if character not in CHARACTERS or pose not in POSES:
+  raise ValueError("Unsupported character or pose")
+ prompt=(
+  "Single original professional 2D children's animation full-body character design, "
+  +CHARACTERS[character]+", "+POSES[pose]+". "
+  "Appealing original modern hand-drawn cartoon, clean shapes, polished expressive eyes, "  "beautiful precise linework, subtle soft color shading, believable anatomy and costume, "
+  "consistent silhouette, no visible puppet seams, entire figure completely within a "
+  "1024 by 1024 image with plenty of empty white margin above head and under feet, "
+  "crisp white plain background, one single character, no props, no lettering."
+ )
+ negative=("cropped, cut off, duplicate, multiple characters, extra legs, extra arms, "
+   "floating body parts, mechanical joints, dissected, collage, chibi stickman, "
+   "missing tail, missing paws, missing ears, low quality, text, watermark, "
+   "speech bubbles, labels, picture frames")
+ data=json.dumps({"prompt":prompt,"negative_prompt":negative}).encode("utf-8")
+ req=urllib.request.Request(URL,data=data,method="POST",headers={
+  "Content-Type":"application/json","Accept":"application/octet-stream",
+  "User-Agent":"Jarvis2DStudio/experimental"})
+ try:
+  with urllib.request.urlopen(req,timeout=110) as r:
+   if r.status!=200:raise RuntimeError("image endpoint HTTP "+str(r.status))
+   raw=r.read(10_000_000)
+ except urllib.error.HTTPError as e:
+  raise RuntimeError("image endpoint HTTP "+str(e.code)) from e
+ with Image.open(io.BytesIO(raw)) as im:
+  im.verify()
+ with Image.open(io.BytesIO(raw)) as im:
+  if im.format!="PNG" or im.width<512 or im.height<512:
+   raise RuntimeError("unexpected generated image format or size")
+  size=list(im.size)
+ OUTPUT.mkdir(parents=True,exist_ok=True)
+ name=f"{character}_{pose}_{uuid.uuid4().hex[:12]}"
+ out=OUTPUT/(name+".png")
+ with out.open("xb") as f:f.write(raw)
+ report={"name":name,"character":character,"pose":pose,"image_file":str(out),
+  "size":size,"sha256":hashlib.sha256(raw).hexdigest(),
+  "provider":"OVHcloud SDXL anonymous","model_drew_real_pixels":True,
+  "reference_image_used":False,"matches_approved_reference":False,
+  "professional_quality_approved":False,"reel_completed":False,"publish_allowed":False,
+  "scope":"one original unapproved text-to-image study only; reference lock unavailable"}
+ (OUTPUT/(name+".json")).write_text(json.dumps(report,indent=2),encoding="utf-8")
+ return {"verified":True,**report}
+
+def local_comfy_status():
+ import urllib.request
+ try:
+  with urllib.request.urlopen('http://127.0.0.1:8188/system_stats',timeout=4) as r: stats=json.load(r)
+  ck=Path(r'H:\RealJarvis\OptionalPlugins\ComfyUI\models\checkpoints\sd15-pruned-emaonly.safetensors')
+  return {'online':True,'checkpoint_ready':ck.exists() and ck.stat().st_size==4265146304,'devices':stats.get('devices',[])}
+ except Exception as e:return {'online':False,'error':str(e)}
+
+def draw_local_study(character='lali',pose='front',seed=42):
+ import time,urllib.parse
+ if character not in CHARACTERS or pose not in POSES:raise ValueError('Unknown character or pose')
+ if not local_comfy_status().get('checkpoint_ready'):raise RuntimeError('Local checkpoint not ready')
+ prompt='Professional original 2D cartoon full body character design, '+CHARACTERS[character]+', '+POSES[pose]+', polished expressive eyes, clean linework, complete figure with margin, white background'
+ w={'1':{'class_type':'CheckpointLoaderSimple','inputs':{'ckpt_name':'sd15-pruned-emaonly.safetensors'}},'2':{'class_type':'CLIPTextEncode','inputs':{'text':prompt,'clip':['1',1]}},'3':{'class_type':'CLIPTextEncode','inputs':{'text':'cropped, cut off, extra limbs, seams, blurry, text','clip':['1',1]}},'4':{'class_type':'EmptyLatentImage','inputs':{'width':512,'height':768,'batch_size':1}},'5':{'class_type':'KSampler','inputs':{'seed':seed,'steps':24,'cfg':7,'sampler_name':'euler','scheduler':'normal','denoise':1,'model':['1',0],'positive':['2',0],'negative':['3',0],'latent_image':['4',0]}},'6':{'class_type':'VAEDecode','inputs':{'samples':['5',0],'vae':['1',2]}},'7':{'class_type':'SaveImage','inputs':{'filename_prefix':'Jarvis_LaliPooli','images':['6',0]}}}
+ def api(path,data=None):
+  req=urllib.request.Request('http://127.0.0.1:8188'+path,data=json.dumps(data).encode() if data is not None else None,headers={'Content-Type':'application/json'} if data is not None else {})
+  with urllib.request.urlopen(req,timeout=30) as r:return json.load(r)
+ pid=api('/prompt',{'prompt':w})['prompt_id']
+ for i in range(240):
+  time.sleep(2);h=api('/history/'+pid)
+  if pid in h:
+   item=h[pid];imgs=item.get('outputs',{}).get('7',{}).get('images',[])
+   if item.get('status',{}).get('status_str')=='error':raise RuntimeError(str(item['status']))
+   if imgs:
+    im=imgs[0];q=urllib.parse.urlencode({'filename':im['filename'],'subfolder':im.get('subfolder',''),'type':'output'})
+    with urllib.request.urlopen('http://127.0.0.1:8188/view?'+q) as r:raw=r.read()
+    OUTPUT.mkdir(parents=True,exist_ok=True);out=OUTPUT/(character+'_'+pose+'_local_'+uuid.uuid4().hex[:8]+'.png');out.write_bytes(raw)
+    return {'image_file':str(out),'provider':'local ComfyUI','reference_image_used':False,'professional_quality_approved':False,'publish_allowed':False}
+ raise TimeoutError('Local generation timeout')
+
+
+def draw_local_reference_study(character='pooli'):
+ """Run SD1.5 img2img from immutable character reference; candidate only."""
+ import subprocess
+ if character not in ('lali','pooli'):raise ValueError('Unknown character')
+ py=r'H:\RealJarvis\OptionalPlugins\ComfyUI\.venv\Scripts\python.exe'
+ script=Path(__file__).parent/'workflows'/'run_sd15_reference.py'
+ result=subprocess.run([py,str(script),character],capture_output=True,text=True,timeout=900)
+ if result.returncode:raise RuntimeError('Reference study failed: '+result.stderr[-1500:])
+ return json.loads(result.stdout.strip().splitlines()[-1])

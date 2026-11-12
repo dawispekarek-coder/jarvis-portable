@@ -1,0 +1,97 @@
+"""Whitelisted tools the Devin chat brain may invoke via terminal.
+
+The agent runs:
+    python -m DevinBridge.jarvis_tools run <name> --json '{...}'
+
+Every entry is read-only or coordinator-safe. Adding anything mutating
+requires a human to edit this file AND pass the permission policy —
+Jarvis-side tools (open apps, TTS, etc.) can be added later behind the
+same gate. Output is plain text/JSON on stdout.
+"""
+from __future__ import annotations
+
+import argparse
+import datetime
+import json
+import sys
+from pathlib import Path
+
+BRIDGE_ROOT = Path(__file__).resolve().parent
+
+
+def _coordinator():
+    from .daemon import load_config, make_coordinator
+    return make_coordinator(load_config())
+
+
+def get_time() -> str:
+    return datetime.datetime.now().strftime("%H:%M:%S")
+
+
+def get_date() -> str:
+    return datetime.datetime.now().strftime("%A %Y-%m-%d")
+
+
+def jarvis_status() -> str:
+    c = _coordinator()
+    st = c.status()
+    return json.dumps({
+        "mode": st.get("mode"), "paused": st.get("paused"),
+        "model": st.get("model"), "counts": st.get("counts"),
+        "holds": st.get("holds")}, ensure_ascii=False)
+
+
+def devin_queue_status() -> str:
+    c = _coordinator()
+    rows = [{"id": t["id"], "status": t["status"], "title": t["title"]}
+            for t in c.list_tasks()]
+    return json.dumps(rows, ensure_ascii=False)
+
+
+def pending_approvals() -> str:
+    from .approvals import ApprovalManager
+    c = _coordinator()
+    pend = ApprovalManager(c.root).pending()
+    return json.dumps(
+        [{"request_id": r["request_id"], "summary": r["summary"],
+          "risk": r["risk"], "task": r["task_id"]} for r in pend],
+        ensure_ascii=False)
+
+
+TOOLS = {
+    "get_time": {"fn": get_time, "desc": "current local time"},
+    "get_date": {"fn": get_date, "desc": "current local date"},
+    "jarvis_status": {"fn": jarvis_status,
+                      "desc": "DevinBridge mode/pause/holds/task counts"},
+    "devin_queue_status": {"fn": devin_queue_status,
+                           "desc": "bridge task list with statuses"},
+    "pending_approvals": {"fn": pending_approvals,
+                          "desc": "actions awaiting human approval"},
+}
+
+
+def tools_doc() -> str:
+    return "\n".join(f"- {name}: {t['desc']}" for name, t in TOOLS.items())
+
+
+def main(argv=None) -> int:
+    ap = argparse.ArgumentParser(prog="jarvis_tools")
+    sub = ap.add_subparsers(dest="cmd", required=True)
+    sub.add_parser("list")
+    p = sub.add_parser("run")
+    p.add_argument("name")
+    p.add_argument("--json", default="{}")
+    a = ap.parse_args(argv)
+    if a.cmd == "list":
+        print(tools_doc())
+        return 0
+    t = TOOLS.get(a.name)
+    if not t:
+        print(f"unknown tool: {a.name}\navailable: {', '.join(TOOLS)}")
+        return 2
+    print(t["fn"]())
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

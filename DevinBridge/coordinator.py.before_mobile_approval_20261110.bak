@@ -1,0 +1,908 @@
+"""RealJarvis ↔ Devin autonomous task coordinator.
+
+Owns a persistent task queue independent of the legacy ForeverRouteJarvis
+queue (which stays read-only evidence here). Implements:
+
+    PENDING → READY → DISPATCHED → RUNNING → VERIFYING → COMPLETE
+                └→ BLOCKED / FAILED / NEEDS_REVIEW / PAUSED
+
+Safety contract (non-negotiable, mirrors the task spec):
+  * SAFE mode (default): monitor, plan, validate — never auto-dispatch.
+    Dispatch needs an explicit call AND task["approved"]=True.
+  * AUTONOMOUS mode: dispatches READY+approved tasks automatically, but
+    only while AUTONOMOUS_ENABLED.flag exists (explicit human artifact)
+    and no global hold is active. human_gate tasks never auto-dispatch.
+  * Legacy holds are honored: T81_EXTERNAL_ACTIVE.flag,
+    RESTART_REQUIRED_AFTER_T45.flag, queue_state.pendingDispatch and
+    queue_state.activeTaskId all block dispatch of tasks whose worktree
+    is the legacy repo (or any protected worktree).
+  * One RUNNING task per worktree — never two conflicting sessions.
+  * A task is COMPLETE only when acceptance evidence passes — never
+    because the agent claimed it. stop_reason + checks decide.
+  * Bounded retries with exponential backoff; NEVER hot-loop dispatches.
+"""
+from __future__ import annotations
+
+import json
+import os
+import re
+import subprocess
+import sys
+import time
+from pathlib import Path
+from typing import Any, Callable
+
+from .bridge_store import (append_jsonl, atomic_write_json, dispatch_key,
+                           file_lock, prompt_sha, read_json, utcnow)
+
+TERMINAL_STATES = {"COMPLETE", "FAILED", "BLOCKED"}
+STATES = {"PENDING", "READY", "DISPATCHED", "RUNNING", "VERIFYING",
+          "COMPLETE", "BLOCKED", "FAILED", "NEEDS_REVIEW",
+          "NEEDS_APPROVAL", "PAUSED"}
+
+DEFAULT_MAX_RETRIES = 2
+BACKOFF_BASE_S = 300.0          # 5 min, doubles each attempt
+PROMPT_TIMEOUT_S = 4 * 3600     # hard cap on one prompt turn
+RUN_STALE_S = 6 * 3600          # no daemon progress → NEEDS_REVIEW
+
+# Synthetic smoke-test task ids — never eligible for production
+# scheduling, retries or auto-dispatch.
+_TEST_SCOPE_RE = re.compile(
+    r"^(t9\d\d|single[-_]|chat[-_]|.*_test$|.*_askmode$)", re.I)
+
+# Acceptance `command` entries are rejected if they contain shell
+# metachars or dangerous verbs — checks are evidence, not a shell.
+_UNSAFE_CMD_RE = re.compile(r"[;&|<>()`$]|\\|\b(rm|del|erase|format|"
+                            r"mkfs|sudo|powershell|cmd|curl|wget|net|"
+                            r"reg|schtasks|msiexec|iex|invoke)\b", re.I)
+
+# Allowlisted test runners for acceptance {"type": "test"} — argv-only,
+# never through a shell.
+SAFE_TEST_RUNNERS = {
+    "pytest":   ["-m", "pytest"],
+    "unittest": ["-m", "unittest"],
+    "python":   ["-u"],          # python -u <script.py> [args]
+}
+
+
+def _now() -> float:
+    return time.time()
+
+
+class Coordinator:
+    def __init__(self, root: Path, queue_root: Path,
+                 client_factory: Callable[[], Any],
+                 model: str = "swe-2-high",
+                 mode: str = "safe",
+                 max_retries: int = DEFAULT_MAX_RETRIES,
+                 github: Any = None,
+                 protected_worktrees: list[str] | None = None):
+        self.root = Path(root)
+        self.root.mkdir(parents=True, exist_ok=True)
+        self.queue_root = Path(queue_root)
+        self.state_path = self.root / "coordinator_state.json"
+        self.events_path = self.root / "coordinator_events.jsonl"
+        self.autonomous_flag = self.root / "AUTONOMOUS_ENABLED.flag"
+        self.pause_flag = self.root / "PAUSED.flag"
+        self.approvals_path = self.root / "approvals.jsonl"
+        self.session_mode = "smart"
+        self._client_factory = client_factory
+        self._client = None
+        self.model = model
+        self.max_retries = max_retries
+        self.github = github
+        # Repos that must never receive bridge dispatch — e.g. a repo a
+        # Devin Desktop GUI session is actively editing.
+        self.protected_worktrees = [
+            str(Path(p)).lower() for p in (protected_worktrees or [])]
+        self._mode = mode if mode in ("safe", "autonomous") else "safe"
+
+    # ------------------------------------------------------------ state io
+    def _load(self) -> dict:
+        st = read_json(self.state_path)
+        if not isinstance(st, dict):
+            st = {}
+        st.setdefault("schemaVersion", 1)
+        st.setdefault("mode", self._mode)
+        st.setdefault("model", self.model)
+        st.setdefault("tasks", {})
+        st.setdefault("dispatches", {})
+        st.setdefault("stats", {"completed": 0, "failed": 0,
+                                "dispatched_total": 0})
+        # Migration: pre-scope tasks get classified on load so legacy
+        # synthetic smoke tasks can't slip into production scheduling.
+        for t in st["tasks"].values():
+            if "scope" not in t:
+                t["scope"] = ("test" if _TEST_SCOPE_RE.match(
+                    str(t.get("id", ""))) else "production")
+        return st
+
+    def _save(self, st: dict) -> None:
+        atomic_write_json(self.state_path, st)
+
+    def _event(self, kind: str, **kw) -> None:
+        append_jsonl(self.events_path, {"kind": kind, **kw})
+
+    # ------------------------------------------------------------ mode io
+    @property
+    def mode(self) -> str:
+        return str(self._load().get("mode", self._mode))
+
+    def set_mode(self, mode: str) -> None:
+        if mode == "autonomous":
+            # Require the explicit human activation artifact.
+            if not self.autonomous_flag.is_file():
+                raise PermissionError(
+                    "AUTONOMOUS requires explicit human activation: create "
+                    f"{self.autonomous_flag} first.")
+        st = self._load()
+        st["mode"] = "autonomous" if mode == "autonomous" else "safe"
+        self._save(st)
+        self._event("mode", mode=st["mode"])
+
+    @property
+    def paused(self) -> bool:
+        return self.pause_flag.is_file()
+
+    def pause(self, reason: str = "") -> None:
+        self.pause_flag.write_text(
+            f"{utcnow()} {reason}\n", encoding="utf-8")
+        self._event("pause", reason=reason)
+
+    def resume(self) -> None:
+        try:
+            self.pause_flag.unlink()
+        except OSError:
+            pass
+        self._event("resume")
+
+    # ----------------------------------------------------------- task api
+    def add_task(self, task_id: str, title: str, prompt: str,
+                 worktree: str, priority: int = 50,
+                 depends_on: list[str] | None = None,
+                 acceptance: list[dict] | None = None,
+                 tests: list[str] | None = None,
+                 branch: str = "", human_gate: bool = False,
+                 approved: bool = False, session_mode: str = "",
+                 scope: str = "", owner: str = "human",
+                 reason: str = "", generated_by: str = "human",
+                 evidence_refs: list[str] | None = None,
+                 declared_followups: list[dict] | None = None,
+                 deadline_epoch: float = 0.0,
+                 max_attempts: int = 0) -> dict:
+        """Create a PENDING task. ``approved`` marks the task safe to
+        auto-dispatch in AUTONOMOUS mode (set by a human or an approval
+        tool). human_gate tasks always stop for review regardless.
+
+        Provenance fields (owner/reason/generated_by/evidence_refs) are
+        persisted so every task can be audited back to its source —
+        auto-generated tasks must never self-approve. ``scope`` separates
+        production work from synthetic smoke tasks (auto-detected for
+        known test id patterns)."""
+        with file_lock(self.root / ".coord.lock"):
+            st = self._load()
+            tasks = st["tasks"]
+            if task_id in tasks:
+                return {"added": False, "reason": "duplicate task_id",
+                        "task": tasks[task_id]}
+            tasks[task_id] = {
+                "id": task_id, "title": title, "prompt": prompt,
+                "prompt_sha": prompt_sha(prompt),
+                "worktree": str(Path(worktree)),
+                "branch": branch, "priority": int(priority),
+                "depends_on": list(depends_on or []),
+                "acceptance": list(acceptance or []),
+                "tests": list(tests or []),
+                "status": "PENDING",
+                "approved": bool(approved),
+                "human_gate": bool(human_gate),
+                # Per-task session permission mode — 'ask' forces every
+                # tool call through session/request_permission; clamped to
+                # the same allowlist as session_new.
+                "session_mode": session_mode if session_mode in
+                ("smart", "accept-edits", "plan", "ask") else "",
+                "session_id": "", "dispatch_key": "",
+                "base_head": "", "result_head": "",
+                "attempts": 0, "not_before": 0.0,
+                "evidence": {}, "last_error": "",
+                # Scope: 'test' tasks (synthetic smoke) are never
+                # auto-eligible, never retried into production flow.
+                "scope": (scope if scope in ("production", "test")
+                          else ("test" if _TEST_SCOPE_RE.match(task_id)
+                                else "production")),
+                # Provenance — where this task came from and why.
+                "owner": owner[:80], "reason": reason[:400],
+                "generated_by": generated_by[:40],
+                "evidence_refs": list(evidence_refs or []),
+                "declared_followups": list(declared_followups or []),
+                "deadline_epoch": float(deadline_epoch or 0),
+                "max_attempts": int(max_attempts or 0),
+                "history": [{"ts": utcnow(), "to": "PENDING"}],
+                "created_at": utcnow(), "updated_at": utcnow(),
+            }
+            self._save(st)
+        self._event("task_added", task_id=task_id, approved=approved)
+        return {"added": True, "task": tasks[task_id]}
+
+    def approve(self, task_id: str, approved: bool = True) -> dict:
+        return self._mutate(task_id, lambda t: t.__setitem__(
+            "approved", bool(approved)))
+
+    def cancel(self, task_id: str, reason: str = "manual cancel") -> dict:
+        st_task = self.get_task(task_id)
+        sid = st_task.get("session_id")
+        if sid and self._client:
+            try:
+                self._client.session_cancel(sid)
+            except Exception:
+                pass
+        return self._transition(task_id, "PAUSED", reason=reason)
+
+    def get_task(self, task_id: str) -> dict:
+        return dict(self._load()["tasks"].get(task_id) or {})
+
+    def list_tasks(self) -> list[dict]:
+        st = self._load()
+        return sorted(st["tasks"].values(),
+                      key=lambda t: (t["priority"], t["created_at"]))
+
+    def _mutate(self, task_id: str, fn: Callable[[dict], None]) -> dict:
+        with file_lock(self.root / ".coord.lock"):
+            st = self._load()
+            t = st["tasks"].get(task_id)
+            if not t:
+                return {"ok": False, "error": f"unknown task {task_id}"}
+            fn(t)
+            t["updated_at"] = utcnow()
+            self._save(st)
+            return {"ok": True, "task": t}
+
+    def _transition(self, task_id: str, to: str, **extra) -> dict:
+        assert to in STATES
+        def _do(t):
+            t["history"].append({"ts": utcnow(), "from": t["status"],
+                                 "to": to, **{k: v for k, v in extra.items()
+                                              if k != "reason"},
+                                 "reason": extra.get("reason", "")})
+            t["status"] = to
+            for k, v in extra.items():
+                if k != "reason":
+                    t[k] = v
+        res = self._mutate(task_id, _do)
+        if res.get("ok"):
+            self._event("transition", task_id=task_id, to=to,
+                        reason=str(extra.get("reason", ""))[:200])
+        return res
+
+    # --------------------------------------------------------- scheduling
+    def _deps_done(self, st: dict, task: dict) -> tuple[bool, str]:
+        for dep in task.get("depends_on", []):
+            ds = str((st["tasks"].get(dep) or {}).get("status", "PENDING"))
+            if ds != "COMPLETE":
+                return False, f"dependency {dep} is {ds}"
+        return True, ""
+
+    def next_eligible(self, st: dict | None = None) -> tuple[dict | None, str]:
+        st = st or self._load()
+        running = {t["worktree"] for t in st["tasks"].values()
+                   if t["status"] in ("DISPATCHED", "RUNNING", "VERIFYING")}
+        best = None
+        why = "no eligible task"
+        for t in sorted(st["tasks"].values(),
+                        key=lambda x: (x["priority"], x["created_at"])):
+            s = t["status"]
+            if s == "PENDING":
+                ok, reason = self._deps_done(st, t)
+                if ok:
+                    self._transition(t["id"], "READY")
+                    s = "READY"
+                else:
+                    why = reason
+                    continue
+            if s != "READY":
+                continue
+            if t.get("scope", "production") == "test":
+                why = f"{t['id']} is synthetic test scope — never auto-eligible"
+                continue
+            if not t.get("approved"):
+                why = f"{t['id']} awaiting approval"
+                continue
+            dl = float(t.get("deadline_epoch") or 0)
+            if dl and _now() > dl:
+                why = f"{t['id']} past deadline — needs replan, not dispatch"
+                continue
+            if _now() < float(t.get("not_before", 0)):
+                why = f"{t['id']} backing off until {t['not_before']}"
+                continue
+            if t["worktree"] in running:
+                why = f"worktree busy: {t['worktree']}"
+                continue
+            return t, "eligible"
+        return None, why
+
+    # ------------------------------------------------------------- holds
+    def global_holds(self) -> list[str]:
+        """External conditions that forbid any dispatch."""
+        holds = []
+        if self.paused:
+            holds.append("bridge paused (PAUSED.flag)")
+        if self.mode != "autonomous":
+            holds.append("safe mode (no auto-dispatch)")
+        elif not self.autonomous_flag.is_file():
+            holds.append("AUTONOMOUS_ENABLED.flag missing — reverted to safe")
+        qroot = Path(self.queue_root)
+        if (qroot / "T81_EXTERNAL_ACTIVE.flag").is_file():
+            holds.append("T81_EXTERNAL_ACTIVE.flag (user pause / external session)")
+        if (qroot / "RESTART_REQUIRED_AFTER_T45.flag").is_file():
+            holds.append("RESTART_REQUIRED_AFTER_T45.flag")
+        return holds
+
+    def worktree_holds(self, worktree: str) -> list[str]:
+        """Per-worktree holds: legacy queue state for the protected repo,
+        plus configured protected worktrees (e.g. a repo under an active
+        Devin Desktop session — never double-dispatch onto it)."""
+        holds = []
+        if str(worktree).lower() in self.protected_worktrees:
+            holds.append("protected worktree (external Devin session "
+                         "or human-owned repo)")
+            return holds
+        qs = read_json(Path(self.queue_root) / "queue_state.json") or {}
+        legacy_repo = r"C:\Users\Dawis\Saved Games\ForeverRoute-db70338"
+        if str(worktree).lower() == legacy_repo.lower():
+            pd = qs.get("pendingDispatch")
+            if pd and pd.get("taskId"):
+                holds.append(f"legacy pendingDispatch {pd.get('taskId')}"
+                             " — reconcile first")
+            if qs.get("activeTaskId"):
+                holds.append(f"legacy active task {qs.get('activeTaskId')}")
+            if str(qs.get("lastResult", "")).startswith("HOLD_"):
+                holds.append(f"legacy lastResult={qs.get('lastResult')}")
+        return holds
+
+    # ----------------------------------------------------------- dispatch
+    def _git_head(self, worktree: str) -> str:
+        try:
+            out = subprocess.run(
+                ["git", "-C", worktree, "rev-parse", "HEAD"],
+                capture_output=True, text=True, timeout=15)
+            return out.stdout.strip() if out.returncode == 0 else ""
+        except (OSError, subprocess.TimeoutExpired):
+            return ""
+
+    def dispatch(self, task_id: str, *, force: bool = False) -> dict:
+        """Dispatch one task to local Devin via ACP.
+
+        Idempotent: same (task, prompt, base_head) re-returns the existing
+        dispatch record instead of starting a duplicate session.
+        """
+        with file_lock(self.root / ".coord.lock"):
+            st = self._load()
+            t = st["tasks"].get(task_id)
+            if not t:
+                return {"dispatched": False, "error": f"unknown {task_id}"}
+            if t["status"] in ("DISPATCHED", "RUNNING", "VERIFYING",
+                               "COMPLETE"):
+                return {"dispatched": False,
+                        "reason": f"already {t['status']}",
+                        "session_id": t.get("session_id", "")}
+            if t["status"] in ("BLOCKED", "PAUSED") and not force:
+                return {"dispatched": False,
+                        "reason": f"state {t['status']} needs review first"}
+            if t.get("human_gate") and not force:
+                return {"dispatched": False,
+                        "reason": "human_gate task — manual dispatch only"}
+            if not t.get("approved") and not force:
+                return {"dispatched": False,
+                        "reason": "task not approved"}
+            w_holds = self.worktree_holds(t["worktree"])
+            if w_holds and not force:
+                return {"dispatched": False, "reason": "; ".join(w_holds)}
+            running = [x for x in st["tasks"].values()
+                       if x["status"] in ("DISPATCHED", "RUNNING", "VERIFYING")
+                       and x["worktree"] == t["worktree"] and x["id"] != task_id]
+            if running:
+                return {"dispatched": False,
+                        "reason": f"worktree busy with {running[0]['id']}"}
+
+            head = self._git_head(t["worktree"])
+            dkey = dispatch_key(task_id, t["prompt_sha"], head)
+            if dkey in st["dispatches"] and not force:
+                rec = st["dispatches"][dkey]
+                if self._session_might_be_live(rec.get("session_id", "")):
+                    return {"dispatched": False, "deduplicated": True,
+                            "session_id": rec.get("session_id", ""),
+                            "reason": "identical dispatch already recorded"
+                                      " and session may still be live"}
+                # Dead/absent session: an honest re-attempt is allowed.
+        # The detached worker owns the ACP client AND creates the session
+        # itself — a session that never ran a turn is not yet persisted in
+        # sessions.db, so session/new inside the worker is the only way a
+        # later session_load (restart/follow-up) can ever work.
+        worker_pid = self._spawn_worker(task_id)
+        self._transition(task_id, "DISPATCHED",
+                         dispatch_key=dkey, base_head=head)
+        self._event("dispatched", task_id=task_id,
+                    model=self.model, worktree=t["worktree"], head=head,
+                    worker_pid=worker_pid)
+        with file_lock(self.root / ".coord.lock"):
+            st = self._load()
+            st["dispatches"][dkey] = {
+                "task_id": task_id, "session_id": "", "base_head": head,
+                "ts": utcnow(), "model": self.model,
+                "worker_pid": worker_pid}
+            st["stats"]["dispatched_total"] += 1
+            task = st["tasks"].get(task_id)
+            if task:
+                task["attempts"] = int(task.get("attempts", 0)) + 1
+                task["worker_pid"] = worker_pid
+                task["history"].append(
+                    {"ts": utcnow(), "from": "DISPATCHED", "to": "RUNNING",
+                     "reason": f"prompt worker pid={worker_pid}"})
+                task["status"] = "RUNNING"
+                task["updated_at"] = utcnow()
+            self._save(st)
+        return {"dispatched": True, "session_id": "(worker-assigned)",
+                "dispatch_key": dkey, "base_head": head, "model": self.model,
+                "worker_pid": worker_pid}
+
+    def _attach_session(self, task_id: str, session_id: str) -> None:
+        """Worker hook: bind the newly-created ACP session to the task and
+        to the pending dispatch record."""
+        with file_lock(self.root / ".coord.lock"):
+            st = self._load()
+            t = st["tasks"].get(task_id)
+            if t:
+                t["session_id"] = session_id
+                dk = t.get("dispatch_key", "")
+                if dk and dk in st["dispatches"]:
+                    st["dispatches"][dk]["session_id"] = session_id
+                t["updated_at"] = utcnow()
+            self._save(st)
+        self._event("session_attached", task_id=task_id,
+                    session_id=session_id)
+
+    # ------------------------------------------------------------ workers
+    def _spawn_worker(self, task_id: str, followup: str = "") -> int:
+        """Detach a prompt worker that owns the agent turn."""
+        import sys as _sys
+        CREATE_NO_WINDOW = 0x08000000
+        DETACHED_PROCESS = 0x00000008
+        CREATE_NEW_PROCESS_GROUP = 0x00000200
+        args = [_sys.executable, "-m", "DevinBridge.prompt_worker",
+                task_id]
+        if followup:
+            args += ["--followup", followup]
+        proc = subprocess.Popen(
+            args, cwd=str(self.queue_root),
+            stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            creationflags=(CREATE_NO_WINDOW | DETACHED_PROCESS |
+                           CREATE_NEW_PROCESS_GROUP),
+            close_fds=True)
+        return int(proc.pid)
+
+    def _session_might_be_live(self, session_id: str) -> bool:
+        """Dedup guard: only block when the recorded session could still
+        be running. Uses the ACP session list daemon status; absent or
+        'idle' sessions do not block an honest re-attempt."""
+        if not session_id:
+            return False
+        try:
+            client = self._ensure_client()
+            for s in client.session_list():
+                if s.get("sessionId") == session_id:
+                    st = ((s.get("_meta") or {})
+                          .get("cognition.ai/daemon/sessionStatus") or {})
+                    state = str(st.get("state", "")).lower()
+                    return state in ("running", "working", "held",
+                                     "starting", "queued")
+            return False  # session not in list → gone
+        except Exception:
+            return True  # fail closed: can't prove it's dead → don't resend
+
+    def _ensure_client(self):
+        if self._client is None or not self._client.is_alive():
+            self._client = self._client_factory()
+            self._client.start()
+        return self._client
+
+    # -------------------------------------------------------- approvals
+    def mark_needs_approval(self, task_id: str, request: dict) -> None:
+        """Worker hook: an action needs a human. Persist it durably —
+        the task stays NEEDS_APPROVAL until approve()/deny() or resume."""
+        def _do(t):
+            t.setdefault("pending_requests", []).append(
+                {"ts": utcnow(), "request": request})
+            t["history"].append({"ts": utcnow(), "from": t["status"],
+                                 "to": "NEEDS_APPROVAL",
+                                 "reason": request.get("summary", "")})
+            t["status"] = "NEEDS_APPROVAL"
+        self._mutate(task_id, _do)
+        self._event("needs_approval", task_id=task_id,
+                    summary=request.get("summary", ""),
+                    fingerprint=request.get("fingerprint", ""),
+                    reason=request.get("reason", ""))
+
+    def pending_approvals(self) -> list[dict]:
+        out = []
+        for t in self.list_tasks():
+            if t["status"] == "NEEDS_APPROVAL":
+                out.append({"task_id": t["id"], "title": t["title"],
+                            "session_id": t["session_id"],
+                            "requests": t.get("pending_requests", [])})
+        return out
+
+    def approved_fingerprints(self) -> set[str]:
+        from .bridge_store import read_jsonl
+        return {r.get("fingerprint", "") for r in
+                read_jsonl(self.approvals_path)
+                if r.get("decision") == "approved"}
+
+    def record_approval(self, task_id: str, fingerprint: str = "",
+                        note: str = "", approved: bool = True) -> dict:
+        """Record a human decision about a permission request. If no
+        fingerprint is given, approve the newest pending request on the
+        task. Distinct from task-level approve() which only authorizes
+        dispatch eligibility."""
+        t = self.get_task(task_id)
+        if not t:
+            return {"ok": False, "error": f"unknown {task_id}"}
+        reqs = t.get("pending_requests") or []
+        if not fingerprint and reqs:
+            fingerprint = reqs[-1].get("fingerprint", "")
+        append_jsonl(self.approvals_path, {
+            "task_id": task_id, "fingerprint": fingerprint,
+            "decision": "approved" if approved else "denied",
+            "note": note, "summary": (reqs[-1].get("summary", "")
+                                    if reqs else "")})
+        self._event("approval", task_id=task_id, fingerprint=fingerprint,
+                    decision="approved" if approved else "denied")
+        return {"ok": True, "task_id": task_id, "fingerprint": fingerprint,
+                "decision": "approved" if approved else "denied"}
+
+    def deny(self, task_id: str, note: str = "") -> dict:
+        self.record_approval(task_id, approved=False, note=note)
+        return self._transition(task_id, "BLOCKED",
+                                reason=f"denied by human: {note}")
+
+    def dashboard_link(self, request_id: str, approvals) -> str:
+        """Short-lived single-use dashboard URL for an ntfy message."""
+        import os as _os
+        tok = approvals.mint_link_token(request_id)
+        host = _os.environ.get("DEVIN_APPROVAL_HOST", "127.0.0.1")
+        port = _os.environ.get("DEVIN_APPROVAL_PORT", "8765")
+        return f"http://{host}:{port}/?t={tok}"
+
+    def resume_task(self, task_id: str, message: str = "") -> dict:
+        """Resume a NEEDS_APPROVAL task IN THE SAME SESSION — a follow-up
+        prompt, never a new session or duplicated dispatch. Approvals
+        already recorded in approvals.jsonl let the retried permission
+        request pass automatically."""
+        t = self.get_task(task_id)
+        if not t:
+            return {"resumed": False, "error": f"unknown {task_id}"}
+        if t["status"] not in ("NEEDS_APPROVAL", "NEEDS_REVIEW"):
+            return {"resumed": False,
+                    "error": f"task is {t['status']}, not resumable"}
+        if not t.get("session_id"):
+            return {"resumed": False, "error": "no session to resume"}
+        follow = message or (
+            "The previously requested action has been reviewed and "
+            "approved. Continue the original task from where you stopped; "
+            "do not restart or redo completed steps.")
+        self._transition(task_id, "RUNNING",
+                         reason="resumed after approval (follow-up)")
+        pid = self._spawn_worker(task_id, followup=follow)
+        self._mutate(task_id, lambda x: x.__setitem__("worker_pid", pid))
+        self._event("resumed", task_id=task_id, worker_pid=pid)
+        return {"resumed": True, "task_id": task_id,
+                "session_id": t["session_id"], "worker_pid": pid}
+
+    # ----------------------------------------------------- prompt results
+    def _on_prompt_done(self, task_id: str, session_id: str, res) -> None:
+        cur = (self.get_task(task_id) or {}).get("status")
+        if cur in ("BLOCKED", "FAILED", "COMPLETE", "NEEDS_REVIEW"):
+            self._event("prompt_done_late", task_id=task_id,
+                        status=cur, stop_reason=res.stop_reason)
+            return  # human/policy already decided — don't stomp it
+        self._transition(task_id, "VERIFYING",
+                         stop_reason=res.stop_reason,
+                         agent_text_tail=res.text[-1500:])
+        self._event("prompt_done", task_id=task_id, session_id=session_id,
+                    stop_reason=res.stop_reason, usage=res.usage)
+        verdict = self.verify(task_id)
+        self._event("verified", task_id=task_id, **verdict)
+
+    def _on_prompt_error(self, task_id: str, session_id: str, err) -> None:
+        self._event("prompt_error", task_id=task_id, session_id=session_id,
+                    error=str(err)[:400])
+        self._fail_or_retry(task_id, f"prompt error: {err}")
+
+    # -------------------------------------------------------- verification
+    def verify(self, task_id: str) -> dict:
+        """Run acceptance checks; transition COMPLETE / FAILED(+retry) /
+        NEEDS_REVIEW. Never trusts agent text alone."""
+        t = self.get_task(task_id)
+        if not t:
+            return {"verified": False, "error": "unknown task"}
+        checks = list(t.get("acceptance") or [])
+        results = []
+        ok_all = True
+        for chk in checks:
+            r = self._run_check(t, chk)
+            results.append(r)
+            if not r["ok"]:
+                ok_all = False
+        if not checks:
+            # No declared criteria → require at least a HEAD move as
+            # objective evidence something landed (or NEEDS_REVIEW).
+            head = self._git_head(t["worktree"])
+            moved = bool(head and head != t.get("base_head"))
+            results.append({"check": "git_head_moved", "ok": moved,
+                            "detail": f"{t.get('base_head','')[:8]}→{head[:8]}"})
+            ok_all = moved
+        st_note = {"checks": results, "verified_at": utcnow()}
+        if ok_all:
+            self._transition(task_id, "COMPLETE", evidence=st_note,
+                             result_head=self._git_head(t["worktree"]))
+            with file_lock(self.root / ".coord.lock"):
+                st = self._load()
+                st["stats"]["completed"] += 1
+                self._save(st)
+            return {"verified": True, "checks": results}
+        return self._fail_or_retry(task_id, "acceptance checks failed",
+                                   checks=results)
+
+    def _in_worktree(self, task: dict, rel: str) -> Path:
+        """Resolve a check path strictly inside the task worktree —
+        acceptance criteria can't read outside the sandbox."""
+        wt = Path(task["worktree"]).resolve()
+        p = (wt / rel).resolve()
+        try:
+            p.relative_to(wt)
+        except ValueError:
+            raise ValueError(f"acceptance path escapes worktree: {rel}")
+        return p
+
+    def _run_check(self, task: dict, chk: dict) -> dict:
+        kind = chk.get("type")
+        wt = task["worktree"]
+        try:
+            if kind == "file_exists":
+                p = self._in_worktree(task, str(chk["path"]))
+                return {"check": f"file_exists {chk['path']}",
+                        "ok": p.exists()}
+            if kind == "file_contains":
+                p = self._in_worktree(task, str(chk["path"]))
+                ok = p.is_file() and re.search(
+                    chk["pattern"], p.read_text(
+                        encoding="utf-8", errors="replace")) is not None
+                return {"check": f"file_contains {chk['path']}",
+                        "ok": bool(ok)}
+            if kind == "command":
+                cmd = str(chk["cmd"])
+                # Arbitrary shell from a task payload is not evidence —
+                # only sanitized commands may run, and only when the task
+                # was created with shell checks explicitly approved.
+                if not task.get("shell_checks_approved"):
+                    return {"check": f"command {cmd[:60]}", "ok": False,
+                            "error": "shell command checks require "
+                                     "shell_checks_approved on the task"}
+                if len(cmd) > 300 or _UNSAFE_CMD_RE.search(cmd):
+                    return {"check": f"command {cmd[:60]}", "ok": False,
+                            "error": "command fails safe-command policy"}
+                out = subprocess.run(
+                    cmd, shell=True, cwd=wt, capture_output=True,
+                    text=True, timeout=int(chk.get("timeout", 600)))
+                ok = out.returncode == int(chk.get("expect_exit", 0))
+                pat = chk.get("output_regex")
+                if ok and pat:
+                    ok = re.search(pat, out.stdout + out.stderr) is not None
+                return {"check": f"command {cmd[:60]}", "ok": ok,
+                        "exit": out.returncode,
+                        "tail": (out.stdout + out.stderr)[-400:]}
+            if kind == "test":
+                # Preferred replacement for `command`: fixed interpreter,
+                # allowlisted runner, argv list — no shell.
+                runner = str(chk.get("runner", ""))
+                if runner not in SAFE_TEST_RUNNERS:
+                    return {"check": f"test {runner}", "ok": False,
+                            "error": "runner not in SAFE_TEST_RUNNERS"}
+                args = [str(a)[:200] for a in chk.get("args") or []]
+                if any(re.search(r"[;&|`$]", a) for a in args):
+                    return {"check": f"test {runner}", "ok": False,
+                            "error": "unsafe arg in test invocation"}
+                argv = [sys.executable] + SAFE_TEST_RUNNERS[runner] + args
+                out = subprocess.run(
+                    argv, cwd=wt, capture_output=True, text=True,
+                    timeout=int(chk.get("timeout", 600)))
+                ok = out.returncode == int(chk.get("expect_exit", 0))
+                return {"check": f"test {runner} {' '.join(args[:3])}",
+                        "ok": ok, "exit": out.returncode,
+                        "tail": (out.stdout + out.stderr)[-400:]}
+            if kind == "github_issue":
+                gh = self.github
+                if not gh or not gh.available:
+                    return {"check": f"github_issue #{chk['number']}",
+                            "ok": False, "error": "github probe unavailable"}
+                i = gh.issue(int(chk["number"]))
+                want = str(chk.get("expect", "closed"))
+                return {"check": f"github_issue #{chk['number']}={want}",
+                        "ok": i.get("state") == want,
+                        "detail": i.get("state")}
+            if kind == "github_pr":
+                gh = self.github
+                if not gh or not gh.available:
+                    return {"check": f"github_pr #{chk['number']}",
+                            "ok": False, "error": "github probe unavailable"}
+                p = gh.pr(int(chk["number"]))
+                if chk.get("expect_merged"):
+                    return {"check": f"github_pr #{chk['number']} merged",
+                            "ok": bool(p.get("merged")),
+                            "detail": p.get("state")}
+                want = str(chk.get("expect", "open"))
+                return {"check": f"github_pr #{chk['number']}={want}",
+                        "ok": p.get("state") == want,
+                        "detail": p.get("state")}
+            if kind == "github_checks":
+                gh = self.github
+                if not gh or not gh.available:
+                    return {"check": "github_checks", "ok": False,
+                            "error": "github probe unavailable"}
+                sha = str(chk.get("sha") or task.get("result_head") or
+                          self._git_head(wt))
+                r = gh.check_runs(sha)
+                runs = r.get("runs") or []
+                bad = [c for c in runs if c.get("conclusion")
+                       not in ("success", "neutral", None)]
+                pending = [c for c in runs if c.get("status")
+                           != "completed"]
+                return {"check": f"github_checks {sha[:8]}",
+                        "ok": bool(runs) and not bad and not pending,
+                        "detail": f"{len(runs)} runs, {len(bad)} failed, "
+                                  f"{len(pending)} pending"}
+            if kind == "git_head_moved":
+                head = self._git_head(wt)
+                return {"check": "git_head_moved",
+                        "ok": bool(head and head != task.get("base_head")),
+                        "detail": head[:10]}
+            if kind == "git_clean_tree":
+                out = subprocess.run(["git", "-C", wt, "status", "--porcelain"],
+                                     capture_output=True, text=True,
+                                     timeout=15)
+                return {"check": "git_clean_tree",
+                        "ok": out.returncode == 0 and not out.stdout.strip()}
+        except Exception as e:
+            return {"check": str(chk)[:80], "ok": False, "error": str(e)[:200]}
+        return {"check": str(chk)[:80], "ok": False,
+                "error": "unknown check type"}
+
+    def _fail_or_retry(self, task_id: str, reason: str,
+                       checks: list | None = None) -> dict:
+        t = self.get_task(task_id)
+        # A pending approval request is the task's REAL blocker — hold it
+        # at NEEDS_APPROVAL instead of burning retries re-prompting for
+        # work the human hasn't authorized yet.
+        try:
+            from .approvals import ApprovalManager
+            mgr = ApprovalManager(self.root)
+            pend = [r for r in mgr.pending() if r["task_id"] == task_id]
+        except Exception:
+            pend = []
+        if pend:
+            self._transition(task_id, "NEEDS_APPROVAL",
+                             last_error=reason,
+                             evidence={"checks": checks or []})
+            self._event("held_for_approval", task_id=task_id,
+                        request_id=pend[0]["request_id"])
+            return {"verified": False, "awaiting_approval": True,
+                    "checks": checks or []}
+        attempts = int(t.get("attempts", 0))
+        cap = int(t.get("max_attempts") or 0) or self.max_retries
+        if attempts < cap:
+            backoff = BACKOFF_BASE_S * (2 ** max(attempts - 1, 0))
+            self._transition(task_id, "READY",
+                             last_error=reason,
+                             not_before=_now() + backoff,
+                             evidence={"checks": checks or []})
+            self._event("retry_scheduled", task_id=task_id,
+                        attempt=attempts, backoff_s=backoff)
+            return {"verified": False, "retry_in_s": backoff,
+                    "checks": checks or []}
+        self._transition(task_id, "FAILED", last_error=reason,
+                         evidence={"checks": checks or []})
+        with file_lock(self.root / ".coord.lock"):
+            st = self._load()
+            st["stats"]["failed"] += 1
+            self._save(st)
+        return {"verified": False, "failed": True, "checks": checks or []}
+
+    @staticmethod
+    def _worker_dead(pid) -> bool:
+        """True only when a recorded worker pid is PROVABLY gone."""
+        if not pid:
+            return False
+        try:
+            import ctypes
+            k32 = ctypes.windll.kernel32
+            h = k32.OpenProcess(0x0400, False, int(pid))  # QUERY_INFORMATION
+            if not h:
+                return True
+            code = ctypes.c_ulong(0)
+            k32.GetExitCodeProcess(h, ctypes.byref(code))
+            k32.CloseHandle(h)
+            return code.value != 259  # STILL_ACTIVE
+        except Exception:
+            return False  # can't prove dead → leave it alone
+
+    # ------------------------------------------------------------- tick
+    def tick(self, autonomous_dispatch: bool | None = None) -> dict:
+        """One coordinator cycle: reconcile + optionally dispatch."""
+        st = self._load()
+        actions = []
+        # 1) reconcile RUNNING tasks whose session died silently
+        for t in st["tasks"].values():
+            if t["status"] == "RUNNING":
+                last_hist = t["history"][-1]["ts"]
+                try:
+                    age = _now() - time.mktime(
+                        time.strptime(last_hist, "%Y-%m-%dT%H:%M:%SZ"))
+                except (KeyError, ValueError):
+                    age = 0
+                dead_pid = self._worker_dead(t.get("worker_pid"))
+                if age > RUN_STALE_S or dead_pid:
+                    reason = ("prompt worker process gone"
+                              if dead_pid else "no progress for >6h")
+                    self._transition(t["id"], "NEEDS_REVIEW",
+                                     reason=reason)
+                    actions.append(f"{t['id']}: stale→NEEDS_REVIEW")
+        # 2) always evaluate eligibility (read-only planning) — also
+        # promotes PENDING→READY so status/dashboard reflect reality.
+        cand, why = self.next_eligible()
+        # 3) auto-dispatch (AUTONOMOUS only)
+        do_auto = (self.mode == "autonomous"
+                   and self.autonomous_flag.is_file()
+                   and not self.paused
+                   if autonomous_dispatch is None else autonomous_dispatch)
+        holds = self.global_holds()
+        if do_auto and not holds:
+            if cand and not self.worktree_holds(cand["worktree"]):
+                res = self.dispatch(cand["id"])
+                actions.append(f"auto-dispatch {cand['id']}: "
+                               f"{res.get('session_id') or res.get('reason') or res.get('error')}")
+            else:
+                actions.append(f"no dispatch: {why}")
+        elif do_auto and holds:
+            actions.append("auto-dispatch suppressed: " + "; ".join(holds))
+        return {"actions": actions, "holds": holds, "mode": self.mode,
+                "paused": self.paused}
+
+    # ------------------------------------------------------------ status
+    def status(self) -> dict:
+        st = self._load()
+        tasks = list(st["tasks"].values())
+        counts = {}
+        for t in tasks:
+            counts[t["status"]] = counts.get(t["status"], 0) + 1
+        running = [t for t in tasks if t["status"] in
+                   ("DISPATCHED", "RUNNING", "VERIFYING")]
+        cand, why = self.next_eligible(st) if tasks else (None, "")
+        return {
+            "mode": self.mode,
+            "autonomous_flag": self.autonomous_flag.is_file(),
+            "paused": self.paused,
+            "model": self.model,
+            "counts": counts,
+            "running": [{"id": t["id"], "session_id": t["session_id"],
+                         "status": t["status"]} for t in running],
+            "next_eligible": (cand or {}).get("id"),
+            "next_eligible_reason": why,
+            "global_holds": self.global_holds(),
+            "stats": st["stats"],
+            "tasks": [{
+                "id": t["id"], "title": t["title"], "status": t["status"],
+                "approved": t["approved"], "human_gate": t["human_gate"],
+                "attempts": t["attempts"], "session_id": t["session_id"],
+                "worktree": t["worktree"], "last_error": t["last_error"][:200],
+            } for t in self.list_tasks()],
+        }

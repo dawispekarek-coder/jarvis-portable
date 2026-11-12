@@ -1,0 +1,6 @@
+-r requirements.txt
+playwright==1.64.1
+faster-whisper==1.2.1
+av==16.1.0
+tzdata==2026.5
+pywinauto==0.6.9; sys_platform == 'win32'

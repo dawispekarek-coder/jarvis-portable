@@ -1,0 +1,60 @@
+"""One bounded mouse/keyboard GUI action on known Blender process; no Python console or scripts."""
+import ctypes, time, os, hashlib, re
+from pathlib import Path
+from PIL import ImageGrab, ImageChops, ImageStat
+from pywinauto import Desktop, keyboard, mouse
+from companion_blender_vision import BLENDER, locate_blender
+from companion_registry import ToolError
+def current_title():
+ hwnd=ctypes.windll.user32.GetForegroundWindow()
+ buff=ctypes.create_unicode_buffer(512)
+ ctypes.windll.user32.GetWindowTextW(hwnd,buff,512)
+ return buff.value
+def viewport_center():
+ rect=locate_blender()
+ return (int(rect[0]+(rect[2]-rect[0])*.42),int(rect[1]+(rect[3]-rect[1])*.32))
+def current_digest():
+ rect=locate_blender()
+ im=ImageGrab.grab(bbox=rect,all_screens=True)
+ im.thumbnail((640,400))
+ return im.convert('RGB')
+def press(key):
+ keyboard.send_keys(key,pause=.035,with_spaces=True)
+ time.sleep(.15)
+def require_scene():
+ t=current_title().casefold()
+ if 'blender' not in t or 'file view' in t:raise ToolError('blender_3d_view_not_active; dismiss dialog first')
+def step(action,name='',uniform_scale=1.0):
+ allowed=('dismiss_file_dialog','dismiss_splash','add_head_sphere','undo_last')
+ if action not in allowed:raise ToolError('unsupported_blender_action')
+ before=current_digest();old_title=current_title()
+ if action=='dismiss_file_dialog':
+  if 'blender' not in old_title.casefold():raise ToolError('not_blender')
+  import psutil
+  found=[w for w in Desktop(backend="win32").windows() if w.window_text()=="Blender File View" and os.path.normcase(psutil.Process(w.process_id()).exe())==os.path.normcase(str(BLENDER))]
+  if len(found)==1:
+   found[0].close()
+   time.sleep(.65)
+  elif len(found)==0:press('{ESC}')
+  else:raise ToolError("multiple_blender_file_dialogs")
+ elif action=='dismiss_splash':
+  require_scene()
+  x,y=viewport_center();mouse.click(coords=(x,y));time.sleep(.5)
+ elif action=='add_head_sphere':
+  require_scene()
+  if not (.5<=float(uniform_scale)<=2.0):raise ToolError('scale_out_of_range')
+  if name and not re.fullmatch(r'[A-Za-z0-9 _-]{1,45}',name):raise ToolError('invalid_blender_object_name')
+  x,y=viewport_center();mouse.click(coords=(x,y))
+  press('{F3}');time.sleep(.6);keyboard.send_keys('UV Sphere',pause=.15,with_spaces=True);time.sleep(.75);press('{ENTER}');time.sleep(1.0)
+  if name:press('{F2}');press(name);press('{ENTER}')
+  if uniform_scale!=1:press('s');press(str(float(uniform_scale)));press('{ENTER}')
+ elif action=='undo_last':
+  require_scene();press('^z')
+ time.sleep(.45)
+ after=current_digest()
+ # Frame diff is basic evidence of an actual GUI change, not visual fidelity.
+ difference=ImageChops.difference(before,after)
+ mean=sum(ImageStat.Stat(difference).mean)/3
+ changed=mean>0.6 or current_title()!=old_title
+ return {'verified':bool(changed),'action':action,'visible_change':round(mean,2),'was':old_title,'now':current_title(),'scope':'Blender GUI action only, no 3D quality approval','model_approved':False}
+

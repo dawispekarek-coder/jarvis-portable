@@ -1,0 +1,300 @@
+"""WoW Forever client manager — one managed instance, state machine,
+reconnect + controlled restart via Battle.net, resource limits, lock.
+
+States: NOT_RUNNING -> LAUNCHING -> CHARACTER_SELECT -> IN_WORLD
+        IN_WORLD -> QA_RUNNING
+        DISCONNECTED -> RECONNECTING -> IN_WORLD
+        RECONNECT_FAILED -> STOPPING -> NOT_RUNNING
+        RECOVERY_EXHAUSTED -> QA_PAUSED
+
+Hard rules: max ONE managed _forever_ instance; never kill a client we
+didn't start without confirmed graceful close; 2 reconnects/incident,
+1 restart/incident, 3 restarts/hour; resource gates before launch.
+"""
+from __future__ import annotations
+
+import ctypes
+import ctypes.wintypes as wt
+import json
+import shutil
+import subprocess
+import time
+from pathlib import Path
+
+from .bridge_store import SUBPROCESS_NO_WINDOW, file_lock, read_json, \
+    atomic_write_json
+
+FOREVER_EXE = Path(r"H:\World of Warcraft\_forever_\Wow.exe")
+RETAIL_EXE = Path(r"H:\World of Warcraft\_retail_\Wow.exe")
+BNET_EXE = Path(r"H:\Battle.net\Battle.net.exe")
+BRIDGE = Path(__file__).resolve().parent
+STATE_FILE = BRIDGE / "wow_manager_state.json"
+LOCK = BRIDGE / ".wow_manager.lock"
+EVIDENCE = BRIDGE / "wow_qa_evidence"
+
+MAX_RECONNECTS = 2
+MAX_RESTART_INCIDENT = 1
+MAX_RESTARTS_HOUR = 3
+MIN_FREE_RAM_MB = 1500
+MIN_FREE_DISK_MB = 500
+
+
+def _ps_wow() -> list[dict]:
+    """All Wow.exe processes with real paths (forever vs retail)."""
+    cmd = ("Get-CimInstance Win32_Process -Filter \"Name='Wow.exe'\" | "
+           "Select-Object ProcessId,ExecutablePath | ConvertTo-Json")
+    out = subprocess.run(["powershell", "-NoProfile", "-Command", cmd],
+                         capture_output=True, timeout=30,
+                         creationflags=SUBPROCESS_NO_WINDOW)
+    try:
+        data = json.loads(out.stdout.decode("utf-8", "replace") or "[]")
+    except ValueError:
+        data = []
+    if isinstance(data, dict):
+        data = [data]
+    procs = []
+    for p in data:
+        path = p.get("ExecutablePath") or ""
+        procs.append({"pid": p.get("ProcessId"), "path": path,
+                      "forever": "_forever_" in path.replace("\\", "/"),
+                      "retail": "_retail_" in path.replace("\\", "/")})
+    return procs
+
+
+def wow_window() -> int | None:
+    u = ctypes.windll.user32
+    hits = []
+    cb_type = ctypes.WINFUNCTYPE(ctypes.c_bool, ctypes.c_void_p,
+                                 ctypes.c_void_p)
+
+    def cb(hwnd, _lp):
+        if u.IsWindowVisible(hwnd):
+            buf = ctypes.create_unicode_buffer(256)
+            u.GetWindowTextW(hwnd, buf, 256)
+            t = buf.value.lower()
+            if "warcraft" in t or "wow" in t:
+                hits.append(hwnd)
+        return True
+    u.EnumWindows(cb_type(cb), 0)
+    return hits[0] if hits else None
+
+
+def screenshot(tag: str) -> str:
+    import pyautogui
+    EVIDENCE.mkdir(exist_ok=True)
+    p = EVIDENCE / f"wow_{tag}_{int(time.time())}.png"
+    pyautogui.screenshot().save(p)
+    return str(p)
+
+
+def _img_signature(path: str) -> dict:
+    """Cheap state hints from the screenshot — honest, never forced."""
+    from PIL import Image
+    im = Image.open(path).convert("RGB")
+    w, h = im.size
+    px = im.load()
+    # count dark/red/blue anchor pixels in expected UI zones
+    red = blue = bright = 0
+    for y in range(0, h, 4):
+        for x in range(0, w, 4):
+            r, g, b = px[x, y]
+            if r > 140 and g < 80 and b < 80:
+                red += 1
+            if b > 160 and g > 100 and r < 90:
+                blue += 1
+            if r + g + b > 500:
+                bright += 1
+    return {"w": w, "h": h, "red": red, "blue": blue, "bright": bright}
+
+
+def game_state() -> dict:
+    """Classify via screenshot — UNKNOWN is a legitimate answer."""
+    procs = _ps_wow()
+    forever = [p for p in procs if p["forever"]]
+    if not forever:
+        return {"state": "NOT_RUNNING", "procs": procs}
+    shot = screenshot("state")
+    sig = _img_signature(shot)
+    st = "IN_WORLD" if sig["bright"] > 1500 else (
+        "CHARACTER_SELECT" if sig["red"] > 200 else "UNKNOWN")
+    return {"state": st, "procs": procs, "forever_pid": forever[0]["pid"],
+            "screenshot": shot, "signature": sig}
+
+
+def _resources_ok() -> tuple[bool, str]:
+    free_disk = shutil.disk_usage("H:/").free // (1024 * 1024)
+    if free_disk < MIN_FREE_DISK_MB:
+        return False, f"disk {free_disk}MB < {MIN_FREE_DISK_MB}"
+    mem = ctypes.wintypes.MEMORYSTATUSEX()
+    mem.dwLength = ctypes.sizeof(mem)
+    ctypes.windll.kernel32.GlobalMemoryStatusEx(ctypes.byref(mem))
+    free_mb = mem.ullAvailPhys // (1024 * 1024)
+    if free_mb < MIN_FREE_RAM_MB:
+        return False, f"RAM {free_mb}MB < {MIN_FREE_RAM_MB}"
+    return True, f"RAM {free_mb}MB disk {free_disk}MB"
+
+
+def _persist(mut) -> None:
+    with file_lock(LOCK):
+        st = read_json(STATE_FILE, {"restarts": [], "reconnects": 0,
+                                  "incident": 0})
+        st = mut(st) or st
+        atomic_write_json(STATE_FILE, st)
+
+
+def _restarts_last_hour() -> int:
+    st = read_json(STATE_FILE, {})
+    now = time.time()
+    return sum(1 for t in st.get("restarts", []) if now - t < 3600)
+
+
+def click(hwnd: int, rel_x: float, rel_y: float, tag: str) -> dict:
+    """Verified click inside a specific window: focus, screenshot before
+    and after, report whether pixels actually changed."""
+    import pyautogui
+    u = ctypes.windll.user32
+    r = wt.RECT()
+    u.GetWindowRect(hwnd, ctypes.byref(r))
+    x = int(r.left + (r.right - r.left) * rel_x)
+    y = int(r.top + (r.bottom - r.top) * rel_y)
+    u.SetForegroundWindow(hwnd)
+    time.sleep(0.6)
+    before = screenshot(f"{tag}_before")
+    pyautogui.moveTo(x, y, duration=0.25)
+    pyautogui.click()
+    time.sleep(2.0)
+    after = screenshot(f"{tag}_after")
+    try:
+        from PIL import Image, ImageChops
+        diff = ImageChops.difference(
+            Image.open(before).convert("L"),
+            Image.open(after).convert("L"))
+        changed = diff.getbbox() is not None
+    except Exception:
+        changed = None
+    return {"clicked": [x, y], "changed": changed,
+            "before": before, "after": after}
+
+
+def launch_forever() -> dict:
+    """Play via Battle.net UI (owner-verified path) — minimising the
+    Jarvis HUD overlay first, then the Play click. Falls back to
+    --exec=launch wowf (agent path) if no UI click is possible."""
+    ok, why = _resources_ok()
+    if not ok:
+        return {"ok": False, "blocked": f"resources: {why}"}
+    u = ctypes.windll.user32
+    bnet = None
+    hud = []
+    cb_type = ctypes.WINFUNCTYPE(ctypes.c_bool, ctypes.c_void_p,
+                                 ctypes.c_void_p)
+
+    def cb(hwnd_, _lp):
+        nonlocal bnet
+        if u.IsWindowVisible(hwnd_):
+            buf = ctypes.create_unicode_buffer(256)
+            u.GetWindowTextW(hwnd_, buf, 256)
+            if buf.value == "Battle.net":
+                bnet = hwnd_
+            if buf.value in ("J.A.R.V.I.S.", "JARVIS | DEVIN LIVE"):
+                hud.append(hwnd_)
+        return True
+    u.EnumWindows(cb_type(cb), 0)
+    for h in hud:
+        u.ShowWindow(h, 6)  # minimise overlays covering the Play button
+    if not bnet:
+        subprocess.Popen([str(BNET_EXE)],
+                         creationflags=SUBPROCESS_NO_WINDOW,
+                         stdout=subprocess.DEVNULL,
+                         stderr=subprocess.DEVNULL)
+        time.sleep(12)
+        u.EnumWindows(cb_type(cb), 0)
+    if not bnet:
+        return {"ok": False, "blocked": "no Battle.net window"}
+    u.ShowWindow(bnet, 9)
+    u.SetForegroundWindow(bnet)
+    time.sleep(1.2)
+    shot = screenshot("bnet_before_play")
+    c = click(bnet, 0.10, 0.88, "play")  # Play button zone (verified)
+    deadline = time.time() + 150
+    while time.time() < deadline:
+        if any(p["forever"] for p in _ps_wow()):
+            for h in hud:
+                u.ShowWindow(h, 9)  # restore HUD
+            return {"ok": True, "launched": True, "click": c,
+                    "shot": shot}
+        time.sleep(5)
+    return {"ok": False,
+            "blocked": "Wow.exe did not appear within 150s",
+            "click": c}
+
+
+def stop_forever(pid: int) -> dict:
+    """Graceful close first (WM_CLOSE to the WoW window); force-kill only
+    that verified _forever_ PID after a timeout — data-loss risk noted."""
+    u = ctypes.windll.user32
+    hwnd = wow_window()
+    if hwnd:
+        u.PostMessageW(hwnd, 0x0010, 0, 0)  # WM_CLOSE
+        for _ in range(24):
+            if not any(p["pid"] == pid for p in _ps_wow()):
+                return {"ok": True, "forced": False}
+            time.sleep(5)
+    # still alive → force only THIS verified forever pid
+    subprocess.run(["taskkill", "/PID", str(pid), "/F"],
+                   capture_output=True, creationflags=SUBPROCESS_NO_WINDOW)
+    time.sleep(3)
+    gone = not any(p["pid"] == pid for p in _ps_wow())
+    return {"ok": gone, "forced": True,
+            "note": "forced kill of verified _forever_ pid; "
+                    "unsaved client state may be lost"}
+
+
+def ensure() -> dict:
+    """Top-level policy: reuse a live client; else controlled launch.
+    Serialized by a process lock so two agents never double-launch."""
+    with file_lock(LOCK):
+        gs = game_state()
+        if gs["state"] != "NOT_RUNNING":
+            return {"ok": True, "action": "reuse_existing",
+                    "state": gs, "note": "existing _forever_ client used"}
+        if _restarts_last_hour() >= MAX_RESTARTS_HOUR:
+            return {"ok": False, "state": "RECOVERY_EXHAUSTED",
+                    "qa": "QA_PAUSED",
+                    "note": "restart budget exhausted — offline work "
+                            "continues"}
+        res = launch_forever()
+        if res.get("ok"):
+            _persist(lambda s: {**s, "restarts":
+                                (s.get("restarts", []) + [time.time()])[-20:]})
+        return res
+
+
+def reconnect() -> dict:
+    """Reconnect click inside the live client, bounded retries."""
+    with file_lock(LOCK):
+        st = read_json(STATE_FILE, {})
+        if st.get("reconnects", 0) >= MAX_RECONNECTS:
+            return {"ok": False, "state": "RECONNECT_FAILED",
+                    "next": "controlled restart path"}
+        hwnd = wow_window()
+        if not hwnd:
+            return {"ok": False, "state": "NOT_RUNNING"}
+        c = click(hwnd, 0.5, 0.62, "reconnect")  # centre-bottom dialog
+        _persist(lambda s: {**s, "reconnects": s.get("reconnects", 0) + 1})
+        time.sleep(15)
+        gs = game_state()
+        return {"ok": gs["state"] == "IN_WORLD", "click": c,
+                "state": gs["state"]}
+
+
+def wow_manage() -> str:
+    gs = game_state()
+    return json.dumps({"manager": "single-instance policy",
+                       "state": gs,
+                       "limits": {"max_reconnects": MAX_RECONNECTS,
+                                  "restarts_hour": MAX_RESTARTS_HOUR,
+                                  "restarts_used_hour":
+                                      _restarts_last_hour()},
+                       "evidence_dir": str(EVIDENCE)},
+                      ensure_ascii=False)

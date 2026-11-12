@@ -1,0 +1,138 @@
+"""Whitelisted tools the Devin chat brain may invoke via terminal.
+
+The agent runs:
+    python -m DevinBridge.jarvis_tools run <name> --json '{...}'
+
+Every entry is read-only or coordinator-safe. Adding anything mutating
+requires a human to edit this file AND pass the permission policy —
+Jarvis-side tools (open apps, TTS, etc.) can be added later behind the
+same gate. Output is plain text/JSON on stdout.
+"""
+from __future__ import annotations
+
+import argparse
+import datetime
+import json
+import sys
+from pathlib import Path
+
+BRIDGE_ROOT = Path(__file__).resolve().parent
+
+
+def _coordinator():
+    from .daemon import load_config, make_coordinator
+    return make_coordinator(load_config())
+
+
+def get_time() -> str:
+    return datetime.datetime.now().strftime("%H:%M:%S")
+
+
+def get_date() -> str:
+    return datetime.datetime.now().strftime("%A %Y-%m-%d")
+
+
+def jarvis_status() -> str:
+    c = _coordinator()
+    st = c.status()
+    return json.dumps({
+        "mode": st.get("mode"), "paused": st.get("paused"),
+        "model": st.get("model"), "counts": st.get("counts"),
+        "holds": st.get("holds")}, ensure_ascii=False)
+
+
+def devin_queue_status() -> str:
+    c = _coordinator()
+    rows = [{"id": t["id"], "status": t["status"], "title": t["title"]}
+            for t in c.list_tasks()]
+    return json.dumps(rows, ensure_ascii=False)
+
+
+def devin_live_status() -> str:
+    """Read-only view of the two existing Devin Desktop sessions, via the
+    DevinObserver snapshot. States are derived from activity timestamps —
+    recent_visible_response is undated context, NEVER proof of current
+    work."""
+    from datetime import datetime, timezone
+    path = BRIDGE_ROOT.parent / 'DevinObserver' / 'state.json'
+    try:
+        data = json.loads(path.read_text(encoding='utf-8'))
+        ts = datetime.fromisoformat(data['generated_at'])
+        age = (datetime.now(timezone.utc) - ts).total_seconds()
+        sessions = {}
+        for sid, item in data.get('sessions', {}).items():
+            drv = item.get('derived') or {}
+            sessions[sid] = {
+                'found': item.get('found'),
+                'state': drv.get('state', 'uncertain'),
+                'activity_age_seconds': drv.get('activity_age_seconds'),
+                'evidence': drv.get('evidence'),
+                'identity_ok': drv.get('identity_ok'),
+                'title': item.get('title'), 'cwd': item.get('cwd'),
+                'agent_mode': item.get('agent_mode'),
+                'recent_tools': item.get('recent_tools'),
+                # Undated — context only, not proof of work now.
+                'recent_visible_response':
+                    (item.get('recent_visible_response') or '')[:400],
+            }
+        return json.dumps({'observer_age_seconds': round(age),
+                           'fresh': 0 <= age < 210,
+                           'stale_warning': age >= 210,
+                           'sessions': sessions,
+                           'foreverroute_git': data.get('foreverroute_git'),
+                           'bridge': data.get('bridge')}, ensure_ascii=False)
+    except (OSError, ValueError, KeyError, TypeError) as exc:
+        return json.dumps({'available': False, 'error': str(exc)[:160]})
+
+def pending_approvals() -> str:
+    from .approvals import ApprovalManager
+    c = _coordinator()
+    pend = ApprovalManager(c.root).pending()
+    return json.dumps(
+        [{"request_id": r["request_id"], "summary": r["summary"],
+          "risk": r["risk"], "task": r["task_id"]} for r in pend],
+        ensure_ascii=False)
+
+
+TOOLS = {
+    "get_time": {"fn": get_time, "desc": "current local time"},
+    "get_date": {"fn": get_date, "desc": "current local date"},
+    "jarvis_status": {"fn": jarvis_status,
+                      "desc": "DevinBridge mode/pause/holds/task counts"},
+    "devin_queue_status": {"fn": devin_queue_status,
+                           "desc": "bridge task list with statuses"},
+    "devin_live_status": {"fn": devin_live_status, "desc": "read-only status of existing Devin Desktop sessions and Git"},
+    "pending_approvals": {"fn": pending_approvals,
+                          "desc": "actions awaiting human approval"},
+}
+
+
+def tools_doc() -> str:
+    return "\n".join(f"- {name}: {t['desc']}" for name, t in TOOLS.items())
+
+
+def main(argv=None) -> int:
+    try:
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    except (AttributeError, ValueError):
+        pass
+    ap = argparse.ArgumentParser(prog="jarvis_tools")
+    sub = ap.add_subparsers(dest="cmd", required=True)
+    sub.add_parser("list")
+    p = sub.add_parser("run")
+    p.add_argument("name")
+    p.add_argument("--json", default="{}")
+    a = ap.parse_args(argv)
+    if a.cmd == "list":
+        print(tools_doc())
+        return 0
+    t = TOOLS.get(a.name)
+    if not t:
+        print(f"unknown tool: {a.name}\navailable: {', '.join(TOOLS)}")
+        return 2
+    print(t["fn"]())
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

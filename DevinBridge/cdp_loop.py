@@ -1,0 +1,280 @@
+"""Closed-loop development cycle for the CDP.
+
+    discover  : structured evidence -> fingerprinted ISSUES
+    synthesize: issues -> scoped task proposals (dedup vs all queues)
+    loop_tick : collect -> discover -> synthesize -> gated handoff
+    STOP      : explicit state when no safe/fresh work remains
+
+Issue provenance is real: source file + row/assertion, repro text,
+confidence, allowed code paths, exact test command — never substring
+TODO scraping, never invented coordinates. Freshness is checked per
+source (mtime/declared epoch); stale evidence generates nothing.
+
+A generated task NEVER self-approves a new scope — proposals stay
+OPEN and only an existing owner program grant (CDP_PROGRAM.json)
+can promote them, still bounded by worktrees/kinds/budget/expiry.
+"""
+from __future__ import annotations
+
+import csv
+import hashlib
+import json
+import re
+import time
+from pathlib import Path
+
+from .bridge_store import atomic_write_json, read_json, utcnow
+from . import cdp
+from .route_metric_issues import discover_route_metrics
+
+STATE_FILE = "cdp_loop_state.json"
+DEFAULT_FRESH_S = 24 * 3600
+
+# Priority tiers — real regressions before speculative improvements.
+PRI = {"regression": 10, "test-failure": 15, "data-gap": 30,
+       "repair": 40, "improvement": 60}
+
+
+def _issue_fp(kind: str, source: str, signature: str) -> str:
+    return hashlib.sha256(
+        f"{kind}|{source}|{signature}".encode()).hexdigest()[:16]
+
+
+def _fresh(path: Path, max_age_s: float) -> bool:
+    try:
+        return (time.time() - path.stat().st_mtime) < max_age_s
+    except OSError:
+        return False
+
+
+# ------------------------------------------------------------- discover
+def discover_findings_csv(path: Path, max_rows: int = 400) -> list[dict]:
+    """Aggregate structured audit findings into per-code issues —
+    one issue per finding class with real example rows, not 31k tasks."""
+    issues = []
+    by_code: dict[str, list[dict]] = {}
+    with open(path, newline="", encoding="utf-8", errors="replace") as f:
+        for i, row in enumerate(csv.DictReader(f)):
+            if i >= max_rows:
+                break
+            code = (row.get("code") or "UNKNOWN").strip()
+            by_code.setdefault(code, []).append(row)
+    for code, rows in sorted(by_code.items()):
+        sig = f"{path.name}:{code}:{len(rows)}"
+        ex = rows[0]
+        issues.append({
+            "issue_id": f"ISS-{_issue_fp('data-gap', sig, code)[:8]}",
+            "fingerprint": _issue_fp("data-gap", sig, code),
+            "kind": "data-gap", "priority": PRI["data-gap"],
+            "confidence": "high" if ex.get("proof") == "PROOF" else
+                          "medium",
+            "source_ref": f"{path}:{code}",
+            "title": f"{code}: {len(rows)} finding(s) in {path.name}",
+            "repro": (f"{code} x{len(rows)}; e.g. section "
+                      f"'{ex.get('section','?')}' qid {ex.get('qid','?')}"
+                      f": {ex.get('detail','')[:160]}"),
+            "allowed_paths": ["tools/", "docs/autonomy/"],
+            "test_cmd": "",
+            "acceptance": [{"type": "file_exists",
+                            "path": f"docs/autonomy/fix_{code.lower()}.md"}],
+            "detail_rows": len(rows)})
+    return issues
+
+
+def discover_test_results(path: Path) -> list[dict]:
+    """JUnit-ish JSON: {tests:[{name,ok,error}]} -> one issue per real
+    failing assertion."""
+    data = read_json(path, {})
+    issues = []
+    for t in data.get("tests", []):
+        if t.get("ok"):
+            continue
+        name = str(t.get("name") or "?")
+        sig = f"{path.name}:{name}"
+        # Only fixed, argv-safe regression commands become unattended
+        # repair tasks. All other commands remain evidence-only analysis.
+        rerun = str(t.get("rerun") or "").strip()
+        safe = re.fullmatch(
+            r"python -m unittest discover -s tests -p (test_[A-Za-z0-9_]+\.py)",
+            rerun)
+        acceptance = ([{"type": "test", "runner": "unittest",
+                        "args": ["discover", "-s", "tests", "-p", safe.group(1)],
+                        "expect_exit": 0}]
+                      if safe else [{"type": "file_exists",
+                                     "path": str(t.get("fix_file")
+                                                 or f"fix_{name}.txt")}])
+        issues.append({
+            "issue_id": f"ISS-{_issue_fp('test-failure', sig, name)[:8]}",
+            "fingerprint": _issue_fp("test-failure", sig, name),
+            "kind": "test-failure", "priority": PRI["test-failure"],
+            "confidence": "high", "source_ref": f"{path}:{name}",
+            "title": f"failing test: {name}",
+            "repro": str(t.get("error") or "assertion failed")[:300],
+            "allowed_paths": [str(Path(t.get("path", "."))).replace(
+                "\\", "/") + "/" if t.get("path") else ""],
+            "test_cmd": str(t.get("rerun") or ""),
+            "acceptance": acceptance,
+            "detail_rows": 1})
+    return issues
+
+
+def discover_failed_tasks(coord) -> list[dict]:
+    """Failed production tasks = unresolved regressions."""
+    issues = []
+    for t in coord.list_tasks():
+        if t.get("scope") != "production" or \
+                t.get("status") not in ("FAILED",):
+            continue
+        sig = f"task:{t['id']}"
+        issues.append({
+            "issue_id": f"ISS-{_issue_fp('regression', sig, t['id'])[:8]}",
+            "fingerprint": _issue_fp("regression", sig, t["id"]),
+            "kind": "regression", "priority": PRI["regression"],
+            "confidence": "high", "source_ref": f"coordinator:{t['id']}",
+            "title": f"regression: {t['title'][:80]}",
+            "repro": (t.get("last_error") or "")[:300],
+            "allowed_paths": [], "test_cmd": "",
+            "acceptance": t.get("acceptance") or [],
+            "detail_rows": 1})
+    return issues
+
+
+def discover(coord, worktree: str, sources: list[dict],
+             max_age_s: float = DEFAULT_FRESH_S) -> dict:
+    """Run configured discovery sources; return issues + per-source
+    freshness. A stale/missing source yields zero issues — never
+    generates from old evidence."""
+    wt = Path(worktree)
+    issues, src_state = [], []
+    for s in sources:
+        kind = s.get("type")
+        rel = s.get("path", "")
+        p = wt / rel
+        if not p.is_file():
+            src_state.append({"source": rel, "ok": False,
+                              "reason": "missing"})
+            continue
+        fresh = _fresh(p, float(s.get("max_age_s", max_age_s)))
+        if not fresh:
+            src_state.append({"source": rel, "ok": False,
+                              "reason": "stale — evidence too old"})
+            continue
+        src_state.append({"source": rel, "ok": True})
+        if kind == "findings_csv":
+            issues += discover_findings_csv(p, int(s.get("max_rows", 400)))
+        elif kind == "test_results":
+            issues += discover_test_results(p)
+        elif kind == "route_recalc_metrics":
+            issues += discover_route_metrics(p)
+    issues.sort(key=lambda i: i["priority"])
+    return {"issues": issues, "sources": src_state}
+
+
+# ------------------------------------------------------------ synthesize
+def _existing_fingerprints(coord) -> set:
+    """Fingerprints already covered by ANY task or non-closed proposal —
+    dedup across DONE/PENDING/in-flight, not just open proposals."""
+    fps = set()
+    for t in coord.list_tasks():
+        for ref in t.get("evidence_refs", []):
+            if str(ref).startswith("issue:"):
+                fps.add(str(ref)[6:])
+    for p in _all_proposals(coord):
+        if p.get("status") in ("OPEN", "PROMOTED"):
+            fps.add(p.get("fingerprint", ""))
+            for ref in p.get("provenance", {}).get("evidence_refs", []):
+                if str(ref).startswith("issue:"):
+                    fps.add(str(ref)[6:])
+    return fps
+
+
+def _all_proposals(coord) -> list[dict]:
+    from . import planner
+    d = planner._load(coord.root / planner.PROPOSALS_FILE)
+    return list(d["proposals"].values())
+
+
+def synthesize(coord, issues: list[dict], worktree: str) -> dict:
+    """Issues -> proposals. Prompts carry the real repro + exact
+    acceptance; issue fingerprint recorded in evidence_refs for
+    cross-queue dedup."""
+    existing = _existing_fingerprints(coord)
+    made = []
+    for iss in issues:
+        if iss["fingerprint"] in existing:
+            continue
+        prompt = (
+            f"ISSUE {iss['issue_id']} ({iss['kind']}, source "
+            f"{iss['source_ref']}):\n{iss['repro']}\n\n"
+            f"Investigate and resolve ONLY this issue. Allowed paths: "
+            f"{', '.join(iss['allowed_paths']) or 'docs only'}."
+            + (f"\nRe-run: {iss['test_cmd']}" if iss["test_cmd"] else ""))
+        deliverables = [str(x.get("path")) for x in iss.get("acceptance", [])
+                        if x.get("type") in ("file_exists", "file_contains") and x.get("path")]
+        if deliverables:
+            prompt += ("\n\nMANDATORY ACCEPTANCE OUTPUT: create exact "
+                       "workspace-relative file(s): " + ", ".join(deliverables) +
+                       ". Each Markdown report must cite quest IDs, "
+                       "source and tests, describe code changes and remaining "
+                       "human/WoW evidence gates. Do not claim success "
+                       "without those output files. Never invent coordinates, "
+                       "publish or write outside allowed paths.")
+        repair_kind = (iss["kind"] == "test-failure" and any(
+            x.get("type") == "test" for x in iss.get("acceptance", [])))
+        r = cdp.new_issue_proposal(
+            coord, ("repair-small" if repair_kind else
+                    iss["kind"] if iss["kind"] in cdp.SAFE_KINDS
+                    else "analyze"),
+            iss["title"], prompt, worktree,
+            signature=iss["source_ref"],
+            evidence_refs=[iss["source_ref"], f"issue:{iss['fingerprint']}"],
+            acceptance=iss["acceptance"], priority=iss["priority"])
+        if r.get("proposal_id") and not r.get("deduplicated"):
+            # stamp the issue fingerprint into the proposal record
+            from . import planner
+            path = coord.root / planner.PROPOSALS_FILE
+            d = planner._load(path)
+            d["proposals"][r["proposal_id"]]["fingerprint"] = \
+                iss["fingerprint"]
+            planner._save(path, d)
+            existing.add(iss["fingerprint"])
+            made.append(iss["issue_id"])
+    return {"created": made}
+
+
+def loop_tick(coord, program_worktree: str = "",
+              sources: list[dict] | None = None) -> dict:
+    """One closed-loop step. Returns the auditable action record and
+    writes cdp_loop_state.json. Handoff still requires a valid program
+    file — this function never grants scope by itself."""
+    cdp.collect_all_terminal(coord)
+    prog = cdp._load_program(coord)
+    if sources is None:
+        sources = prog.get("sources", [])
+    if not program_worktree and prog.get("worktrees"):
+        program_worktree = str(prog["worktrees"][0])
+    disc = discover(coord, program_worktree, sources or [])
+    syn = synthesize(coord, disc["issues"], program_worktree)
+    # in-program queue state
+    open_p = [p for p in _all_proposals(coord)
+              if p.get("status") == "OPEN"]
+    stopped = [p for p in _all_proposals(coord)
+               if p.get("status") == "STOP"]
+    hand = cdp.handoff_tick(coord)
+    if not open_p and not disc["issues"]:
+        state = "STOP"
+        reason = "no fresh issues and no open proposals — nothing safe " \
+                 "to do; needs human direction or WoW-client evidence"
+    elif not open_p and not hand.get("handoff"):
+        state = "WAITING_HUMAN"
+        reason = f"issues discovered but not dispatched: " \
+                 f"{hand.get('reason', 'no program grant')}"
+    else:
+        state = "ACTIVE"
+        reason = hand.get("reason", "")
+    st = {"state": state, "reason": reason, "at": utcnow(),
+          "issues": len(disc["issues"]), "created": syn["created"],
+          "open_proposals": len(open_p), "stopped": len(stopped),
+          "handoff": hand, "sources": disc["sources"]}
+    atomic_write_json(coord.root / STATE_FILE, st)
+    return st

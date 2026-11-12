@@ -1,0 +1,943 @@
+{"kind": "task_added", "task_id": "T900_BRIDGE_SMOKE", "approved": true, "ts": "2026-11-10T15:46:46Z"}
+{"kind": "transition", "task_id": "T900_BRIDGE_SMOKE", "to": "DISPATCHED", "reason": "", "ts": "2026-11-10T15:46:53Z"}
+{"kind": "dispatched", "task_id": "T900_BRIDGE_SMOKE", "session_id": "single-gong", "model": "swe-2-high", "worktree": "C:\\Users\\Dawis\\ForeverRouteJarvis\\DevinBridge\\test_repo", "head": "af16fc36ef41ad05aaff87dd19283ce79b7e0f84", "ts": "2026-11-10T15:46:53Z"}
+{"kind": "transition", "task_id": "T900_BRIDGE_SMOKE", "to": "NEEDS_REVIEW", "reason": "worker lost when CLI exited (pre-detached-worker refactor)", "ts": "2026-11-10T16:05:29Z"}
+{"kind": "task_added", "task_id": "T901_APPROVAL_TEST", "approved": true, "ts": "2026-11-10T16:05:29Z"}
+{"kind": "transition", "task_id": "T901_APPROVAL_TEST", "to": "DISPATCHED", "reason": "", "ts": "2026-11-10T16:05:33Z"}
+{"kind": "dispatched", "task_id": "T901_APPROVAL_TEST", "session_id": "noiseless-dead", "model": "swe-2-high", "worktree": "C:\\Users\\Dawis\\ForeverRouteJarvis\\DevinBridge\\test_repo", "head": "af16fc36ef41ad05aaff87dd19283ce79b7e0f84", "ts": "2026-11-10T16:05:33Z"}
+{"kind": "worker_load_failed", "task_id": "T901_APPROVAL_TEST", "session_id": "noiseless-dead", "error": "Session not found", "ts": "2026-11-10T16:05:35Z"}
+{"kind": "prompt_error", "task_id": "T901_APPROVAL_TEST", "session_id": "noiseless-dead", "error": "Session not found", "ts": "2026-11-10T16:05:35Z"}
+{"kind": "transition", "task_id": "T901_APPROVAL_TEST", "to": "READY", "reason": "", "ts": "2026-11-10T16:05:35Z"}
+{"kind": "retry_scheduled", "task_id": "T901_APPROVAL_TEST", "attempt": 1, "backoff_s": 300.0, "ts": "2026-11-10T16:05:35Z"}
+{"kind": "transition", "task_id": "T901_APPROVAL_TEST", "to": "DISPATCHED", "reason": "", "ts": "2026-11-10T16:10:43Z"}
+{"kind": "dispatched", "task_id": "T901_APPROVAL_TEST", "model": "swe-2-high", "worktree": "C:\\Users\\Dawis\\ForeverRouteJarvis\\DevinBridge\\test_repo", "head": "af16fc36ef41ad05aaff87dd19283ce79b7e0f84", "worker_pid": 9024, "ts": "2026-11-10T16:10:43Z"}
+{"kind": "worker_load_failed", "task_id": "T901_APPROVAL_TEST", "session_id": "noiseless-dead", "error": "Session not found", "ts": "2026-11-10T16:10:44Z"}
+{"kind": "session_attached", "task_id": "T901_APPROVAL_TEST", "session_id": "excited-lyre", "ts": "2026-11-10T16:10:44Z"}
+{"kind": "transition", "task_id": "T901_APPROVAL_TEST", "to": "VERIFYING", "reason": "", "ts": "2026-11-10T16:11:29Z"}
+{"kind": "prompt_done", "task_id": "T901_APPROVAL_TEST", "session_id": "excited-lyre", "stop_reason": "end_turn", "usage": {"totalTokens": 11385, "inputTokens": 11079, "outputTokens": 306}, "ts": "2026-11-10T16:11:29Z"}
+{"kind": "transition", "task_id": "T901_APPROVAL_TEST", "to": "FAILED", "reason": "", "ts": "2026-11-10T16:11:29Z"}
+{"kind": "verified", "task_id": "T901_APPROVAL_TEST", "verified": false, "failed": true, "checks": [{"check": "file_exists ../outside_proof.txt", "ok": false}], "ts": "2026-11-10T16:11:29Z"}
+{"kind": "task_added", "task_id": "T902_ASKMODE", "approved": true, "ts": "2026-11-10T16:16:36Z"}
+{"kind": "transition", "task_id": "T902_ASKMODE", "to": "DISPATCHED", "reason": "", "ts": "2026-11-10T16:16:36Z"}
+{"kind": "dispatched", "task_id": "T902_ASKMODE", "model": "swe-2-high", "worktree": "C:\\Users\\Dawis\\ForeverRouteJarvis\\DevinBridge\\test_repo", "head": "af16fc36ef41ad05aaff87dd19283ce79b7e0f84", "worker_pid": 22836, "ts": "2026-11-10T16:16:36Z"}
+{"kind": "session_attached", "task_id": "T902_ASKMODE", "session_id": "opposite-orange", "ts": "2026-11-10T16:16:38Z"}
+{"kind": "transition", "task_id": "T902_ASKMODE", "to": "VERIFYING", "reason": "", "ts": "2026-11-10T16:16:41Z"}
+{"kind": "prompt_done", "task_id": "T902_ASKMODE", "session_id": "opposite-orange", "stop_reason": "end_turn", "usage": {"totalTokens": 7397, "inputTokens": 7165, "outputTokens": 232}, "ts": "2026-11-10T16:16:41Z"}
+{"kind": "transition", "task_id": "T902_ASKMODE", "to": "READY", "reason": "", "ts": "2026-11-10T16:16:41Z"}
+{"kind": "retry_scheduled", "task_id": "T902_ASKMODE", "attempt": 1, "backoff_s": 300.0, "ts": "2026-11-10T16:16:41Z"}
+{"kind": "verified", "task_id": "T902_ASKMODE", "verified": false, "retry_in_s": 300.0, "checks": [{"check": "file_exists proof_ask.txt", "ok": false}], "ts": "2026-11-10T16:16:41Z"}
+{"kind": "task_added", "task_id": "T903_OUTSIDE", "approved": true, "ts": "2026-11-10T16:22:24Z"}
+{"kind": "transition", "task_id": "T903_OUTSIDE", "to": "DISPATCHED", "reason": "", "ts": "2026-11-10T16:22:24Z"}
+{"kind": "dispatched", "task_id": "T903_OUTSIDE", "model": "swe-2-high", "worktree": "C:\\Users\\Dawis\\ForeverRouteJarvis\\DevinBridge\\test_repo", "head": "af16fc36ef41ad05aaff87dd19283ce79b7e0f84", "worker_pid": 10088, "ts": "2026-11-10T16:22:24Z"}
+{"kind": "session_attached", "task_id": "T903_OUTSIDE", "session_id": "brook-coin", "ts": "2026-11-10T16:22:26Z"}
+{"kind": "transition", "task_id": "T903_OUTSIDE", "to": "VERIFYING", "reason": "", "ts": "2026-11-10T16:23:28Z"}
+{"kind": "prompt_done", "task_id": "T903_OUTSIDE", "session_id": "brook-coin", "stop_reason": "end_turn", "usage": {"totalTokens": 12295, "inputTokens": 12066, "outputTokens": 229, "cachedReadTokens": 11776}, "ts": "2026-11-10T16:23:28Z"}
+{"kind": "transition", "task_id": "T903_OUTSIDE", "to": "READY", "reason": "", "ts": "2026-11-10T16:23:28Z"}
+{"kind": "retry_scheduled", "task_id": "T903_OUTSIDE", "attempt": 1, "backoff_s": 300.0, "ts": "2026-11-10T16:23:28Z"}
+{"kind": "verified", "task_id": "T903_OUTSIDE", "verified": false, "retry_in_s": 300.0, "checks": [{"check": "git_head_moved", "ok": false, "detail": "af16fc36→af16fc36"}], "ts": "2026-11-10T16:23:28Z"}
+{"kind": "transition", "task_id": "T903_OUTSIDE", "to": "DISPATCHED", "reason": "", "ts": "2026-11-10T16:29:23Z"}
+{"kind": "dispatched", "task_id": "T903_OUTSIDE", "model": "swe-2-high", "worktree": "C:\\Users\\Dawis\\ForeverRouteJarvis\\DevinBridge\\test_repo", "head": "af16fc36ef41ad05aaff87dd19283ce79b7e0f84", "worker_pid": 4704, "ts": "2026-11-10T16:29:23Z"}
+{"kind": "needs_approval", "task_id": "T903_OUTSIDE", "summary": "write outside workspace: C:\\Users\\Dawis\\ForeverRouteJarvis\\DevinBridge\\outside_proof.txt", "fingerprint": "29855dc21e700129e332", "reason": "", "ts": "2026-11-10T16:29:45Z"}
+{"kind": "permission_request", "task_id": "T903_OUTSIDE", "decision": "allow_once", "summary": "action", "reason": "in-workspace file operation", "tool_call": "{\"toolCallId\": \"request_scope:0#985678f00f4f4de294300082058eda30\", \"_meta\": {\"cognition.ai/permissionReason\": \"The automatic review was unavailable.\", \"cognition.ai/permissionRule\": \"Write(~\\\\ForeverRouteJarvis\\\\DevinBridge)\"}}", "ts": "2026-11-10T16:30:12Z"}
+{"kind": "transition", "task_id": "T903_OUTSIDE", "to": "VERIFYING", "reason": "", "ts": "2026-11-10T16:30:45Z"}
+{"kind": "prompt_done", "task_id": "T903_OUTSIDE", "session_id": "brook-coin", "stop_reason": "end_turn", "usage": {"totalTokens": 13521, "inputTokens": 13347, "outputTokens": 174, "cachedReadTokens": 13184}, "ts": "2026-11-10T16:30:45Z"}
+{"kind": "transition", "task_id": "T903_OUTSIDE", "to": "NEEDS_APPROVAL", "reason": "", "ts": "2026-11-10T16:30:45Z"}
+{"kind": "held_for_approval", "task_id": "T903_OUTSIDE", "request_id": "4cae0edf4428", "ts": "2026-11-10T16:30:45Z"}
+{"kind": "verified", "task_id": "T903_OUTSIDE", "verified": false, "awaiting_approval": true, "checks": [{"check": "git_head_moved", "ok": false, "detail": "af16fc36→af16fc36"}], "ts": "2026-11-10T16:30:45Z"}
+{"kind": "transition", "task_id": "T903_OUTSIDE", "to": "RUNNING", "reason": "resumed after approval (follow-up)", "ts": "2026-11-10T16:34:49Z"}
+{"kind": "resumed", "task_id": "T903_OUTSIDE", "worker_pid": 2132, "ts": "2026-11-10T16:34:49Z"}
+{"kind": "granted_path_write", "task_id": "T903_OUTSIDE", "path": "C:\\Users\\Dawis\\ForeverRouteJarvis\\DevinBridge\\outside_proof.txt", "ts": "2026-11-10T16:35:15Z"}
+{"kind": "granted_path_write", "task_id": "T903_OUTSIDE", "path": "C:\\Users\\Dawis\\ForeverRouteJarvis\\DevinBridge\\outside_proof.txt", "ts": "2026-11-10T16:35:15Z"}
+{"kind": "granted_path_write", "task_id": "T903_OUTSIDE", "path": "C:\\Users\\Dawis\\ForeverRouteJarvis\\DevinBridge\\outside_proof.txt", "ts": "2026-11-10T16:35:24Z"}
+{"kind": "transition", "task_id": "T903_OUTSIDE", "to": "VERIFYING", "reason": "", "ts": "2026-11-10T16:35:36Z"}
+{"kind": "prompt_done", "task_id": "T903_OUTSIDE", "session_id": "brook-coin", "stop_reason": "end_turn", "usage": {"totalTokens": 13961, "inputTokens": 13889, "outputTokens": 72, "cachedReadTokens": 256}, "ts": "2026-11-10T16:35:36Z"}
+{"kind": "transition", "task_id": "T903_OUTSIDE", "to": "FAILED", "reason": "", "ts": "2026-11-10T16:35:36Z"}
+{"kind": "verified", "task_id": "T903_OUTSIDE", "verified": false, "failed": true, "checks": [{"check": "git_head_moved", "ok": false, "detail": "af16fc36→af16fc36"}], "ts": "2026-11-10T16:35:36Z"}
+{"kind": "transition", "task_id": "T903_OUTSIDE", "to": "COMPLETE", "reason": "", "ts": "2026-11-10T16:39:39Z"}
+{"kind": "task_added", "task_id": "P4_PROOF_A", "approved": false, "ts": "2026-11-10T20:04:05Z"}
+{"kind": "transition", "task_id": "P4_PROOF_A", "to": "DISPATCHED", "reason": "", "ts": "2026-11-10T20:04:09Z"}
+{"kind": "dispatched", "task_id": "P4_PROOF_A", "model": "swe-2-high", "worktree": "C:\\Users\\Dawis\\ForeverRouteJarvis\\DevinBridge\\sandbox_p4\\repo", "head": "3245d7676ba18aa0fac0726a73ebd4ee0fbefd63", "worker_pid": 13020, "ts": "2026-11-10T20:04:09Z"}
+{"kind": "session_attached", "task_id": "P4_PROOF_A", "session_id": "natural-shallot", "ts": "2026-11-10T20:04:13Z"}
+{"kind": "transition", "task_id": "P4_PROOF_A", "to": "VERIFYING", "reason": "", "ts": "2026-11-10T20:04:21Z"}
+{"kind": "prompt_done", "task_id": "P4_PROOF_A", "session_id": "natural-shallot", "stop_reason": "end_turn", "usage": {"totalTokens": 10164, "inputTokens": 10121, "outputTokens": 43}, "ts": "2026-11-10T20:04:21Z"}
+{"kind": "transition", "task_id": "P4_PROOF_A", "to": "COMPLETE", "reason": "", "ts": "2026-11-10T20:04:21Z"}
+{"kind": "verified", "task_id": "P4_PROOF_A", "verified": true, "checks": [{"check": "file_exists p4_proof.txt", "ok": true}, {"check": "file_contains p4_proof.txt", "ok": true}], "ts": "2026-11-10T20:04:21Z"}
+{"kind": "task_added", "task_id": "LIVE-PILOT-20261110-A", "approved": true, "ts": "2026-11-10T21:08:03Z"}
+{"kind": "transition", "task_id": "LIVE-PILOT-20261110-A", "to": "DISPATCHED", "reason": "", "ts": "2026-11-10T21:08:11Z"}
+{"kind": "dispatched", "task_id": "LIVE-PILOT-20261110-A", "model": "swe-2-high", "worktree": "C:\\Users\\Dawis\\ForeverRouteJarvis\\DevinBridge\\live_autonomy_pilot_20261110\\repo", "head": "ca97a333a43cf14a7158f4e2f9f2120bb0cb4925", "worker_pid": 26148, "ts": "2026-11-10T21:08:11Z"}
+{"kind": "session_attached", "task_id": "LIVE-PILOT-20261110-A", "session_id": "glaze-pharaoh", "ts": "2026-11-10T21:08:12Z"}
+{"kind": "transition", "task_id": "LIVE-PILOT-20261110-A", "to": "VERIFYING", "reason": "", "ts": "2026-11-10T21:08:24Z"}
+{"kind": "prompt_done", "task_id": "LIVE-PILOT-20261110-A", "session_id": "glaze-pharaoh", "stop_reason": "end_turn", "usage": {"totalTokens": 11018, "inputTokens": 10835, "outputTokens": 183, "cachedReadTokens": 10496}, "ts": "2026-11-10T21:08:24Z"}
+{"kind": "transition", "task_id": "LIVE-PILOT-20261110-A", "to": "COMPLETE", "reason": "", "ts": "2026-11-10T21:08:25Z"}
+{"kind": "verified", "task_id": "LIVE-PILOT-20261110-A", "verified": true, "checks": [{"check": "file_contains out/audit.md", "ok": true}], "ts": "2026-11-10T21:08:25Z"}
+{"kind": "task_added", "task_id": "GEN-4609E140E8", "approved": false, "ts": "2026-11-10T21:09:37Z"}
+{"kind": "transition", "task_id": "GEN-4609E140E8", "to": "DISPATCHED", "reason": "", "ts": "2026-11-10T21:10:02Z"}
+{"kind": "dispatched", "task_id": "GEN-4609E140E8", "model": "swe-2-high", "worktree": "C:\\Users\\Dawis\\ForeverRouteJarvis\\DevinBridge\\live_autonomy_pilot_20261110\\repo", "head": "ca97a333a43cf14a7158f4e2f9f2120bb0cb4925", "worker_pid": 28976, "ts": "2026-11-10T21:10:02Z"}
+{"kind": "session_attached", "task_id": "GEN-4609E140E8", "session_id": "glass-drop", "ts": "2026-11-10T21:10:03Z"}
+{"kind": "transition", "task_id": "GEN-4609E140E8", "to": "VERIFYING", "reason": "", "ts": "2026-11-10T21:10:09Z"}
+{"kind": "prompt_done", "task_id": "GEN-4609E140E8", "session_id": "glass-drop", "stop_reason": "end_turn", "usage": {"totalTokens": 10414, "inputTokens": 10281, "outputTokens": 133, "cachedReadTokens": 9984}, "ts": "2026-11-10T21:10:09Z"}
+{"kind": "transition", "task_id": "GEN-4609E140E8", "to": "COMPLETE", "reason": "", "ts": "2026-11-10T21:10:09Z"}
+{"kind": "verified", "task_id": "GEN-4609E140E8", "verified": true, "checks": [{"check": "file_contains out/followup.md", "ok": true}], "ts": "2026-11-10T21:10:09Z"}
+{"kind": "task_added", "task_id": "FR-SCOPE-20261110-01", "approved": true, "ts": "2026-11-10T21:23:51Z"}
+{"kind": "task_added", "task_id": "FR-SCOPE-20261110-02", "approved": true, "ts": "2026-11-10T21:23:51Z"}
+{"kind": "task_added", "task_id": "FR-SCOPE-20261110-03", "approved": true, "ts": "2026-11-10T21:23:52Z"}
+{"kind": "transition", "task_id": "FR-SCOPE-20261110-01", "to": "READY", "reason": "", "ts": "2026-11-10T21:23:52Z"}
+{"kind": "mode", "mode": "autonomous", "ts": "2026-11-10T21:27:57Z"}
+{"kind": "transition", "task_id": "FR-SCOPE-20261110-01", "to": "DISPATCHED", "reason": "", "ts": "2026-11-10T21:28:42Z"}
+{"kind": "dispatched", "task_id": "FR-SCOPE-20261110-01", "model": "swe-2-high", "worktree": "C:\\Users\\Dawis\\ForeverRouteJarvis\\DevinBridge\\autonomy_scope\\workspaces\\foreverroute-route-audit", "head": "5f41114c128337a0534cb0bbb361bad580db68ac", "worker_pid": 29116, "ts": "2026-11-10T21:28:42Z"}
+{"kind": "session_attached", "task_id": "FR-SCOPE-20261110-01", "session_id": "florentine-bulb", "ts": "2026-11-10T21:28:43Z"}
+{"kind": "transition", "task_id": "FR-SCOPE-20261110-01", "to": "VERIFYING", "reason": "", "ts": "2026-11-10T21:35:54Z"}
+{"kind": "prompt_done", "task_id": "FR-SCOPE-20261110-01", "session_id": "florentine-bulb", "stop_reason": "end_turn", "usage": {"totalTokens": 213798, "inputTokens": 213047, "outputTokens": 751, "cachedReadTokens": 208320}, "ts": "2026-11-10T21:35:54Z"}
+{"kind": "transition", "task_id": "FR-SCOPE-20261110-01", "to": "COMPLETE", "reason": "", "ts": "2026-11-10T21:35:54Z"}
+{"kind": "verified", "task_id": "FR-SCOPE-20261110-01", "verified": true, "checks": [{"check": "file_exists docs/autonomy/coverage_1to60.md", "ok": true}, {"check": "file_contains docs/autonomy/coverage_1to60.md", "ok": true}], "ts": "2026-11-10T21:35:54Z"}
+{"kind": "transition", "task_id": "FR-SCOPE-20261110-02", "to": "READY", "reason": "", "ts": "2026-11-10T21:36:18Z"}
+{"kind": "transition", "task_id": "FR-SCOPE-20261110-02", "to": "DISPATCHED", "reason": "", "ts": "2026-11-10T21:36:23Z"}
+{"kind": "dispatched", "task_id": "FR-SCOPE-20261110-02", "model": "swe-2-high", "worktree": "C:\\Users\\Dawis\\ForeverRouteJarvis\\DevinBridge\\autonomy_scope\\workspaces\\foreverroute-route-audit", "head": "5f41114c128337a0534cb0bbb361bad580db68ac", "worker_pid": 34396, "ts": "2026-11-10T21:36:23Z"}
+{"kind": "session_attached", "task_id": "FR-SCOPE-20261110-02", "session_id": "disco-secretary", "ts": "2026-11-10T21:36:24Z"}
+{"kind": "transition", "task_id": "FR-SCOPE-20261110-02", "to": "VERIFYING", "reason": "", "ts": "2026-11-10T21:38:10Z"}
+{"kind": "prompt_done", "task_id": "FR-SCOPE-20261110-02", "session_id": "disco-secretary", "stop_reason": "end_turn", "usage": {"totalTokens": 41326, "inputTokens": 40877, "outputTokens": 449, "cachedReadTokens": 40704}, "ts": "2026-11-10T21:38:10Z"}
+{"kind": "transition", "task_id": "FR-SCOPE-20261110-02", "to": "COMPLETE", "reason": "", "ts": "2026-11-10T21:38:10Z"}
+{"kind": "verified", "task_id": "FR-SCOPE-20261110-02", "verified": true, "checks": [{"check": "file_exists docs/autonomy/recalc_gap_analysis.md", "ok": true}, {"check": "file_contains docs/autonomy/recalc_gap_analysis.md", "ok": true}], "ts": "2026-11-10T21:38:10Z"}
+{"kind": "transition", "task_id": "FR-SCOPE-20261110-03", "to": "READY", "reason": "", "ts": "2026-11-10T21:38:42Z"}
+{"kind": "transition", "task_id": "FR-SCOPE-20261110-03", "to": "DISPATCHED", "reason": "", "ts": "2026-11-10T21:38:44Z"}
+{"kind": "dispatched", "task_id": "FR-SCOPE-20261110-03", "model": "swe-2-high", "worktree": "C:\\Users\\Dawis\\ForeverRouteJarvis\\DevinBridge\\autonomy_scope\\workspaces\\foreverroute-route-audit", "head": "5f41114c128337a0534cb0bbb361bad580db68ac", "worker_pid": 29476, "ts": "2026-11-10T21:38:44Z"}
+{"kind": "session_attached", "task_id": "FR-SCOPE-20261110-03", "session_id": "darkened-stove", "ts": "2026-11-10T21:38:45Z"}
+{"kind": "transition", "task_id": "FR-SCOPE-20261110-03", "to": "VERIFYING", "reason": "", "ts": "2026-11-10T21:40:04Z"}
+{"kind": "prompt_done", "task_id": "FR-SCOPE-20261110-03", "session_id": "darkened-stove", "stop_reason": "end_turn", "usage": {"totalTokens": 33703, "inputTokens": 33325, "outputTokens": 378, "cachedReadTokens": 33024}, "ts": "2026-11-10T21:40:04Z"}
+{"kind": "transition", "task_id": "FR-SCOPE-20261110-03", "to": "COMPLETE", "reason": "", "ts": "2026-11-10T21:40:04Z"}
+{"kind": "verified", "task_id": "FR-SCOPE-20261110-03", "verified": true, "checks": [{"check": "file_exists docs/autonomy/readiness_roadmap.md", "ok": true}, {"check": "file_contains docs/autonomy/readiness_roadmap.md", "ok": true}], "ts": "2026-11-10T21:40:04Z"}
+{"kind": "task_added", "task_id": "FR-DB-20261110-01", "approved": false, "ts": "2026-11-10T21:48:56Z"}
+{"kind": "task_added", "task_id": "FR-DB-20261110-02", "approved": false, "ts": "2026-11-10T21:48:56Z"}
+{"kind": "task_added", "task_id": "FR-DB-20261110-03", "approved": false, "ts": "2026-11-10T21:48:56Z"}
+{"kind": "transition", "task_id": "FR-DB-20261110-01", "to": "READY", "reason": "", "ts": "2026-11-10T21:49:20Z"}
+{"kind": "task_added", "task_id": "FR-REPAIR-20261110-01", "approved": true, "ts": "2026-11-10T21:55:05Z"}
+{"kind": "task_added", "task_id": "FR-REPAIR-20261110-02", "approved": true, "ts": "2026-11-10T21:55:05Z"}
+{"kind": "transition", "task_id": "FR-DB-20261110-01", "to": "DISPATCHED", "reason": "", "ts": "2026-11-10T21:55:22Z"}
+{"kind": "dispatched", "task_id": "FR-DB-20261110-01", "model": "swe-2-high", "worktree": "C:\\Users\\Dawis\\ForeverRouteJarvis\\DevinBridge\\autonomy_scope\\workspaces\\foreverroute-route-audit", "head": "5f41114c128337a0534cb0bbb361bad580db68ac", "worker_pid": 34224, "ts": "2026-11-10T21:55:22Z"}
+{"kind": "session_attached", "task_id": "FR-DB-20261110-01", "session_id": "chestnut-vest", "ts": "2026-11-10T21:55:23Z"}
+{"kind": "transition", "task_id": "FR-DB-20261110-01", "to": "VERIFYING", "reason": "", "ts": "2026-11-10T21:57:48Z"}
+{"kind": "prompt_done", "task_id": "FR-DB-20261110-01", "session_id": "chestnut-vest", "stop_reason": "end_turn", "usage": {"totalTokens": 81153, "inputTokens": 80402, "outputTokens": 751, "cachedReadTokens": 80128}, "ts": "2026-11-10T21:57:48Z"}
+{"kind": "transition", "task_id": "FR-DB-20261110-01", "to": "COMPLETE", "reason": "", "ts": "2026-11-10T21:57:49Z"}
+{"kind": "verified", "task_id": "FR-DB-20261110-01", "verified": true, "checks": [{"check": "file_exists docs/autonomy/db_source_delta.md", "ok": true}, {"check": "file_contains docs/autonomy/db_source_delta.md", "ok": true}], "ts": "2026-11-10T21:57:49Z"}
+{"kind": "transition", "task_id": "FR-DB-20261110-02", "to": "READY", "reason": "", "ts": "2026-11-10T21:58:23Z"}
+{"kind": "transition", "task_id": "FR-DB-20261110-02", "to": "DISPATCHED", "reason": "", "ts": "2026-11-10T21:58:24Z"}
+{"kind": "dispatched", "task_id": "FR-DB-20261110-02", "model": "swe-2-high", "worktree": "C:\\Users\\Dawis\\ForeverRouteJarvis\\DevinBridge\\autonomy_scope\\workspaces\\foreverroute-route-audit", "head": "5f41114c128337a0534cb0bbb361bad580db68ac", "worker_pid": 7328, "ts": "2026-11-10T21:58:24Z"}
+{"kind": "session_attached", "task_id": "FR-DB-20261110-02", "session_id": "courageous-heath", "ts": "2026-11-10T21:58:25Z"}
+{"kind": "transition", "task_id": "FR-DB-20261110-02", "to": "VERIFYING", "reason": "", "ts": "2026-11-10T22:03:04Z"}
+{"kind": "prompt_done", "task_id": "FR-DB-20261110-02", "session_id": "courageous-heath", "stop_reason": "end_turn", "usage": {"totalTokens": 90480, "inputTokens": 89282, "outputTokens": 1198, "cachedReadTokens": 86016}, "ts": "2026-11-10T22:03:04Z"}
+{"kind": "transition", "task_id": "FR-DB-20261110-02", "to": "COMPLETE", "reason": "", "ts": "2026-11-10T22:03:05Z"}
+{"kind": "verified", "task_id": "FR-DB-20261110-02", "verified": true, "checks": [{"check": "file_exists docs/autonomy/db_nav_priority.md", "ok": true}, {"check": "file_contains docs/autonomy/db_nav_priority.md", "ok": true}], "ts": "2026-11-10T22:03:05Z"}
+{"kind": "transition", "task_id": "FR-DB-20261110-03", "to": "READY", "reason": "", "ts": "2026-11-10T22:03:39Z"}
+{"kind": "transition", "task_id": "FR-DB-20261110-03", "to": "DISPATCHED", "reason": "", "ts": "2026-11-10T22:03:41Z"}
+{"kind": "dispatched", "task_id": "FR-DB-20261110-03", "model": "swe-2-high", "worktree": "C:\\Users\\Dawis\\ForeverRouteJarvis\\DevinBridge\\autonomy_scope\\workspaces\\foreverroute-route-audit", "head": "5f41114c128337a0534cb0bbb361bad580db68ac", "worker_pid": 14952, "ts": "2026-11-10T22:03:41Z"}
+{"kind": "session_attached", "task_id": "FR-DB-20261110-03", "session_id": "mutual-channel", "ts": "2026-11-10T22:03:42Z"}
+{"kind": "transition", "task_id": "FR-DB-20261110-03", "to": "VERIFYING", "reason": "", "ts": "2026-11-10T22:06:19Z"}
+{"kind": "prompt_done", "task_id": "FR-DB-20261110-03", "session_id": "mutual-channel", "stop_reason": "end_turn", "usage": {"totalTokens": 87871, "inputTokens": 87042, "outputTokens": 829, "cachedReadTokens": 86016}, "ts": "2026-11-10T22:06:19Z"}
+{"kind": "transition", "task_id": "FR-DB-20261110-03", "to": "COMPLETE", "reason": "", "ts": "2026-11-10T22:06:19Z"}
+{"kind": "verified", "task_id": "FR-DB-20261110-03", "verified": true, "checks": [{"check": "file_exists docs/autonomy/db_integration_gate.md", "ok": true}, {"check": "file_contains docs/autonomy/db_integration_gate.md", "ok": true}], "ts": "2026-11-10T22:06:20Z"}
+{"kind": "transition", "task_id": "FR-REPAIR-20261110-01", "to": "READY", "reason": "", "ts": "2026-11-10T22:06:42Z"}
+{"kind": "transition", "task_id": "FR-REPAIR-20261110-01", "to": "DISPATCHED", "reason": "", "ts": "2026-11-10T22:06:44Z"}
+{"kind": "dispatched", "task_id": "FR-REPAIR-20261110-01", "model": "swe-2-high", "worktree": "C:\\Users\\Dawis\\ForeverRouteJarvis\\DevinBridge\\autonomy_scope\\workspaces\\foreverroute-route-audit", "head": "5f41114c128337a0534cb0bbb361bad580db68ac", "worker_pid": 32776, "ts": "2026-11-10T22:06:44Z"}
+{"kind": "session_attached", "task_id": "FR-REPAIR-20261110-01", "session_id": "veil-lynx", "ts": "2026-11-10T22:06:47Z"}
+{"kind": "transition", "task_id": "FR-REPAIR-20261110-01", "to": "VERIFYING", "reason": "", "ts": "2026-11-10T22:11:10Z"}
+{"kind": "prompt_done", "task_id": "FR-REPAIR-20261110-01", "session_id": "veil-lynx", "stop_reason": "end_turn", "usage": {"totalTokens": 122078, "inputTokens": 120997, "outputTokens": 1081, "cachedReadTokens": 120576}, "ts": "2026-11-10T22:11:10Z"}
+{"kind": "transition", "task_id": "FR-REPAIR-20261110-01", "to": "FAILED", "reason": "", "ts": "2026-11-10T22:11:10Z"}
+{"kind": "verified", "task_id": "FR-REPAIR-20261110-01", "verified": false, "failed": true, "checks": [{"check": "file_contains docs/autonomy/implementation_phase1.md", "ok": true}, {"check": "file_exists tools/route_nav_evidence_audit.py", "ok": true}, {"check": "test unittest discover -s tests", "ok": false, "exit": 1, "tail": "st_phase1_smoke_classifications\n    self.assertEqual(findings[10][\"evidence\"], \"P2_STRUCTURAL_WITH_LEADS_INFERENCE\")\nAssertionError: 'POLESTAR_HISTORICAL_REFERENCE_ONLY' != 'P2_STRUCTURAL_WITH_LEADS_INFERENCE'\n- POLESTAR_HISTORICAL_REFERENCE_ONLY\n+ P2_STRUCTURAL_WITH_LEADS_INFERENCE\n\n\n----------------------------------------------------------------------\nRan 8 tests in 0.025s\n\nFAILED (failures=2)\n"}], "ts": "2026-11-10T22:11:10Z"}
+{"kind": "owner_recovery_authorized", "task_id": "FR-REPAIR-20261110-01", "program": "FR_NIGHT_RECOVERY_20261110", "recovery_attempt_limit": 2, "ts": "2026-11-10T22:52:53Z"}
+{"kind": "task_added", "task_id": "RCV-FR-REPAIR-20261110-01-1", "approved": true, "ts": "2026-11-10T22:53:12Z"}
+{"kind": "transition", "task_id": "RCV-FR-REPAIR-20261110-01-1", "to": "DISPATCHED", "reason": "", "ts": "2026-11-10T22:53:12Z"}
+{"kind": "dispatched", "task_id": "RCV-FR-REPAIR-20261110-01-1", "model": "swe-2-high", "worktree": "C:\\Users\\Dawis\\ForeverRouteJarvis\\DevinBridge\\autonomy_scope\\workspaces\\foreverroute-route-audit", "head": "5f41114c128337a0534cb0bbb361bad580db68ac", "worker_pid": 25940, "ts": "2026-11-10T22:53:12Z"}
+{"kind": "recovery_dispatched", "task_id": "FR-REPAIR-20261110-01", "child": "RCV-FR-REPAIR-20261110-01-1", "rca": "0967be51b9", "category": "wrong_implementation", "dispatched": true, "ts": "2026-11-10T22:53:12Z"}
+{"kind": "session_attached", "task_id": "RCV-FR-REPAIR-20261110-01-1", "session_id": "spurious-sign", "ts": "2026-11-10T22:53:13Z"}
+{"kind": "transition", "task_id": "RCV-FR-REPAIR-20261110-01-1", "to": "VERIFYING", "reason": "", "ts": "2026-11-10T22:56:53Z"}
+{"kind": "prompt_done", "task_id": "RCV-FR-REPAIR-20261110-01-1", "session_id": "spurious-sign", "stop_reason": "end_turn", "usage": {"totalTokens": 74092, "inputTokens": 72915, "outputTokens": 1177, "cachedReadTokens": 71424}, "ts": "2026-11-10T22:56:53Z"}
+{"kind": "transition", "task_id": "RCV-FR-REPAIR-20261110-01-1", "to": "FAILED", "reason": "", "ts": "2026-11-10T22:56:53Z"}
+{"kind": "recovery_child_failed", "task_id": "FR-REPAIR-20261110-01", "child": "RCV-FR-REPAIR-20261110-01-1", "ts": "2026-11-10T22:56:53Z"}
+{"kind": "verified", "task_id": "RCV-FR-REPAIR-20261110-01-1", "verified": false, "failed": true, "checks": [{"check": "file_contains docs/autonomy/implementation_phase1.md", "ok": true}, {"check": "file_exists tools/route_nav_evidence_audit.py", "ok": true}, {"check": "test unittest discover -s tests", "ok": false, "exit": 1, "tail": "st_phase1_smoke_classifications\n    self.assertEqual(findings[10][\"evidence\"], \"P2_STRUCTURAL_WITH_LEADS_INFERENCE\")\nAssertionError: 'POLESTAR_HISTORICAL_REFERENCE_ONLY' != 'P2_STRUCTURAL_WITH_LEADS_INFERENCE'\n- POLESTAR_HISTORICAL_REFERENCE_ONLY\n+ P2_STRUCTURAL_WITH_LEADS_INFERENCE\n\n\n----------------------------------------------------------------------\nRan 8 tests in 0.021s\n\nFAILED (failures=2)\n"}], "ts": "2026-11-10T22:56:53Z"}
+{"kind": "task_added", "task_id": "GEN-5A75997484", "approved": false, "ts": "2026-11-10T22:57:11Z"}
+{"kind": "transition", "task_id": "GEN-5A75997484", "to": "DISPATCHED", "reason": "", "ts": "2026-11-10T22:57:12Z"}
+{"kind": "dispatched", "task_id": "GEN-5A75997484", "model": "swe-2-high", "worktree": "C:\\Users\\Dawis\\ForeverRouteJarvis\\DevinBridge\\autonomy_scope\\workspaces\\foreverroute-route-audit", "head": "5f41114c128337a0534cb0bbb361bad580db68ac", "worker_pid": 29576, "ts": "2026-11-10T22:57:12Z"}
+{"kind": "cdp_handoff", "proposal": "5a75997484", "task_id": "GEN-5A75997484", "program": "FR_NIGHT_EVIDENCE_TRIAGE_20261110", "dispatched": true, "ts": "2026-11-10T22:57:12Z"}
+{"kind": "recovery_child_failed", "task_id": "FR-REPAIR-20261110-01", "child": "RCV-FR-REPAIR-20261110-01-1", "ts": "2026-11-10T22:57:12Z"}
+{"kind": "task_added", "task_id": "RCV-FR-REPAIR-20261110-01-2", "approved": true, "ts": "2026-11-10T22:57:12Z"}
+{"kind": "recovery_scheduled", "task_id": "FR-REPAIR-20261110-01", "child": "RCV-FR-REPAIR-20261110-01-2", "cooldown_s": 120.0, "ts": "2026-11-10T22:57:12Z"}
+{"kind": "transition", "task_id": "RCV-FR-REPAIR-20261110-01-2", "to": "READY", "reason": "", "ts": "2026-11-10T22:57:12Z"}
+{"kind": "session_attached", "task_id": "GEN-5A75997484", "session_id": "abundant-august", "ts": "2026-11-10T22:57:12Z"}
+{"kind": "needs_approval", "task_id": "GEN-5A75997484", "summary": "write outside workspace: C:\\Users\\Dawis\\ForeverRouteJarvis\\DevinBridge\\coordinator_state.json", "fingerprint": "57193cca832384a0f0da", "reason": "", "ts": "2026-11-10T22:57:34Z"}
+{"kind": "transition", "task_id": "RCV-FR-REPAIR-20261110-01-2", "to": "DISPATCHED", "reason": "", "ts": "2026-11-10T22:59:33Z"}
+{"kind": "dispatched", "task_id": "RCV-FR-REPAIR-20261110-01-2", "model": "swe-2-high", "worktree": "C:\\Users\\Dawis\\ForeverRouteJarvis\\DevinBridge\\autonomy_scope\\workspaces\\foreverroute-route-audit", "head": "5f41114c128337a0534cb0bbb361bad580db68ac", "worker_pid": 26484, "ts": "2026-11-10T22:59:33Z"}
+{"kind": "session_attached", "task_id": "RCV-FR-REPAIR-20261110-01-2", "session_id": "unruly-leather", "ts": "2026-11-10T22:59:34Z"}
+{"kind": "transition", "task_id": "GEN-5A75997484", "to": "VERIFYING", "reason": "", "ts": "2026-11-10T23:01:48Z"}
+{"kind": "prompt_done", "task_id": "GEN-5A75997484", "session_id": "abundant-august", "stop_reason": "end_turn", "usage": {"totalTokens": 97752, "inputTokens": 96256, "outputTokens": 1496, "cachedReadTokens": 96000}, "ts": "2026-11-10T23:01:48Z"}
+{"kind": "transition", "task_id": "GEN-5A75997484", "to": "FAILED", "reason": "", "ts": "2026-11-10T23:01:48Z"}
+{"kind": "verified", "task_id": "GEN-5A75997484", "verified": false, "failed": true, "checks": [{"check": "file_contains docs/autonomy/implementation_phase1.md", "ok": true}, {"check": "file_exists tools/route_nav_evidence_audit.py", "ok": true}, {"check": "test unittest discover -s tests", "ok": false, "exit": 1, "tail": "st_phase1_smoke_classifications\n    self.assertEqual(findings[10][\"evidence\"], \"P2_STRUCTURAL_WITH_LEADS_INFERENCE\")\nAssertionError: 'POLESTAR_HISTORICAL_REFERENCE_ONLY' != 'P2_STRUCTURAL_WITH_LEADS_INFERENCE'\n- POLESTAR_HISTORICAL_REFERENCE_ONLY\n+ P2_STRUCTURAL_WITH_LEADS_INFERENCE\n\n\n----------------------------------------------------------------------\nRan 9 tests in 0.025s\n\nFAILED (failures=3)\n"}], "ts": "2026-11-10T23:01:48Z"}
+{"kind": "transition", "task_id": "RCV-FR-REPAIR-20261110-01-2", "to": "VERIFYING", "reason": "", "ts": "2026-11-10T23:03:48Z"}
+{"kind": "prompt_done", "task_id": "RCV-FR-REPAIR-20261110-01-2", "session_id": "unruly-leather", "stop_reason": "end_turn", "usage": {"totalTokens": 64168, "inputTokens": 63521, "outputTokens": 647, "cachedReadTokens": 63232}, "ts": "2026-11-10T23:03:48Z"}
+{"kind": "transition", "task_id": "RCV-FR-REPAIR-20261110-01-2", "to": "COMPLETE", "reason": "", "ts": "2026-11-10T23:03:49Z"}
+{"kind": "transition", "task_id": "FR-REPAIR-20261110-01", "to": "VERIFIED_RECOVERED", "reason": "recovery RCV-FR-REPAIR-20261110-01-2 re-passed original acceptance", "ts": "2026-11-10T23:03:49Z"}
+{"kind": "verified_recovered", "task_id": "FR-REPAIR-20261110-01", "child": "RCV-FR-REPAIR-20261110-01-2", "ts": "2026-11-10T23:03:49Z"}
+{"kind": "verified", "task_id": "RCV-FR-REPAIR-20261110-01-2", "verified": true, "checks": [{"check": "file_contains docs/autonomy/implementation_phase1.md", "ok": true}, {"check": "file_exists tools/route_nav_evidence_audit.py", "ok": true}, {"check": "test unittest discover -s tests", "ok": true, "exit": 0, "tail": ".........\n----------------------------------------------------------------------\nRan 9 tests in 0.020s\n\nOK\n"}], "ts": "2026-11-10T23:03:49Z"}
+{"kind": "transition", "task_id": "FR-REPAIR-20261110-02", "to": "READY", "reason": "", "ts": "2026-11-10T23:04:17Z"}
+{"kind": "transition", "task_id": "FR-REPAIR-20261110-02", "to": "DISPATCHED", "reason": "", "ts": "2026-11-10T23:04:19Z"}
+{"kind": "dispatched", "task_id": "FR-REPAIR-20261110-02", "model": "swe-2-high", "worktree": "C:\\Users\\Dawis\\ForeverRouteJarvis\\DevinBridge\\autonomy_scope\\workspaces\\foreverroute-route-audit", "head": "5f41114c128337a0534cb0bbb361bad580db68ac", "worker_pid": 13672, "ts": "2026-11-10T23:04:19Z"}
+{"kind": "session_attached", "task_id": "FR-REPAIR-20261110-02", "session_id": "fascinated-piccolo", "ts": "2026-11-10T23:04:20Z"}
+{"kind": "transition", "task_id": "FR-REPAIR-20261110-02", "to": "VERIFYING", "reason": "", "ts": "2026-11-10T23:09:52Z"}
+{"kind": "prompt_done", "task_id": "FR-REPAIR-20261110-02", "session_id": "fascinated-piccolo", "stop_reason": "end_turn", "usage": {"totalTokens": 137904, "inputTokens": 137414, "outputTokens": 490, "cachedReadTokens": 137216}, "ts": "2026-11-10T23:09:52Z"}
+{"kind": "transition", "task_id": "FR-REPAIR-20261110-02", "to": "COMPLETE", "reason": "", "ts": "2026-11-10T23:09:53Z"}
+{"kind": "verified", "task_id": "FR-REPAIR-20261110-02", "verified": true, "checks": [{"check": "file_contains docs/autonomy/implementation_phase2.md", "ok": true}, {"check": "file_exists tests/test_runtime_nav_confidence.lua", "ok": true}, {"check": "test python tools/lua51/lua51_runtime.py run tests/test_runtime_nav_confidence.lua", "ok": true, "exit": 0, "tail": "RUNTIME NAV CONFIDENCE: 10 passed, 0 failed\n"}, {"check": "test python tools/lua51/compile_all.py", "ok": true, "exit": 0, "tail": "TOC lua files: 74\nALL COMPILED OK under Lua 5.1\n"}], "ts": "2026-11-10T23:09:53Z"}
+{"kind": "task_added", "task_id": "GEN-4F6F50BED3", "approved": false, "ts": "2026-11-10T23:09:54Z"}
+{"kind": "transition", "task_id": "GEN-4F6F50BED3", "to": "DISPATCHED", "reason": "", "ts": "2026-11-10T23:09:55Z"}
+{"kind": "dispatched", "task_id": "GEN-4F6F50BED3", "model": "swe-2-high", "worktree": "C:\\Users\\Dawis\\ForeverRouteJarvis\\DevinBridge\\autonomy_scope\\workspaces\\foreverroute-route-audit", "head": "5f41114c128337a0534cb0bbb361bad580db68ac", "worker_pid": 15612, "ts": "2026-11-10T23:09:55Z"}
+{"kind": "cdp_handoff", "proposal": "4f6f50bed3", "task_id": "GEN-4F6F50BED3", "program": "FR_NIGHT_EVIDENCE_TRIAGE_20261110", "dispatched": true, "ts": "2026-11-10T23:09:55Z"}
+{"kind": "session_attached", "task_id": "GEN-4F6F50BED3", "session_id": "blushing-breakfast", "ts": "2026-11-10T23:09:56Z"}
+{"kind": "transition", "task_id": "GEN-4F6F50BED3", "to": "VERIFYING", "reason": "", "ts": "2026-11-10T23:17:48Z"}
+{"kind": "prompt_done", "task_id": "GEN-4F6F50BED3", "session_id": "blushing-breakfast", "stop_reason": "end_turn", "usage": {"totalTokens": 187003, "inputTokens": 186328, "outputTokens": 675, "cachedReadTokens": 182272}, "ts": "2026-11-10T23:17:48Z"}
+{"kind": "transition", "task_id": "GEN-4F6F50BED3", "to": "FAILED", "reason": "", "ts": "2026-11-10T23:17:48Z"}
+{"kind": "verified", "task_id": "GEN-4F6F50BED3", "verified": false, "failed": true, "checks": [{"check": "file_exists docs/autonomy/fix_gate_below_catalog_min.md", "ok": false}], "ts": "2026-11-10T23:17:48Z"}
+{"kind": "task_added", "task_id": "GEN-165D68113A", "approved": false, "ts": "2026-11-10T23:17:54Z"}
+{"kind": "transition", "task_id": "GEN-165D68113A", "to": "DISPATCHED", "reason": "", "ts": "2026-11-10T23:17:54Z"}
+{"kind": "dispatched", "task_id": "GEN-165D68113A", "model": "swe-2-high", "worktree": "C:\\Users\\Dawis\\ForeverRouteJarvis\\DevinBridge\\autonomy_scope\\workspaces\\foreverroute-route-audit", "head": "5f41114c128337a0534cb0bbb361bad580db68ac", "worker_pid": 24512, "ts": "2026-11-10T23:17:54Z"}
+{"kind": "cdp_handoff", "proposal": "165d68113a", "task_id": "GEN-165D68113A", "program": "FR_NIGHT_EVIDENCE_TRIAGE_20261110", "dispatched": true, "ts": "2026-11-10T23:17:54Z"}
+{"kind": "session_attached", "task_id": "GEN-165D68113A", "session_id": "garnet-eagle", "ts": "2026-11-10T23:17:55Z"}
+{"kind": "transition", "task_id": "GEN-165D68113A", "to": "VERIFYING", "reason": "", "ts": "2026-11-10T23:23:31Z"}
+{"kind": "prompt_done", "task_id": "GEN-165D68113A", "session_id": "garnet-eagle", "stop_reason": "end_turn", "usage": {"totalTokens": 127250, "inputTokens": 126611, "outputTokens": 639, "cachedReadTokens": 126464}, "ts": "2026-11-10T23:23:31Z"}
+{"kind": "transition", "task_id": "GEN-165D68113A", "to": "FAILED", "reason": "", "ts": "2026-11-10T23:23:31Z"}
+{"kind": "verified", "task_id": "GEN-165D68113A", "verified": false, "failed": true, "checks": [{"check": "file_exists docs/autonomy/fix_no_catalog_row.md", "ok": false}], "ts": "2026-11-10T23:23:31Z"}
+{"kind": "task_added", "task_id": "GEN-2F064D2C53", "approved": false, "ts": "2026-11-10T23:24:17Z"}
+{"kind": "transition", "task_id": "GEN-2F064D2C53", "to": "DISPATCHED", "reason": "", "ts": "2026-11-10T23:24:17Z"}
+{"kind": "dispatched", "task_id": "GEN-2F064D2C53", "model": "swe-2-high", "worktree": "C:\\Users\\Dawis\\ForeverRouteJarvis\\DevinBridge\\autonomy_scope\\workspaces\\foreverroute-route-audit", "head": "5f41114c128337a0534cb0bbb361bad580db68ac", "worker_pid": 33248, "ts": "2026-11-10T23:24:17Z"}
+{"kind": "cdp_handoff", "proposal": "2f064d2c53", "task_id": "GEN-2F064D2C53", "program": "FR_NIGHT_EVIDENCE_TRIAGE_20261110", "dispatched": true, "ts": "2026-11-10T23:24:17Z"}
+{"kind": "session_attached", "task_id": "GEN-2F064D2C53", "session_id": "gifted-dolomite", "ts": "2026-11-10T23:24:18Z"}
+{"kind": "transition", "task_id": "GEN-2F064D2C53", "to": "VERIFYING", "reason": "", "ts": "2026-11-10T23:29:08Z"}
+{"kind": "prompt_done", "task_id": "GEN-2F064D2C53", "session_id": "gifted-dolomite", "stop_reason": "end_turn", "usage": {"totalTokens": 168919, "inputTokens": 168152, "outputTokens": 767, "cachedReadTokens": 167168}, "ts": "2026-11-10T23:29:08Z"}
+{"kind": "transition", "task_id": "GEN-2F064D2C53", "to": "FAILED", "reason": "", "ts": "2026-11-10T23:29:08Z"}
+{"kind": "verified", "task_id": "GEN-2F064D2C53", "verified": false, "failed": true, "checks": [{"check": "file_exists docs/autonomy/fix_prereq_minlevel_inversion.md", "ok": false}], "ts": "2026-11-10T23:29:08Z"}
+{"kind": "task_added", "task_id": "GEN-0A0B664EAA", "approved": false, "ts": "2026-11-11T08:05:30Z"}
+{"kind": "transition", "task_id": "GEN-0A0B664EAA", "to": "DISPATCHED", "reason": "", "ts": "2026-11-11T08:05:31Z"}
+{"kind": "dispatched", "task_id": "GEN-0A0B664EAA", "model": "swe-2-high", "worktree": "C:\\Users\\Dawis\\ForeverRouteJarvis\\DevinBridge\\autonomy_scope\\workspaces\\foreverroute-route-audit", "head": "5f41114c128337a0534cb0bbb361bad580db68ac", "worker_pid": 26792, "ts": "2026-11-11T08:05:31Z"}
+{"kind": "cdp_handoff", "proposal": "0a0b664eaa", "task_id": "GEN-0A0B664EAA", "program": "FOREVERROUTE_CONTINUOUS_V1", "dispatched": true, "ts": "2026-11-11T08:05:31Z"}
+{"kind": "session_attached", "task_id": "GEN-0A0B664EAA", "session_id": "zenith-giant", "ts": "2026-11-11T08:05:32Z"}
+{"kind": "pause", "reason": "maintenance: reload standing recovery grant after current worker completes", "ts": "2026-11-11T08:17:35Z"}
+{"kind": "transition", "task_id": "GEN-0A0B664EAA", "to": "VERIFYING", "reason": "", "ts": "2026-11-11T08:19:03Z"}
+{"kind": "prompt_done", "task_id": "GEN-0A0B664EAA", "session_id": "zenith-giant", "stop_reason": "end_turn", "usage": {"totalTokens": 167345, "inputTokens": 166658, "outputTokens": 687, "cachedReadTokens": 165888}, "ts": "2026-11-11T08:19:03Z"}
+{"kind": "transition", "task_id": "GEN-0A0B664EAA", "to": "COMPLETE", "reason": "", "ts": "2026-11-11T08:19:04Z"}
+{"kind": "verified", "task_id": "GEN-0A0B664EAA", "verified": true, "checks": [{"check": "file_exists docs/autonomy/fix_prereq_not_in_section.md", "ok": true}], "ts": "2026-11-11T08:19:04Z"}
+{"kind": "task_added", "task_id": "GEN-F10BBDF314", "approved": false, "ts": "2026-11-11T08:19:42Z"}
+{"kind": "transition", "task_id": "GEN-F10BBDF314", "to": "DISPATCHED", "reason": "", "ts": "2026-11-11T08:19:42Z"}
+{"kind": "dispatched", "task_id": "GEN-F10BBDF314", "model": "swe-2-high", "worktree": "C:\\Users\\Dawis\\ForeverRouteJarvis\\DevinBridge\\autonomy_scope\\workspaces\\foreverroute-route-audit", "head": "5f41114c128337a0534cb0bbb361bad580db68ac", "worker_pid": 34804, "ts": "2026-11-11T08:19:42Z"}
+{"kind": "cdp_handoff", "proposal": "f10bbdf314", "task_id": "GEN-F10BBDF314", "program": "FOREVERROUTE_CONTINUOUS_V1", "dispatched": true, "ts": "2026-11-11T08:19:42Z"}
+{"kind": "session_attached", "task_id": "GEN-F10BBDF314", "session_id": "creative-mask", "ts": "2026-11-11T08:19:43Z"}
+{"kind": "transition", "task_id": "GEN-F10BBDF314", "to": "VERIFYING", "reason": "", "ts": "2026-11-11T08:25:32Z"}
+{"kind": "prompt_done", "task_id": "GEN-F10BBDF314", "session_id": "creative-mask", "stop_reason": "end_turn", "usage": {"totalTokens": 111481, "inputTokens": 110782, "outputTokens": 699, "cachedReadTokens": 109056}, "ts": "2026-11-11T08:25:32Z"}
+{"kind": "transition", "task_id": "GEN-F10BBDF314", "to": "COMPLETE", "reason": "", "ts": "2026-11-11T08:25:33Z"}
+{"kind": "verified", "task_id": "GEN-F10BBDF314", "verified": true, "checks": [{"check": "file_exists docs/autonomy/fix_route_prereq_not_in_catalog.md", "ok": true}], "ts": "2026-11-11T08:25:33Z"}
+{"kind": "task_added", "task_id": "GEN-4AAE2B92B0", "approved": false, "ts": "2026-11-11T08:26:22Z"}
+{"kind": "transition", "task_id": "GEN-4AAE2B92B0", "to": "DISPATCHED", "reason": "", "ts": "2026-11-11T08:26:23Z"}
+{"kind": "dispatched", "task_id": "GEN-4AAE2B92B0", "model": "swe-2-high", "worktree": "C:\\Users\\Dawis\\ForeverRouteJarvis\\DevinBridge\\autonomy_scope\\workspaces\\foreverroute-route-audit", "head": "5f41114c128337a0534cb0bbb361bad580db68ac", "worker_pid": 20044, "ts": "2026-11-11T08:26:23Z"}
+{"kind": "cdp_handoff", "proposal": "4aae2b92b0", "task_id": "GEN-4AAE2B92B0", "program": "FOREVERROUTE_CONTINUOUS_V1", "dispatched": true, "ts": "2026-11-11T08:26:23Z"}
+{"kind": "session_attached", "task_id": "GEN-4AAE2B92B0", "session_id": "clumsy-stingray", "ts": "2026-11-11T08:26:24Z"}
+{"kind": "transition", "task_id": "GEN-4AAE2B92B0", "to": "VERIFYING", "reason": "", "ts": "2026-11-11T08:31:00Z"}
+{"kind": "prompt_done", "task_id": "GEN-4AAE2B92B0", "session_id": "clumsy-stingray", "stop_reason": "end_turn", "usage": {"totalTokens": 119711, "inputTokens": 118877, "outputTokens": 834, "cachedReadTokens": 117504}, "ts": "2026-11-11T08:31:00Z"}
+{"kind": "transition", "task_id": "GEN-4AAE2B92B0", "to": "COMPLETE", "reason": "", "ts": "2026-11-11T08:31:01Z"}
+{"kind": "verified", "task_id": "GEN-4AAE2B92B0", "verified": true, "checks": [{"check": "file_exists docs/autonomy/fix_route_prereq_reversed_vs_catalog.md", "ok": true}], "ts": "2026-11-11T08:31:01Z"}
+{"kind": "task_added", "task_id": "GEN-401CFB5D8F", "approved": false, "ts": "2026-11-11T09:06:16Z"}
+{"kind": "transition", "task_id": "GEN-401CFB5D8F", "to": "DISPATCHED", "reason": "", "ts": "2026-11-11T09:06:17Z"}
+{"kind": "dispatched", "task_id": "GEN-401CFB5D8F", "model": "swe-2-high", "worktree": "C:\\Users\\Dawis\\ForeverRouteJarvis\\DevinBridge\\autonomy_scope\\workspaces\\foreverroute-route-audit", "head": "5f41114c128337a0534cb0bbb361bad580db68ac", "worker_pid": 27036, "ts": "2026-11-11T09:06:17Z"}
+{"kind": "cdp_handoff", "proposal": "401cfb5d8f", "task_id": "GEN-401CFB5D8F", "program": "FOREVERROUTE_CONTINUOUS_V1", "dispatched": true, "ts": "2026-11-11T09:06:17Z"}
+{"kind": "session_attached", "task_id": "GEN-401CFB5D8F", "session_id": "bedecked-jute", "ts": "2026-11-11T09:06:20Z"}
+{"kind": "transition", "task_id": "GEN-401CFB5D8F", "to": "VERIFYING", "reason": "", "ts": "2026-11-11T09:12:25Z"}
+{"kind": "prompt_done", "task_id": "GEN-401CFB5D8F", "session_id": "bedecked-jute", "stop_reason": "end_turn", "usage": {"totalTokens": 54552, "inputTokens": 54066, "outputTokens": 486, "cachedReadTokens": 53760}, "ts": "2026-11-11T09:12:25Z"}
+{"kind": "transition", "task_id": "GEN-401CFB5D8F", "to": "COMPLETE", "reason": "", "ts": "2026-11-11T09:12:26Z"}
+{"kind": "verified", "task_id": "GEN-401CFB5D8F", "verified": true, "checks": [{"check": "file_exists docs/autonomy/fix_gate_below_catalog_min.md", "ok": true}], "ts": "2026-11-11T09:12:26Z"}
+{"kind": "task_added", "task_id": "GEN-A11892D223", "approved": false, "ts": "2026-11-11T09:19:53Z"}
+{"kind": "transition", "task_id": "GEN-A11892D223", "to": "DISPATCHED", "reason": "", "ts": "2026-11-11T09:19:54Z"}
+{"kind": "dispatched", "task_id": "GEN-A11892D223", "model": "swe-2-high", "worktree": "C:\\Users\\Dawis\\ForeverRouteJarvis\\DevinBridge\\autonomy_scope\\workspaces\\foreverroute-route-audit", "head": "5f41114c128337a0534cb0bbb361bad580db68ac", "worker_pid": 26176, "ts": "2026-11-11T09:19:54Z"}
+{"kind": "cdp_handoff", "proposal": "a11892d223", "task_id": "GEN-A11892D223", "program": "FOREVERROUTE_CONTINUOUS_V1", "dispatched": true, "ts": "2026-11-11T09:19:54Z"}
+{"kind": "session_attached", "task_id": "GEN-A11892D223", "session_id": "dapper-client", "ts": "2026-11-11T09:19:57Z"}
+{"kind": "transition", "task_id": "GEN-A11892D223", "to": "VERIFYING", "reason": "", "ts": "2026-11-11T09:25:01Z"}
+{"kind": "prompt_done", "task_id": "GEN-A11892D223", "session_id": "dapper-client", "stop_reason": "end_turn", "usage": {"totalTokens": 86047, "inputTokens": 85239, "outputTokens": 808, "cachedReadTokens": 84992}, "ts": "2026-11-11T09:25:01Z"}
+{"kind": "transition", "task_id": "GEN-A11892D223", "to": "COMPLETE", "reason": "", "ts": "2026-11-11T09:25:01Z"}
+{"kind": "verified", "task_id": "GEN-A11892D223", "verified": true, "checks": [{"check": "file_exists docs/autonomy/fix_prereq_minlevel_inversion.md", "ok": true}], "ts": "2026-11-11T09:25:01Z"}
+{"kind": "task_added", "task_id": "GEN-EB9362C542", "approved": false, "ts": "2026-11-11T09:26:35Z"}
+{"kind": "transition", "task_id": "GEN-EB9362C542", "to": "DISPATCHED", "reason": "", "ts": "2026-11-11T09:26:35Z"}
+{"kind": "dispatched", "task_id": "GEN-EB9362C542", "model": "swe-2-high", "worktree": "C:\\Users\\Dawis\\ForeverRouteJarvis\\DevinBridge\\autonomy_scope\\workspaces\\foreverroute-route-audit", "head": "5f41114c128337a0534cb0bbb361bad580db68ac", "worker_pid": 27528, "ts": "2026-11-11T09:26:35Z"}
+{"kind": "cdp_handoff", "proposal": "eb9362c542", "task_id": "GEN-EB9362C542", "program": "FOREVERROUTE_CONTINUOUS_V1", "dispatched": true, "ts": "2026-11-11T09:26:35Z"}
+{"kind": "session_attached", "task_id": "GEN-EB9362C542", "session_id": "light-dibble", "ts": "2026-11-11T09:26:38Z"}
+{"kind": "transition", "task_id": "GEN-EB9362C542", "to": "VERIFYING", "reason": "", "ts": "2026-11-11T09:33:12Z"}
+{"kind": "prompt_done", "task_id": "GEN-EB9362C542", "session_id": "light-dibble", "stop_reason": "end_turn", "usage": {"totalTokens": 136065, "inputTokens": 134866, "outputTokens": 1199, "cachedReadTokens": 134400}, "ts": "2026-11-11T09:33:12Z"}
+{"kind": "transition", "task_id": "GEN-EB9362C542", "to": "COMPLETE", "reason": "", "ts": "2026-11-11T09:33:13Z"}
+{"kind": "verified", "task_id": "GEN-EB9362C542", "verified": true, "checks": [{"check": "file_exists docs/autonomy/fix_prereq_not_in_section.md", "ok": true}], "ts": "2026-11-11T09:33:13Z"}
+{"kind": "task_added", "task_id": "FR-LIVE-20261111-01", "approved": true, "ts": "2026-11-11T10:00:50Z"}
+{"kind": "task_added", "task_id": "FR-LIVE-20261111-02", "approved": true, "ts": "2026-11-11T10:00:50Z"}
+{"kind": "task_added", "task_id": "FR-LIVE-20261111-03", "approved": true, "ts": "2026-11-11T10:00:50Z"}
+{"kind": "task_added", "task_id": "FR-LIVE-20261111-04", "approved": true, "ts": "2026-11-11T10:00:50Z"}
+{"kind": "transition", "task_id": "FR-LIVE-20261111-01", "to": "DISPATCHED", "reason": "", "ts": "2026-11-11T10:00:50Z"}
+{"kind": "dispatched", "task_id": "FR-LIVE-20261111-01", "model": "swe-2-high", "worktree": "C:\\Users\\Dawis\\ForeverRouteJarvis\\DevinBridge\\autonomy_scope\\workspaces\\foreverroute-route-audit", "head": "5f41114c128337a0534cb0bbb361bad580db68ac", "worker_pid": 21712, "ts": "2026-11-11T10:00:50Z"}
+{"kind": "session_attached", "task_id": "FR-LIVE-20261111-01", "session_id": "mixed-house", "ts": "2026-11-11T10:00:52Z"}
+{"kind": "transition", "task_id": "FR-LIVE-20261111-04", "to": "READY", "reason": "", "ts": "2026-11-11T10:00:52Z"}
+{"kind": "transition", "task_id": "FR-LIVE-20261111-01", "to": "VERIFYING", "reason": "", "ts": "2026-11-11T10:09:18Z"}
+{"kind": "prompt_done", "task_id": "FR-LIVE-20261111-01", "session_id": "mixed-house", "stop_reason": "end_turn", "usage": {"totalTokens": 105953, "inputTokens": 105127, "outputTokens": 826, "cachedReadTokens": 104704}, "ts": "2026-11-11T10:09:18Z"}
+{"kind": "transition", "task_id": "FR-LIVE-20261111-01", "to": "READY", "reason": "", "ts": "2026-11-11T10:09:19Z"}
+{"kind": "retry_scheduled", "task_id": "FR-LIVE-20261111-01", "attempt": 1, "backoff_s": 300.0, "ts": "2026-11-11T10:09:19Z"}
+{"kind": "verified", "task_id": "FR-LIVE-20261111-01", "verified": false, "retry_in_s": 300.0, "checks": [{"check": "file_exists tools/forever_live_source_inventory.py", "ok": true}, {"check": "file_contains docs/autonomy/live_source_matrix_20261111.md", "ok": false}, {"check": "test unittest discover -s tests", "ok": true, "exit": 0, "tail": "..................\n----------------------------------------------------------------------\nRan 18 tests in 0.002s\n\nOK\n"}], "ts": "2026-11-11T10:09:19Z"}
+{"kind": "transition", "task_id": "FR-LIVE-20261111-04", "to": "DISPATCHED", "reason": "", "ts": "2026-11-11T10:10:00Z"}
+{"kind": "dispatched", "task_id": "FR-LIVE-20261111-04", "model": "swe-2-high", "worktree": "C:\\Users\\Dawis\\ForeverRouteJarvis\\DevinBridge\\autonomy_scope\\workspaces\\foreverroute-route-audit", "head": "5f41114c128337a0534cb0bbb361bad580db68ac", "worker_pid": 32476, "ts": "2026-11-11T10:10:00Z"}
+{"kind": "session_attached", "task_id": "FR-LIVE-20261111-04", "session_id": "thrilling-afternoon", "ts": "2026-11-11T10:10:02Z"}
+{"kind": "transition", "task_id": "FR-LIVE-20261111-04", "to": "VERIFYING", "reason": "", "ts": "2026-11-11T10:17:04Z"}
+{"kind": "prompt_done", "task_id": "FR-LIVE-20261111-04", "session_id": "thrilling-afternoon", "stop_reason": "end_turn", "usage": {"totalTokens": 117167, "inputTokens": 116230, "outputTokens": 937, "cachedReadTokens": 114432}, "ts": "2026-11-11T10:17:04Z"}
+{"kind": "transition", "task_id": "FR-LIVE-20261111-04", "to": "READY", "reason": "", "ts": "2026-11-11T10:17:05Z"}
+{"kind": "retry_scheduled", "task_id": "FR-LIVE-20261111-04", "attempt": 1, "backoff_s": 300.0, "ts": "2026-11-11T10:17:05Z"}
+{"kind": "verified", "task_id": "FR-LIVE-20261111-04", "verified": false, "retry_in_s": 300.0, "checks": [{"check": "file_exists tools/route_recalc_results_20261111.json", "ok": false}, {"check": "file_contains docs/autonomy/recalc_progress_20261111.md", "ok": false}, {"check": "test unittest discover -s tests", "ok": true, "exit": 0, "tail": "ss\n----------------------------------------------------------------------\nRan 0 tests in 0.009s\n\nOK (skipped=2)\n"}], "ts": "2026-11-11T10:17:05Z"}
+{"kind": "transition", "task_id": "FR-LIVE-20261111-01", "to": "DISPATCHED", "reason": "", "ts": "2026-11-11T10:17:35Z"}
+{"kind": "dispatched", "task_id": "FR-LIVE-20261111-01", "model": "swe-2-high", "worktree": "C:\\Users\\Dawis\\ForeverRouteJarvis\\DevinBridge\\autonomy_scope\\workspaces\\foreverroute-route-audit", "head": "5f41114c128337a0534cb0bbb361bad580db68ac", "worker_pid": 14288, "ts": "2026-11-11T10:17:35Z"}
+{"kind": "task_added", "task_id": "FR-HYJAL-20261111-01", "approved": true, "ts": "2026-11-11T10:18:25Z"}
+{"kind": "task_added", "task_id": "FR-HYJAL-20261111-02", "approved": true, "ts": "2026-11-11T10:18:25Z"}
+{"kind": "transition", "task_id": "FR-HYJAL-20261111-01", "to": "READY", "reason": "", "ts": "2026-11-11T10:18:26Z"}
+{"kind": "transition", "task_id": "FR-LIVE-20261111-01", "to": "VERIFYING", "reason": "", "ts": "2026-11-11T10:18:59Z"}
+{"kind": "prompt_done", "task_id": "FR-LIVE-20261111-01", "session_id": "mixed-house", "stop_reason": "end_turn", "usage": {"totalTokens": 112613, "inputTokens": 111913, "outputTokens": 700, "cachedReadTokens": 111616}, "ts": "2026-11-11T10:18:59Z"}
+{"kind": "transition", "task_id": "FR-LIVE-20261111-01", "to": "FAILED", "reason": "", "ts": "2026-11-11T10:18:59Z"}
+{"kind": "verified", "task_id": "FR-LIVE-20261111-01", "verified": false, "failed": true, "checks": [{"check": "file_exists tools/forever_live_source_inventory.py", "ok": true}, {"check": "file_contains docs/autonomy/live_source_matrix_20261111.md", "ok": false}, {"check": "test unittest discover -s tests", "ok": true, "exit": 0, "tail": "..................\n----------------------------------------------------------------------\nRan 18 tests in 0.001s\n\nOK\n"}], "ts": "2026-11-11T10:18:59Z"}
+{"kind": "transition", "task_id": "FR-HYJAL-20261111-01", "to": "DISPATCHED", "reason": "", "ts": "2026-11-11T10:19:18Z"}
+{"kind": "dispatched", "task_id": "FR-HYJAL-20261111-01", "model": "swe-2-high", "worktree": "C:\\Users\\Dawis\\ForeverRouteJarvis\\DevinBridge\\autonomy_scope\\workspaces\\foreverroute-route-audit", "head": "5f41114c128337a0534cb0bbb361bad580db68ac", "worker_pid": 29884, "ts": "2026-11-11T10:19:18Z"}
+{"kind": "session_attached", "task_id": "FR-HYJAL-20261111-01", "session_id": "wooded-throat", "ts": "2026-11-11T10:19:19Z"}
+{"kind": "owner_priority_gate", "task_id": "FR-LIVE-20261111-04", "depends_on": ["FR-HYJAL-20261111-02", "FR-LIVE-20261111-03"], "reason": "Hyjal + waypoints before full route recalc", "ts": "2026-11-11T10:24:46Z"}
+{"kind": "transition", "task_id": "FR-LIVE-20261111-01", "to": "COMPLETE", "reason": "", "ts": "2026-11-11T10:26:01Z"}
+{"kind": "transition", "task_id": "FR-LIVE-20261111-02", "to": "READY", "reason": "", "ts": "2026-11-11T10:26:02Z"}
+{"kind": "transition", "task_id": "FR-HYJAL-20261111-01", "to": "VERIFYING", "reason": "", "ts": "2026-11-11T10:35:14Z"}
+{"kind": "prompt_done", "task_id": "FR-HYJAL-20261111-01", "session_id": "wooded-throat", "stop_reason": "end_turn", "usage": {"totalTokens": 143607, "inputTokens": 141082, "outputTokens": 2525, "cachedReadTokens": 140224}, "ts": "2026-11-11T10:35:14Z"}
+{"kind": "transition", "task_id": "FR-HYJAL-20261111-01", "to": "READY", "reason": "", "ts": "2026-11-11T10:35:16Z"}
+{"kind": "retry_scheduled", "task_id": "FR-HYJAL-20261111-01", "attempt": 1, "backoff_s": 300.0, "ts": "2026-11-11T10:35:16Z"}
+{"kind": "verified", "task_id": "FR-HYJAL-20261111-01", "verified": false, "retry_in_s": 300.0, "checks": [{"check": "file_exists tools/hyjal_quest_inventory.py", "ok": true}, {"check": "file_exists tools/hyjal_quest_inventory_20261111.json", "ok": true}, {"check": "file_contains docs/autonomy/hyjal_source_reconcile_20261111.md", "ok": true}, {"check": "test unittest discover -s tests", "ok": false, "exit": 1, "tail": "artifact_matches_tool_output\n    self.assertEqual(artifact, regenerated)\nAssertionError: {'briefCrosschecks': [{'faction': 'Alliance[80302 chars]616}} != {'tool': 'hyjal_quest_inventory', 'schemaVe[80317 chars]e'}]}\nDiff is 254843 characters long. Set self.maxDiff to None to see it.\n\n----------------------------------------------------------------------\nRan 20 tests in 2.020s\n\nFAILED (failures=1)\n"}], "ts": "2026-11-11T10:35:16Z"}
+{"kind": "transition", "task_id": "FR-LIVE-20261111-02", "to": "DISPATCHED", "reason": "", "ts": "2026-11-11T10:35:25Z"}
+{"kind": "dispatched", "task_id": "FR-LIVE-20261111-02", "model": "swe-2-high", "worktree": "C:\\Users\\Dawis\\ForeverRouteJarvis\\DevinBridge\\autonomy_scope\\workspaces\\foreverroute-route-audit", "head": "5f41114c128337a0534cb0bbb361bad580db68ac", "worker_pid": 31412, "ts": "2026-11-11T10:35:25Z"}
+{"kind": "session_attached", "task_id": "FR-LIVE-20261111-02", "session_id": "scythe-hiss", "ts": "2026-11-11T10:35:27Z"}
+{"kind": "transition", "task_id": "FR-LIVE-20261111-02", "to": "VERIFYING", "reason": "", "ts": "2026-11-11T10:59:18Z"}
+{"kind": "prompt_done", "task_id": "FR-LIVE-20261111-02", "session_id": "scythe-hiss", "stop_reason": "end_turn", "usage": {"totalTokens": 192032, "inputTokens": 191328, "outputTokens": 704, "cachedReadTokens": 183680}, "ts": "2026-11-11T10:59:18Z"}
+{"kind": "transition", "task_id": "FR-LIVE-20261111-02", "to": "READY", "reason": "", "ts": "2026-11-11T10:59:19Z"}
+{"kind": "retry_scheduled", "task_id": "FR-LIVE-20261111-02", "attempt": 1, "backoff_s": 300.0, "ts": "2026-11-11T10:59:19Z"}
+{"kind": "verified", "task_id": "FR-LIVE-20261111-02", "verified": false, "retry_in_s": 300.0, "checks": [{"check": "file_exists tools/forever_quest_gap_join.py", "ok": true}, {"check": "file_exists tools/live_quest_gaps_20261111.json", "ok": true}, {"check": "file_contains docs/autonomy/live_quest_gap_join_20261111.md", "ok": false}, {"check": "test unittest discover -s tests", "ok": false, "exit": 1, "tail": "ll last):\n  File \"C:\\Users\\Dawis\\ForeverRouteJarvis\\DevinBridge\\autonomy_scope\\workspaces\\foreverroute-route-audit\\tests\\test_forever_quest_gap_join.py\", line 359, in test_distinct_quest_ids\n    self.assertEqual(self.enum[\"distinctRouteQuestIds\"], 3)\nAssertionError: 4 != 3\n\n----------------------------------------------------------------------\nRan 22 tests in 0.132s\n\nFAILED (failures=1, errors=1)\n"}], "ts": "2026-11-11T10:59:19Z"}
+{"kind": "task_added", "task_id": "GEN-148E5F27FA", "approved": false, "ts": "2026-11-11T10:59:20Z"}
+{"kind": "transition", "task_id": "GEN-148E5F27FA", "to": "DISPATCHED", "reason": "", "ts": "2026-11-11T10:59:20Z"}
+{"kind": "dispatched", "task_id": "GEN-148E5F27FA", "model": "swe-2-high", "worktree": "C:\\Users\\Dawis\\ForeverRouteJarvis\\DevinBridge\\autonomy_scope\\workspaces\\foreverroute-route-audit", "head": "5f41114c128337a0534cb0bbb361bad580db68ac", "worker_pid": 28644, "ts": "2026-11-11T10:59:20Z"}
+{"kind": "cdp_handoff", "proposal": "148e5f27fa", "task_id": "GEN-148E5F27FA", "program": "FOREVERROUTE_CONTINUOUS_V1", "dispatched": true, "ts": "2026-11-11T10:59:20Z"}
+{"kind": "session_attached", "task_id": "GEN-148E5F27FA", "session_id": "crimson-direction", "ts": "2026-11-11T10:59:22Z"}
+{"kind": "transition", "task_id": "GEN-148E5F27FA", "to": "VERIFYING", "reason": "", "ts": "2026-11-11T11:03:42Z"}
+{"kind": "prompt_done", "task_id": "GEN-148E5F27FA", "session_id": "crimson-direction", "stop_reason": "end_turn", "usage": {"totalTokens": 79427, "inputTokens": 78772, "outputTokens": 655, "cachedReadTokens": 78592}, "ts": "2026-11-11T11:03:42Z"}
+{"kind": "transition", "task_id": "GEN-148E5F27FA", "to": "COMPLETE", "reason": "", "ts": "2026-11-11T11:03:43Z"}
+{"kind": "verified", "task_id": "GEN-148E5F27FA", "verified": true, "checks": [{"check": "file_exists docs/autonomy/fix_route_prereq_not_in_catalog.md", "ok": true}], "ts": "2026-11-11T11:03:43Z"}
+{"kind": "transition", "task_id": "FR-HYJAL-20261111-01", "to": "DISPATCHED", "reason": "", "ts": "2026-11-11T11:04:23Z"}
+{"kind": "dispatched", "task_id": "FR-HYJAL-20261111-01", "model": "swe-2-high", "worktree": "C:\\Users\\Dawis\\ForeverRouteJarvis\\DevinBridge\\autonomy_scope\\workspaces\\foreverroute-route-audit", "head": "5f41114c128337a0534cb0bbb361bad580db68ac", "worker_pid": 21400, "ts": "2026-11-11T11:04:23Z"}
+{"kind": "transition", "task_id": "FR-HYJAL-20261111-01", "to": "VERIFYING", "reason": "", "ts": "2026-11-11T11:05:04Z"}
+{"kind": "prompt_done", "task_id": "FR-HYJAL-20261111-01", "session_id": "wooded-throat", "stop_reason": "end_turn", "usage": {"totalTokens": 149834, "inputTokens": 149228, "outputTokens": 606, "cachedReadTokens": 148992}, "ts": "2026-11-11T11:05:04Z"}
+{"kind": "transition", "task_id": "FR-HYJAL-20261111-01", "to": "FAILED", "reason": "", "ts": "2026-11-11T11:05:07Z"}
+{"kind": "verified", "task_id": "FR-HYJAL-20261111-01", "verified": false, "failed": true, "checks": [{"check": "file_exists tools/hyjal_quest_inventory.py", "ok": true}, {"check": "file_exists tools/hyjal_quest_inventory_20261111.json", "ok": true}, {"check": "file_contains docs/autonomy/hyjal_source_reconcile_20261111.md", "ok": true}, {"check": "test unittest discover -s tests", "ok": false, "exit": 1, "tail": "artifact_matches_tool_output\n    self.assertEqual(artifact, regenerated)\nAssertionError: {'briefCrosschecks': [{'faction': 'Alliance[80302 chars]616}} != {'tool': 'hyjal_quest_inventory', 'schemaVe[80317 chars]e'}]}\nDiff is 254843 characters long. Set self.maxDiff to None to see it.\n\n----------------------------------------------------------------------\nRan 20 tests in 1.944s\n\nFAILED (failures=1)\n"}], "ts": "2026-11-11T11:05:07Z"}
+{"kind": "transition", "task_id": "FR-LIVE-20261111-02", "to": "DISPATCHED", "reason": "", "ts": "2026-11-11T11:05:15Z"}
+{"kind": "dispatched", "task_id": "FR-LIVE-20261111-02", "model": "swe-2-high", "worktree": "C:\\Users\\Dawis\\ForeverRouteJarvis\\DevinBridge\\autonomy_scope\\workspaces\\foreverroute-route-audit", "head": "5f41114c128337a0534cb0bbb361bad580db68ac", "worker_pid": 25676, "ts": "2026-11-11T11:05:15Z"}
+{"kind": "transition", "task_id": "FR-LIVE-20261111-02", "to": "VERIFYING", "reason": "", "ts": "2026-11-11T11:05:47Z"}
+{"kind": "prompt_done", "task_id": "FR-LIVE-20261111-02", "session_id": "scythe-hiss", "stop_reason": "end_turn", "usage": {"totalTokens": 197376, "inputTokens": 196827, "outputTokens": 549, "cachedReadTokens": 193856}, "ts": "2026-11-11T11:05:47Z"}
+{"kind": "transition", "task_id": "FR-LIVE-20261111-02", "to": "FAILED", "reason": "", "ts": "2026-11-11T11:05:48Z"}
+{"kind": "verified", "task_id": "FR-LIVE-20261111-02", "verified": false, "failed": true, "checks": [{"check": "file_exists tools/forever_quest_gap_join.py", "ok": true}, {"check": "file_exists tools/live_quest_gaps_20261111.json", "ok": true}, {"check": "file_contains docs/autonomy/live_quest_gap_join_20261111.md", "ok": false}, {"check": "test unittest discover -s tests", "ok": false, "exit": 1, "tail": "ll last):\n  File \"C:\\Users\\Dawis\\ForeverRouteJarvis\\DevinBridge\\autonomy_scope\\workspaces\\foreverroute-route-audit\\tests\\test_forever_quest_gap_join.py\", line 359, in test_distinct_quest_ids\n    self.assertEqual(self.enum[\"distinctRouteQuestIds\"], 3)\nAssertionError: 4 != 3\n\n----------------------------------------------------------------------\nRan 22 tests in 0.070s\n\nFAILED (failures=1, errors=1)\n"}], "ts": "2026-11-11T11:05:48Z"}
+{"kind": "task_added", "task_id": "GEN-6592BB03AE", "approved": false, "ts": "2026-11-11T11:06:11Z"}
+{"kind": "transition", "task_id": "GEN-6592BB03AE", "to": "DISPATCHED", "reason": "", "ts": "2026-11-11T11:06:12Z"}
+{"kind": "dispatched", "task_id": "GEN-6592BB03AE", "model": "swe-2-high", "worktree": "C:\\Users\\Dawis\\ForeverRouteJarvis\\DevinBridge\\autonomy_scope\\workspaces\\foreverroute-route-audit", "head": "5f41114c128337a0534cb0bbb361bad580db68ac", "worker_pid": 14112, "ts": "2026-11-11T11:06:12Z"}
+{"kind": "cdp_handoff", "proposal": "6592bb03ae", "task_id": "GEN-6592BB03AE", "program": "FOREVERROUTE_CONTINUOUS_V1", "dispatched": true, "ts": "2026-11-11T11:06:12Z"}
+{"kind": "session_attached", "task_id": "GEN-6592BB03AE", "session_id": "guttural-ferryboat", "ts": "2026-11-11T11:06:13Z"}
+{"kind": "transition", "task_id": "GEN-6592BB03AE", "to": "VERIFYING", "reason": "", "ts": "2026-11-11T11:11:01Z"}
+{"kind": "prompt_done", "task_id": "GEN-6592BB03AE", "session_id": "guttural-ferryboat", "stop_reason": "end_turn", "usage": {"totalTokens": 120025, "inputTokens": 119442, "outputTokens": 583, "cachedReadTokens": 118528}, "ts": "2026-11-11T11:11:01Z"}
+{"kind": "transition", "task_id": "GEN-6592BB03AE", "to": "COMPLETE", "reason": "", "ts": "2026-11-11T11:11:02Z"}
+{"kind": "verified", "task_id": "GEN-6592BB03AE", "verified": true, "checks": [{"check": "file_exists docs/autonomy/fix_route_prereq_reversed_vs_catalog.md", "ok": true}], "ts": "2026-11-11T11:11:02Z"}
+{"kind": "task_added", "task_id": "GEN-58DF9944AB", "approved": false, "ts": "2026-11-11T11:11:18Z"}
+{"kind": "transition", "task_id": "GEN-58DF9944AB", "to": "DISPATCHED", "reason": "", "ts": "2026-11-11T11:11:19Z"}
+{"kind": "dispatched", "task_id": "GEN-58DF9944AB", "model": "swe-2-high", "worktree": "C:\\Users\\Dawis\\ForeverRouteJarvis\\DevinBridge\\autonomy_scope\\workspaces\\foreverroute-route-audit", "head": "5f41114c128337a0534cb0bbb361bad580db68ac", "worker_pid": 6540, "ts": "2026-11-11T11:11:19Z"}
+{"kind": "cdp_handoff", "proposal": "58df9944ab", "task_id": "GEN-58DF9944AB", "program": "FOREVERROUTE_CONTINUOUS_V1", "dispatched": true, "ts": "2026-11-11T11:11:19Z"}
+{"kind": "session_attached", "task_id": "GEN-58DF9944AB", "session_id": "elegant-pancake", "ts": "2026-11-11T11:11:20Z"}
+{"kind": "transition", "task_id": "GEN-58DF9944AB", "to": "VERIFYING", "reason": "", "ts": "2026-11-11T11:17:10Z"}
+{"kind": "prompt_done", "task_id": "GEN-58DF9944AB", "session_id": "elegant-pancake", "stop_reason": "end_turn", "usage": {"totalTokens": 133903, "inputTokens": 133322, "outputTokens": 581, "cachedReadTokens": 130560}, "ts": "2026-11-11T11:17:10Z"}
+{"kind": "transition", "task_id": "GEN-58DF9944AB", "to": "COMPLETE", "reason": "", "ts": "2026-11-11T11:17:10Z"}
+{"kind": "verified", "task_id": "GEN-58DF9944AB", "verified": true, "checks": [{"check": "file_exists docs/autonomy/fix_gate_below_catalog_min.md", "ok": true}], "ts": "2026-11-11T11:17:10Z"}
+{"kind": "pause", "reason": "verified local test repair 2026-11-11; independent original acceptance recheck", "ts": "2026-11-11T11:46:25Z"}
+{"kind": "resume", "ts": "2026-11-11T11:46:28Z"}
+{"kind": "pause", "reason": "original acceptance revalidation after offline defect repairs", "ts": "2026-11-11T11:49:22Z"}
+{"kind": "transition", "task_id": "FR-HYJAL-20261111-01", "to": "VERIFIED_RECOVERED", "reason": "Independent original acceptance re-run after evidence-backed parser and deterministic artifact repairs", "ts": "2026-11-11T11:49:26Z"}
+{"kind": "original_acceptance_revalidated", "task_id": "FR-HYJAL-20261111-01", "passed_checks": 4, "manual_code_repair": true, "ts": "2026-11-11T11:49:26Z"}
+{"kind": "transition", "task_id": "FR-LIVE-20261111-02", "to": "VERIFIED_RECOVERED", "reason": "Independent original acceptance re-run after evidence-backed parser and deterministic artifact repairs", "ts": "2026-11-11T11:49:26Z"}
+{"kind": "original_acceptance_revalidated", "task_id": "FR-LIVE-20261111-02", "passed_checks": 4, "manual_code_repair": true, "ts": "2026-11-11T11:49:26Z"}
+{"kind": "resume", "ts": "2026-11-11T11:49:26Z"}
+{"kind": "transition", "task_id": "FR-HYJAL-20261111-02", "to": "READY", "reason": "", "ts": "2026-11-11T11:50:02Z"}
+{"kind": "transition", "task_id": "FR-HYJAL-20261111-02", "to": "DISPATCHED", "reason": "", "ts": "2026-11-11T11:50:04Z"}
+{"kind": "dispatched", "task_id": "FR-HYJAL-20261111-02", "model": "swe-2-high", "worktree": "C:\\Users\\Dawis\\ForeverRouteJarvis\\DevinBridge\\autonomy_scope\\workspaces\\foreverroute-route-audit", "head": "5f41114c128337a0534cb0bbb361bad580db68ac", "worker_pid": 6740, "ts": "2026-11-11T11:50:04Z"}
+{"kind": "transition", "task_id": "FR-LIVE-20261111-03", "to": "READY", "reason": "", "ts": "2026-11-11T11:50:05Z"}
+{"kind": "transition", "task_id": "FR-LIVE-20261111-03", "to": "READY", "reason": "", "ts": "2026-11-11T11:50:06Z"}
+{"kind": "session_attached", "task_id": "FR-HYJAL-20261111-02", "session_id": "obsidian-starburst", "ts": "2026-11-11T11:50:09Z"}
+{"kind": "transition", "task_id": "FR-HYJAL-20261111-02", "to": "VERIFYING", "reason": "", "ts": "2026-11-11T12:07:13Z"}
+{"kind": "prompt_done", "task_id": "FR-HYJAL-20261111-02", "session_id": "obsidian-starburst", "stop_reason": "end_turn", "usage": {"totalTokens": 113211, "inputTokens": 111666, "outputTokens": 1545, "cachedReadTokens": 111360}, "ts": "2026-11-11T12:07:13Z"}
+{"kind": "transition", "task_id": "FR-HYJAL-20261111-02", "to": "READY", "reason": "", "ts": "2026-11-11T12:07:15Z"}
+{"kind": "retry_scheduled", "task_id": "FR-HYJAL-20261111-02", "attempt": 1, "backoff_s": 300.0, "ts": "2026-11-11T12:07:15Z"}
+{"kind": "verified", "task_id": "FR-HYJAL-20261111-02", "verified": false, "retry_in_s": 300.0, "checks": [{"check": "file_exists tools/build_hyjal_routes.py", "ok": true}, {"check": "file_exists Generated/ForeverRoute_Hyjal_Supplement.lua", "ok": true}, {"check": "file_contains docs/autonomy/hyjal_route_integration_20261111.md", "ok": true}, {"check": "test unittest discover -s tests", "ok": false, "exit": 1, "tail": "ast):\n  File \"C:\\Users\\Dawis\\ForeverRouteJarvis\\DevinBridge\\autonomy_scope\\workspaces\\foreverroute-route-audit\\tests\\test_hyjal_route_integration.py\", line 85, in test_builder_reproduces_committed_overlay_and_lua\n    self.assertEqual(hyjal_build.build(args), 1)\nAssertionError: 0 != 1\n\n----------------------------------------------------------------------\nRan 6 tests in 0.787s\n\nFAILED (failures=1)\n"}], "ts": "2026-11-11T12:07:15Z"}
+{"kind": "transition", "task_id": "FR-LIVE-20261111-03", "to": "DISPATCHED", "reason": "", "ts": "2026-11-11T12:07:35Z"}
+{"kind": "dispatched", "task_id": "FR-LIVE-20261111-03", "model": "swe-2-high", "worktree": "C:\\Users\\Dawis\\ForeverRouteJarvis\\DevinBridge\\autonomy_scope\\workspaces\\foreverroute-route-audit", "head": "5f41114c128337a0534cb0bbb361bad580db68ac", "worker_pid": 18160, "ts": "2026-11-11T12:07:35Z"}
+{"kind": "session_attached", "task_id": "FR-LIVE-20261111-03", "session_id": "abundance-hedge", "ts": "2026-11-11T12:07:36Z"}
+{"kind": "transition", "task_id": "FR-LIVE-20261111-03", "to": "VERIFYING", "reason": "", "ts": "2026-11-11T12:24:42Z"}
+{"kind": "prompt_done", "task_id": "FR-LIVE-20261111-03", "session_id": "abundance-hedge", "stop_reason": "end_turn", "usage": {"totalTokens": 90845, "inputTokens": 90213, "outputTokens": 632, "cachedReadTokens": 89856}, "ts": "2026-11-11T12:24:42Z"}
+{"kind": "transition", "task_id": "FR-LIVE-20261111-03", "to": "READY", "reason": "", "ts": "2026-11-11T12:24:43Z"}
+{"kind": "retry_scheduled", "task_id": "FR-LIVE-20261111-03", "attempt": 1, "backoff_s": 300.0, "ts": "2026-11-11T12:24:43Z"}
+{"kind": "verified", "task_id": "FR-LIVE-20261111-03", "verified": false, "retry_in_s": 300.0, "checks": [{"check": "file_exists tools/build_waypoint_candidates.py", "ok": true}, {"check": "file_exists tools/waypoint_candidates_20261111.json", "ok": true}, {"check": "file_contains docs/autonomy/waypoint_progress_20261111.md", "ok": false}, {"check": "test unittest discover -s tests", "ok": false, "exit": 1, "tail": " line 339, in _get_module_from_name\n    __import__(name)\n  File \"C:\\Users\\Dawis\\ForeverRouteJarvis\\DevinBridge\\autonomy_scope\\workspaces\\foreverroute-route-audit\\tests\\test_waypoint_candidates.py\", line 139\n    OBJECTIVES_DOC = {\n                     ^\nSyntaxError: '{' was never closed\n\n\n----------------------------------------------------------------------\nRan 1 test in 0.001s\n\nFAILED (errors=1)\n"}], "ts": "2026-11-11T12:24:43Z"}
+{"kind": "transition", "task_id": "FR-HYJAL-20261111-02", "to": "DISPATCHED", "reason": "", "ts": "2026-11-11T12:24:51Z"}
+{"kind": "dispatched", "task_id": "FR-HYJAL-20261111-02", "model": "swe-2-high", "worktree": "C:\\Users\\Dawis\\ForeverRouteJarvis\\DevinBridge\\autonomy_scope\\workspaces\\foreverroute-route-audit", "head": "5f41114c128337a0534cb0bbb361bad580db68ac", "worker_pid": 20712, "ts": "2026-11-11T12:24:51Z"}
+{"kind": "transition", "task_id": "FR-HYJAL-20261111-02", "to": "VERIFYING", "reason": "", "ts": "2026-11-11T12:25:13Z"}
+{"kind": "prompt_done", "task_id": "FR-HYJAL-20261111-02", "session_id": "obsidian-starburst", "stop_reason": "end_turn", "usage": {"totalTokens": 114821, "inputTokens": 113885, "outputTokens": 936, "cachedReadTokens": 113664}, "ts": "2026-11-11T12:25:13Z"}
+{"kind": "transition", "task_id": "FR-HYJAL-20261111-02", "to": "FAILED", "reason": "", "ts": "2026-11-11T12:25:15Z"}
+{"kind": "verified", "task_id": "FR-HYJAL-20261111-02", "verified": false, "failed": true, "checks": [{"check": "file_exists tools/build_hyjal_routes.py", "ok": true}, {"check": "file_exists Generated/ForeverRoute_Hyjal_Supplement.lua", "ok": true}, {"check": "file_contains docs/autonomy/hyjal_route_integration_20261111.md", "ok": true}, {"check": "test unittest discover -s tests", "ok": false, "exit": 1, "tail": "ast):\n  File \"C:\\Users\\Dawis\\ForeverRouteJarvis\\DevinBridge\\autonomy_scope\\workspaces\\foreverroute-route-audit\\tests\\test_hyjal_route_integration.py\", line 85, in test_builder_reproduces_committed_overlay_and_lua\n    self.assertEqual(hyjal_build.build(args), 1)\nAssertionError: 0 != 1\n\n----------------------------------------------------------------------\nRan 6 tests in 0.794s\n\nFAILED (failures=1)\n"}], "ts": "2026-11-11T12:25:15Z"}
+{"kind": "task_added", "task_id": "GEN-25D5C410A5", "approved": false, "ts": "2026-11-11T12:25:50Z"}
+{"kind": "transition", "task_id": "GEN-25D5C410A5", "to": "DISPATCHED", "reason": "", "ts": "2026-11-11T12:25:50Z"}
+{"kind": "dispatched", "task_id": "GEN-25D5C410A5", "model": "swe-2-high", "worktree": "C:\\Users\\Dawis\\ForeverRouteJarvis\\DevinBridge\\autonomy_scope\\workspaces\\foreverroute-route-audit", "head": "5f41114c128337a0534cb0bbb361bad580db68ac", "worker_pid": 24232, "ts": "2026-11-11T12:25:50Z"}
+{"kind": "cdp_handoff", "proposal": "25d5c410a5", "task_id": "GEN-25D5C410A5", "program": "FOREVERROUTE_CONTINUOUS_V1", "dispatched": true, "ts": "2026-11-11T12:25:51Z"}
+{"kind": "session_attached", "task_id": "GEN-25D5C410A5", "session_id": "narrow-department", "ts": "2026-11-11T12:25:52Z"}
+{"kind": "transition", "task_id": "GEN-25D5C410A5", "to": "VERIFYING", "reason": "", "ts": "2026-11-11T12:30:23Z"}
+{"kind": "prompt_done", "task_id": "GEN-25D5C410A5", "session_id": "narrow-department", "stop_reason": "end_turn", "usage": {"totalTokens": 112024, "inputTokens": 110653, "outputTokens": 1371, "cachedReadTokens": 110336}, "ts": "2026-11-11T12:30:23Z"}
+{"kind": "transition", "task_id": "GEN-25D5C410A5", "to": "COMPLETE", "reason": "", "ts": "2026-11-11T12:30:24Z"}
+{"kind": "verified", "task_id": "GEN-25D5C410A5", "verified": true, "checks": [{"check": "file_exists docs/autonomy/fix_no_catalog_row.md", "ok": true}], "ts": "2026-11-11T12:30:24Z"}
+{"kind": "transition", "task_id": "FR-LIVE-20261111-03", "to": "DISPATCHED", "reason": "", "ts": "2026-11-11T12:30:53Z"}
+{"kind": "dispatched", "task_id": "FR-LIVE-20261111-03", "model": "swe-2-high", "worktree": "C:\\Users\\Dawis\\ForeverRouteJarvis\\DevinBridge\\autonomy_scope\\workspaces\\foreverroute-route-audit", "head": "5f41114c128337a0534cb0bbb361bad580db68ac", "worker_pid": 26900, "ts": "2026-11-11T12:30:53Z"}
+{"kind": "transition", "task_id": "FR-LIVE-20261111-03", "to": "VERIFYING", "reason": "", "ts": "2026-11-11T12:31:21Z"}
+{"kind": "prompt_done", "task_id": "FR-LIVE-20261111-03", "session_id": "abundance-hedge", "stop_reason": "end_turn", "usage": {"totalTokens": 94058, "inputTokens": 93608, "outputTokens": 450, "cachedReadTokens": 93440}, "ts": "2026-11-11T12:31:21Z"}
+{"kind": "transition", "task_id": "FR-LIVE-20261111-03", "to": "FAILED", "reason": "", "ts": "2026-11-11T12:31:21Z"}
+{"kind": "verified", "task_id": "FR-LIVE-20261111-03", "verified": false, "failed": true, "checks": [{"check": "file_exists tools/build_waypoint_candidates.py", "ok": true}, {"check": "file_exists tools/waypoint_candidates_20261111.json", "ok": true}, {"check": "file_contains docs/autonomy/waypoint_progress_20261111.md", "ok": false}, {"check": "test unittest discover -s tests", "ok": false, "exit": 1, "tail": " line 339, in _get_module_from_name\n    __import__(name)\n  File \"C:\\Users\\Dawis\\ForeverRouteJarvis\\DevinBridge\\autonomy_scope\\workspaces\\foreverroute-route-audit\\tests\\test_waypoint_candidates.py\", line 139\n    OBJECTIVES_DOC = {\n                     ^\nSyntaxError: '{' was never closed\n\n\n----------------------------------------------------------------------\nRan 1 test in 0.000s\n\nFAILED (errors=1)\n"}], "ts": "2026-11-11T12:31:21Z"}
+{"kind": "task_added", "task_id": "GEN-EF269D762F", "approved": false, "ts": "2026-11-11T12:31:53Z"}
+{"kind": "transition", "task_id": "GEN-EF269D762F", "to": "DISPATCHED", "reason": "", "ts": "2026-11-11T12:31:53Z"}
+{"kind": "dispatched", "task_id": "GEN-EF269D762F", "model": "swe-2-high", "worktree": "C:\\Users\\Dawis\\ForeverRouteJarvis\\DevinBridge\\autonomy_scope\\workspaces\\foreverroute-route-audit", "head": "5f41114c128337a0534cb0bbb361bad580db68ac", "worker_pid": 18296, "ts": "2026-11-11T12:31:53Z"}
+{"kind": "cdp_handoff", "proposal": "ef269d762f", "task_id": "GEN-EF269D762F", "program": "FOREVERROUTE_CONTINUOUS_V1", "dispatched": true, "ts": "2026-11-11T12:31:53Z"}
+{"kind": "session_attached", "task_id": "GEN-EF269D762F", "session_id": "gusty-direction", "ts": "2026-11-11T12:31:56Z"}
+{"kind": "transition", "task_id": "GEN-EF269D762F", "to": "VERIFYING", "reason": "", "ts": "2026-11-11T12:34:57Z"}
+{"kind": "prompt_done", "task_id": "GEN-EF269D762F", "session_id": "gusty-direction", "stop_reason": "end_turn", "usage": {"totalTokens": 84787, "inputTokens": 83871, "outputTokens": 916, "cachedReadTokens": 83712}, "ts": "2026-11-11T12:34:57Z"}
+{"kind": "transition", "task_id": "GEN-EF269D762F", "to": "COMPLETE", "reason": "", "ts": "2026-11-11T12:34:58Z"}
+{"kind": "verified", "task_id": "GEN-EF269D762F", "verified": true, "checks": [{"check": "file_exists docs/autonomy/fix_prereq_minlevel_inversion.md", "ok": true}], "ts": "2026-11-11T12:34:58Z"}
+{"kind": "task_added", "task_id": "GEN-2AC9140C08", "approved": false, "ts": "2026-11-11T12:35:21Z"}
+{"kind": "transition", "task_id": "GEN-2AC9140C08", "to": "DISPATCHED", "reason": "", "ts": "2026-11-11T12:35:22Z"}
+{"kind": "dispatched", "task_id": "GEN-2AC9140C08", "model": "swe-2-high", "worktree": "C:\\Users\\Dawis\\ForeverRouteJarvis\\DevinBridge\\autonomy_scope\\workspaces\\foreverroute-route-audit", "head": "5f41114c128337a0534cb0bbb361bad580db68ac", "worker_pid": 26072, "ts": "2026-11-11T12:35:22Z"}
+{"kind": "cdp_handoff", "proposal": "2ac9140c08", "task_id": "GEN-2AC9140C08", "program": "FOREVERROUTE_CONTINUOUS_V1", "dispatched": true, "ts": "2026-11-11T12:35:22Z"}
+{"kind": "session_attached", "task_id": "GEN-2AC9140C08", "session_id": "dapper-sheep", "ts": "2026-11-11T12:35:23Z"}
+{"kind": "transition", "task_id": "GEN-2AC9140C08", "to": "VERIFYING", "reason": "", "ts": "2026-11-11T12:37:22Z"}
+{"kind": "prompt_done", "task_id": "GEN-2AC9140C08", "session_id": "dapper-sheep", "stop_reason": "end_turn", "usage": {"totalTokens": 55505, "inputTokens": 54627, "outputTokens": 878, "cachedReadTokens": 52992}, "ts": "2026-11-11T12:37:22Z"}
+{"kind": "transition", "task_id": "GEN-2AC9140C08", "to": "COMPLETE", "reason": "", "ts": "2026-11-11T12:37:23Z"}
+{"kind": "verified", "task_id": "GEN-2AC9140C08", "verified": true, "checks": [{"check": "file_exists docs/autonomy/fix_prereq_not_in_section.md", "ok": true}], "ts": "2026-11-11T12:37:23Z"}
+{"kind": "pause", "reason": "owner-directed repair: original acceptance must pass before queue resumes", "ts": "2026-11-11T12:58:06Z"}
+{"kind": "transition", "task_id": "FR-HYJAL-20261111-02", "to": "VERIFIED_RECOVERED", "reason": "Independent original acceptance green after code and artifact repairs (never weakened tests)", "ts": "2026-11-11T12:58:07Z"}
+{"kind": "owner_reverified_original_acceptance", "task_id": "FR-HYJAL-20261111-02", "passed_checks": 4, "ts": "2026-11-11T12:58:07Z"}
+{"kind": "transition", "task_id": "FR-LIVE-20261111-03", "to": "VERIFIED_RECOVERED", "reason": "Independent original acceptance green after code and artifact repairs (never weakened tests)", "ts": "2026-11-11T12:58:07Z"}
+{"kind": "owner_reverified_original_acceptance", "task_id": "FR-LIVE-20261111-03", "passed_checks": 4, "ts": "2026-11-11T12:58:07Z"}
+{"kind": "resume", "ts": "2026-11-11T12:58:07Z"}
+{"kind": "transition", "task_id": "FR-LIVE-20261111-04", "to": "READY", "reason": "", "ts": "2026-11-11T12:58:24Z"}
+{"kind": "transition", "task_id": "FR-LIVE-20261111-04", "to": "DISPATCHED", "reason": "", "ts": "2026-11-11T12:58:26Z"}
+{"kind": "dispatched", "task_id": "FR-LIVE-20261111-04", "model": "swe-2-high", "worktree": "C:\\Users\\Dawis\\ForeverRouteJarvis\\DevinBridge\\autonomy_scope\\workspaces\\foreverroute-route-audit", "head": "5f41114c128337a0534cb0bbb361bad580db68ac", "worker_pid": 25856, "ts": "2026-11-11T12:58:26Z"}
+{"kind": "transition", "task_id": "FR-LIVE-20261111-04", "to": "VERIFYING", "reason": "", "ts": "2026-11-11T12:59:52Z"}
+{"kind": "prompt_done", "task_id": "FR-LIVE-20261111-04", "session_id": "thrilling-afternoon", "stop_reason": "end_turn", "usage": {"totalTokens": 134729, "inputTokens": 133914, "outputTokens": 815, "cachedReadTokens": 133632}, "ts": "2026-11-11T12:59:52Z"}
+{"kind": "transition", "task_id": "FR-LIVE-20261111-04", "to": "FAILED", "reason": "", "ts": "2026-11-11T12:59:52Z"}
+{"kind": "verified", "task_id": "FR-LIVE-20261111-04", "verified": false, "failed": true, "checks": [{"check": "file_exists tools/route_recalc_results_20261111.json", "ok": false}, {"check": "file_contains docs/autonomy/recalc_progress_20261111.md", "ok": false}, {"check": "test unittest discover -s tests", "ok": true, "exit": 0, "tail": "ss\n----------------------------------------------------------------------\nRan 0 tests in 0.006s\n\nOK (skipped=2)\n"}], "ts": "2026-11-11T12:59:52Z"}
+{"kind": "task_added", "task_id": "GEN-DD2FD2D1FB", "approved": false, "ts": "2026-11-11T13:00:18Z"}
+{"kind": "transition", "task_id": "GEN-DD2FD2D1FB", "to": "DISPATCHED", "reason": "", "ts": "2026-11-11T13:00:18Z"}
+{"kind": "dispatched", "task_id": "GEN-DD2FD2D1FB", "model": "swe-2-high", "worktree": "C:\\Users\\Dawis\\ForeverRouteJarvis\\DevinBridge\\autonomy_scope\\workspaces\\foreverroute-route-audit", "head": "5f41114c128337a0534cb0bbb361bad580db68ac", "worker_pid": 18116, "ts": "2026-11-11T13:00:18Z"}
+{"kind": "cdp_handoff", "proposal": "dd2fd2d1fb", "task_id": "GEN-DD2FD2D1FB", "program": "FOREVERROUTE_CONTINUOUS_V1", "dispatched": true, "ts": "2026-11-11T13:00:18Z"}
+{"kind": "session_attached", "task_id": "GEN-DD2FD2D1FB", "session_id": "concrete-pine", "ts": "2026-11-11T13:00:20Z"}
+{"kind": "transition", "task_id": "GEN-DD2FD2D1FB", "to": "VERIFYING", "reason": "", "ts": "2026-11-11T13:14:04Z"}
+{"kind": "prompt_done", "task_id": "GEN-DD2FD2D1FB", "session_id": "concrete-pine", "stop_reason": "end_turn", "usage": {"totalTokens": 144664, "inputTokens": 143664, "outputTokens": 1000, "cachedReadTokens": 143104}, "ts": "2026-11-11T13:14:04Z"}
+{"kind": "transition", "task_id": "GEN-DD2FD2D1FB", "to": "COMPLETE", "reason": "", "ts": "2026-11-11T13:14:05Z"}
+{"kind": "verified", "task_id": "GEN-DD2FD2D1FB", "verified": true, "checks": [{"check": "file_exists docs/autonomy/fix_quest_level_far_above_band.md", "ok": true}], "ts": "2026-11-11T13:14:05Z"}
+{"kind": "task_added", "task_id": "GEN-01C81F8C93", "approved": false, "ts": "2026-11-11T13:14:13Z"}
+{"kind": "transition", "task_id": "GEN-01C81F8C93", "to": "DISPATCHED", "reason": "", "ts": "2026-11-11T13:14:14Z"}
+{"kind": "dispatched", "task_id": "GEN-01C81F8C93", "model": "swe-2-high", "worktree": "C:\\Users\\Dawis\\ForeverRouteJarvis\\DevinBridge\\autonomy_scope\\workspaces\\foreverroute-route-audit", "head": "5f41114c128337a0534cb0bbb361bad580db68ac", "worker_pid": 28060, "ts": "2026-11-11T13:14:14Z"}
+{"kind": "cdp_handoff", "proposal": "01c81f8c93", "task_id": "GEN-01C81F8C93", "program": "FOREVERROUTE_CONTINUOUS_V1", "dispatched": true, "ts": "2026-11-11T13:14:14Z"}
+{"kind": "session_attached", "task_id": "GEN-01C81F8C93", "session_id": "noiseless-book", "ts": "2026-11-11T13:14:15Z"}
+{"kind": "transition", "task_id": "GEN-01C81F8C93", "to": "VERIFYING", "reason": "", "ts": "2026-11-11T13:16:06Z"}
+{"kind": "prompt_done", "task_id": "GEN-01C81F8C93", "session_id": "noiseless-book", "stop_reason": "end_turn", "usage": {"totalTokens": 55392, "inputTokens": 54659, "outputTokens": 733, "cachedReadTokens": 53760}, "ts": "2026-11-11T13:16:06Z"}
+{"kind": "transition", "task_id": "GEN-01C81F8C93", "to": "COMPLETE", "reason": "", "ts": "2026-11-11T13:16:07Z"}
+{"kind": "verified", "task_id": "GEN-01C81F8C93", "verified": true, "checks": [{"check": "file_exists docs/autonomy/fix_route_prereq_not_in_catalog.md", "ok": true}], "ts": "2026-11-11T13:16:07Z"}
+{"kind": "task_added", "task_id": "GEN-8E5743C34A", "approved": false, "ts": "2026-11-11T13:16:51Z"}
+{"kind": "transition", "task_id": "GEN-8E5743C34A", "to": "DISPATCHED", "reason": "", "ts": "2026-11-11T13:16:52Z"}
+{"kind": "dispatched", "task_id": "GEN-8E5743C34A", "model": "swe-2-high", "worktree": "C:\\Users\\Dawis\\ForeverRouteJarvis\\DevinBridge\\autonomy_scope\\workspaces\\foreverroute-route-audit", "head": "5f41114c128337a0534cb0bbb361bad580db68ac", "worker_pid": 34596, "ts": "2026-11-11T13:16:52Z"}
+{"kind": "cdp_handoff", "proposal": "8e5743c34a", "task_id": "GEN-8E5743C34A", "program": "FOREVERROUTE_CONTINUOUS_V1", "dispatched": true, "ts": "2026-11-11T13:16:52Z"}
+{"kind": "session_attached", "task_id": "GEN-8E5743C34A", "session_id": "lemon-match", "ts": "2026-11-11T13:16:53Z"}
+{"kind": "transition", "task_id": "GEN-8E5743C34A", "to": "VERIFYING", "reason": "", "ts": "2026-11-11T13:18:47Z"}
+{"kind": "prompt_done", "task_id": "GEN-8E5743C34A", "session_id": "lemon-match", "stop_reason": "end_turn", "usage": {"totalTokens": 50820, "inputTokens": 50133, "outputTokens": 687, "cachedReadTokens": 49664}, "ts": "2026-11-11T13:18:48Z"}
+{"kind": "transition", "task_id": "GEN-8E5743C34A", "to": "COMPLETE", "reason": "", "ts": "2026-11-11T13:18:48Z"}
+{"kind": "verified", "task_id": "GEN-8E5743C34A", "verified": true, "checks": [{"check": "file_exists docs/autonomy/fix_route_prereq_reversed_vs_catalog.md", "ok": true}], "ts": "2026-11-11T13:18:48Z"}
+{"kind": "expired_legacy_recovery_reauthorized", "task_id": "FR-LIVE-20261111-04", "ts": "2026-11-11T13:19:21Z"}
+{"kind": "task_added", "task_id": "RCV-FR-LIVE-20261111-04-1", "approved": true, "ts": "2026-11-11T13:19:21Z"}
+{"kind": "transition", "task_id": "RCV-FR-LIVE-20261111-04-1", "to": "DISPATCHED", "reason": "", "ts": "2026-11-11T13:19:22Z"}
+{"kind": "dispatched", "task_id": "RCV-FR-LIVE-20261111-04-1", "model": "swe-2-high", "worktree": "C:\\Users\\Dawis\\ForeverRouteJarvis\\DevinBridge\\autonomy_scope\\workspaces\\foreverroute-route-audit", "head": "5f41114c128337a0534cb0bbb361bad580db68ac", "worker_pid": 28176, "ts": "2026-11-11T13:19:22Z"}
+{"kind": "recovery_dispatched", "task_id": "FR-LIVE-20261111-04", "child": "RCV-FR-LIVE-20261111-04-1", "rca": "fa1b85e1eb", "category": "unclear_failure", "dispatched": true, "ts": "2026-11-11T13:19:22Z"}
+{"kind": "session_attached", "task_id": "RCV-FR-LIVE-20261111-04-1", "session_id": "full-forger", "ts": "2026-11-11T13:19:23Z"}
+{"kind": "needs_approval", "task_id": "RCV-FR-LIVE-20261111-04-1", "summary": "write outside workspace: \\\\?\\C:\\Users\\Dawis\\AppData\\Local\\Programs\\Devin\\resources\\app\\extensions\\windsurf\\devin\\share\\devin\\docs\\troubleshooting.mdx", "fingerprint": "c07c9ba747bec703ec26", "reason": "", "ts": "2026-11-11T13:22:37Z"}
+{"kind": "needs_approval", "task_id": "RCV-FR-LIVE-20261111-04-1", "summary": "write outside workspace: \\\\?\\C:\\Users\\Dawis\\AppData\\Local\\Programs\\Devin\\resources\\app\\extensions\\windsurf\\devin\\share\\devin\\docs\\reference\\terminal-compatibility.mdx", "fingerprint": "405eb47d9d48d31f9154", "reason": "", "ts": "2026-11-11T13:22:40Z"}
+{"kind": "needs_approval", "task_id": "RCV-FR-LIVE-20261111-04-1", "summary": "write outside workspace: C:\\Users\\Dawis\\AppData\\Local\\Programs\\Devin\\resources\\app\\extensions\\windsurf\\devin\\share\\devin\\docs\\extensibility\\hooks\\lifecycle-hooks.mdx", "fingerprint": "f0eac6b9510f33808411", "reason": "", "ts": "2026-11-11T13:23:20Z"}
+{"kind": "needs_approval", "task_id": "RCV-FR-LIVE-20261111-04-1", "summary": "write outside workspace: C:\\Users\\Dawis\\Saved Games\\ForeverRoute-Devin-1to60-20261110\\ROUTE_RECALC_P0C_20261110.txt", "fingerprint": "6c469615b47aa02e4c0b", "reason": "", "ts": "2026-11-11T13:24:28Z"}
+{"kind": "permission_request", "task_id": "RCV-FR-LIVE-20261111-04-1", "decision": "allow_once", "summary": "action", "reason": "in-workspace file operation", "tool_call": "{\"toolCallId\": \"write:69#4f0d5a1ce7bd4b968b8ae9666d9a3f78\", \"_meta\": {\"cognition.ai/permissionReason\": \"Your organization's policy requires approval for this action.\"}}", "ts": "2026-11-11T13:26:10Z"}
+{"kind": "needs_approval", "task_id": "RCV-FR-LIVE-20261111-04-1", "summary": "write outside workspace: C:\\Users\\Dawis\\ForeverRouteJarvis\\DevinBridge\\coordinator_state.json", "fingerprint": "57193cca832384a0f0da", "reason": "", "ts": "2026-11-11T13:30:03Z"}
+{"kind": "transition", "task_id": "RCV-FR-LIVE-20261111-04-1", "to": "VERIFYING", "reason": "", "ts": "2026-11-11T13:41:06Z"}
+{"kind": "prompt_done", "task_id": "RCV-FR-LIVE-20261111-04-1", "session_id": "full-forger", "stop_reason": "end_turn", "usage": {"totalTokens": 179254, "inputTokens": 178491, "outputTokens": 763, "cachedReadTokens": 178176}, "ts": "2026-11-11T13:41:06Z"}
+{"kind": "transition", "task_id": "RCV-FR-LIVE-20261111-04-1", "to": "NEEDS_APPROVAL", "reason": "", "ts": "2026-11-11T13:41:33Z"}
+{"kind": "held_for_approval", "task_id": "RCV-FR-LIVE-20261111-04-1", "request_id": "4b2211a328ce", "ts": "2026-11-11T13:41:33Z"}
+{"kind": "verified", "task_id": "RCV-FR-LIVE-20261111-04-1", "verified": false, "awaiting_approval": true, "checks": [{"check": "file_exists tools/route_recalc_results_20261111.json", "ok": false}, {"check": "file_contains docs/autonomy/recalc_progress_20261111.md", "ok": true}, {"check": "test unittest discover -s tests", "ok": false, "exit": 1, "tail": "t call last):\n  File \"C:\\Users\\Dawis\\ForeverRouteJarvis\\DevinBridge\\autonomy_scope\\workspaces\\foreverroute-route-audit\\tests\\test_route_recalc_results.py\", line 219, in test_band_rows_sum_to_totals\n    self.assertEqual(\nAssertionError: 156267342 != 156267343 : distanceYards.authored\n\n----------------------------------------------------------------------\nRan 8 tests in 12.753s\n\nFAILED (failures=1)\n"}], "ts": "2026-11-11T13:41:33Z"}
+{"kind": "pause", "reason": "atomic verified route recalc recovery; deny out-of-scope writes by policy", "ts": "2026-11-11T15:01:49Z"}
+{"kind": "transition", "task_id": "RCV-FR-LIVE-20261111-04-1", "to": "BLOCKED", "reason": "POLICY: refused unsafe writes outside approved ForeverRoute worktree; recovered parent independently", "ts": "2026-11-11T15:02:02Z"}
+{"kind": "out_of_scope_write_refused", "task_id": "RCV-FR-LIVE-20261111-04-1", "request_count": 5, "ts": "2026-11-11T15:02:02Z"}
+{"kind": "transition", "task_id": "FR-LIVE-20261111-04", "to": "VERIFIED_RECOVERED", "reason": "Independent original acceptance reverified; additive balanced band rounding report repaired", "ts": "2026-11-11T15:02:02Z"}
+{"kind": "independent_parent_reverified", "task_id": "FR-LIVE-20261111-04", "checks": 3, "policy_blocked_child": "RCV-FR-LIVE-20261111-04-1", "ts": "2026-11-11T15:02:02Z"}
+{"kind": "resume", "ts": "2026-11-11T15:02:02Z"}
+{"kind": "task_added", "task_id": "GEN-38142DF342", "approved": false, "ts": "2026-11-11T15:06:35Z"}
+{"kind": "transition", "task_id": "GEN-38142DF342", "to": "DISPATCHED", "reason": "", "ts": "2026-11-11T15:06:35Z"}
+{"kind": "dispatched", "task_id": "GEN-38142DF342", "model": "swe-2-high", "worktree": "C:\\Users\\Dawis\\ForeverRouteJarvis\\DevinBridge\\autonomy_scope\\workspaces\\foreverroute-route-audit", "head": "5f41114c128337a0534cb0bbb361bad580db68ac", "worker_pid": 25684, "ts": "2026-11-11T15:06:35Z"}
+{"kind": "cdp_handoff", "proposal": "38142df342", "task_id": "GEN-38142DF342", "program": "FOREVERROUTE_CONTINUOUS_V1", "dispatched": true, "ts": "2026-11-11T15:06:36Z"}
+{"kind": "session_attached", "task_id": "GEN-38142DF342", "session_id": "even-pink", "ts": "2026-11-11T15:06:37Z"}
+{"kind": "transition", "task_id": "GEN-38142DF342", "to": "VERIFYING", "reason": "", "ts": "2026-11-11T15:10:31Z"}
+{"kind": "prompt_done", "task_id": "GEN-38142DF342", "session_id": "even-pink", "stop_reason": "end_turn", "usage": {"totalTokens": 100645, "inputTokens": 100100, "outputTokens": 545, "cachedReadTokens": 99840}, "ts": "2026-11-11T15:10:31Z"}
+{"kind": "transition", "task_id": "GEN-38142DF342", "to": "COMPLETE", "reason": "", "ts": "2026-11-11T15:10:32Z"}
+{"kind": "verified", "task_id": "GEN-38142DF342", "verified": true, "checks": [{"check": "file_exists docs/autonomy/live_qa_load_triage.md", "ok": true}], "ts": "2026-11-11T15:10:32Z"}
+{"kind": "task_added", "task_id": "GEN-AF39138211", "approved": false, "ts": "2026-11-11T15:58:10Z"}
+{"kind": "transition", "task_id": "GEN-AF39138211", "to": "DISPATCHED", "reason": "", "ts": "2026-11-11T15:58:10Z"}
+{"kind": "dispatched", "task_id": "GEN-AF39138211", "model": "swe-2-high", "worktree": "C:\\Users\\Dawis\\ForeverRouteJarvis\\DevinBridge\\autonomy_scope\\workspaces\\foreverroute-route-audit", "head": "5f41114c128337a0534cb0bbb361bad580db68ac", "worker_pid": 23204, "ts": "2026-11-11T15:58:10Z"}
+{"kind": "cdp_handoff", "proposal": "af39138211", "task_id": "GEN-AF39138211", "program": "FOREVERROUTE_CONTINUOUS_V1", "dispatched": true, "ts": "2026-11-11T15:58:10Z"}
+{"kind": "session_attached", "task_id": "GEN-AF39138211", "session_id": "decisive-quilt", "ts": "2026-11-11T15:58:13Z"}
+{"kind": "transition", "task_id": "GEN-AF39138211", "to": "VERIFYING", "reason": "", "ts": "2026-11-11T16:18:33Z"}
+{"kind": "prompt_done", "task_id": "GEN-AF39138211", "session_id": "decisive-quilt", "stop_reason": "end_turn", "usage": {"totalTokens": 121407, "inputTokens": 120448, "outputTokens": 959, "cachedReadTokens": 120064}, "ts": "2026-11-11T16:18:33Z"}
+{"kind": "transition", "task_id": "GEN-AF39138211", "to": "COMPLETE", "reason": "", "ts": "2026-11-11T16:18:44Z"}
+{"kind": "verified", "task_id": "GEN-AF39138211", "verified": true, "checks": [{"check": "file_exists tools/verify_route_gate_safety.py", "ok": true}, {"check": "file_exists tests/test_route_gate_safety.py", "ok": true}, {"check": "test unittest discover -s tests", "ok": true, "exit": 0, "tail": ".........\n----------------------------------------------------------------------\nRan 9 tests in 7.649s\n\nOK\n"}], "ts": "2026-11-11T16:18:44Z"}
+{"kind": "task_added", "task_id": "GEN-6116BBA42D", "approved": false, "ts": "2026-11-11T16:19:00Z"}
+{"kind": "transition", "task_id": "GEN-6116BBA42D", "to": "DISPATCHED", "reason": "", "ts": "2026-11-11T16:19:01Z"}
+{"kind": "dispatched", "task_id": "GEN-6116BBA42D", "model": "swe-2-high", "worktree": "C:\\Users\\Dawis\\ForeverRouteJarvis\\DevinBridge\\autonomy_scope\\workspaces\\foreverroute-route-audit", "head": "5f41114c128337a0534cb0bbb361bad580db68ac", "worker_pid": 9204, "ts": "2026-11-11T16:19:01Z"}
+{"kind": "cdp_handoff", "proposal": "6116bba42d", "task_id": "GEN-6116BBA42D", "program": "FOREVERROUTE_CONTINUOUS_V1", "dispatched": true, "ts": "2026-11-11T16:19:01Z"}
+{"kind": "session_attached", "task_id": "GEN-6116BBA42D", "session_id": "canary-empress", "ts": "2026-11-11T16:19:02Z"}
+{"kind": "transition", "task_id": "GEN-6116BBA42D", "to": "VERIFYING", "reason": "", "ts": "2026-11-11T16:46:24Z"}
+{"kind": "prompt_done", "task_id": "GEN-6116BBA42D", "session_id": "canary-empress", "stop_reason": "end_turn", "usage": {"totalTokens": 144500, "inputTokens": 143243, "outputTokens": 1257, "cachedReadTokens": 143104}, "ts": "2026-11-11T16:46:24Z"}
+{"kind": "transition", "task_id": "GEN-6116BBA42D", "to": "FAILED", "reason": "", "ts": "2026-11-11T16:46:33Z"}
+{"kind": "verified", "task_id": "GEN-6116BBA42D", "verified": false, "failed": true, "checks": [{"check": "file_exists tools/route_authored_prereq_audit.py", "ok": true}, {"check": "file_exists tests/test_authored_prereq_audit.py", "ok": true}, {"check": "test unittest discover -s tests", "ok": false, "exit": 1, "tail": "tests\\test_authored_prereq_audit.py\", line 202, in test_gap_clean_authored_binds\n    self.assertEqual(c[1104], ap.EDGE_BINDING_DEP_CATALOGUED)\nAssertionError: 'BINDING_DEP_UNCATALOGUED' != 'BINDING_DEP_CATALOGUED'\n- BINDING_DEP_UNCATALOGUED\n?             --\n+ BINDING_DEP_CATALOGUED\n\n\n----------------------------------------------------------------------\nRan 30 tests in 7.428s\n\nFAILED (failures=1)\n"}], "ts": "2026-11-11T16:46:33Z"}
+{"kind": "task_added", "task_id": "GEN-F9D952B221", "approved": false, "ts": "2026-11-11T16:47:21Z"}
+{"kind": "transition", "task_id": "GEN-F9D952B221", "to": "DISPATCHED", "reason": "", "ts": "2026-11-11T16:47:22Z"}
+{"kind": "dispatched", "task_id": "GEN-F9D952B221", "model": "swe-2-high", "worktree": "C:\\Users\\Dawis\\ForeverRouteJarvis\\DevinBridge\\autonomy_scope\\workspaces\\foreverroute-route-audit", "head": "5f41114c128337a0534cb0bbb361bad580db68ac", "worker_pid": 5612, "ts": "2026-11-11T16:47:22Z"}
+{"kind": "cdp_handoff", "proposal": "f9d952b221", "task_id": "GEN-F9D952B221", "program": "FOREVERROUTE_CONTINUOUS_V1", "dispatched": true, "ts": "2026-11-11T16:47:22Z"}
+{"kind": "task_added", "task_id": "RCV-GEN-6116BBA42D-1", "approved": true, "ts": "2026-11-11T16:47:22Z"}
+{"kind": "recovery_dispatched", "task_id": "GEN-6116BBA42D", "child": "RCV-GEN-6116BBA42D-1", "rca": "a22d9fc653", "category": "wrong_implementation", "dispatched": false, "ts": "2026-11-11T16:47:23Z"}
+{"kind": "transition", "task_id": "RCV-GEN-6116BBA42D-1", "to": "READY", "reason": "", "ts": "2026-11-11T16:47:23Z"}
+{"kind": "session_attached", "task_id": "GEN-F9D952B221", "session_id": "lacy-mole", "ts": "2026-11-11T16:47:24Z"}
+{"kind": "transition", "task_id": "GEN-F9D952B221", "to": "VERIFYING", "reason": "", "ts": "2026-11-11T17:01:54Z"}
+{"kind": "prompt_done", "task_id": "GEN-F9D952B221", "session_id": "lacy-mole", "stop_reason": "end_turn", "usage": {"totalTokens": 181304, "inputTokens": 180313, "outputTokens": 991, "cachedReadTokens": 179968}, "ts": "2026-11-11T17:01:54Z"}
+{"kind": "transition", "task_id": "GEN-F9D952B221", "to": "FAILED", "reason": "", "ts": "2026-11-11T17:01:57Z"}
+{"kind": "verified", "task_id": "GEN-F9D952B221", "verified": false, "failed": true, "checks": [{"check": "file_exists tools/route_waypoint_coverage.py", "ok": true}, {"check": "file_exists tests/test_route_waypoint_coverage.py", "ok": true}, {"check": "test unittest discover -s tests", "ok": false, "exit": 1, "tail": "Traceback (most recent call last):\n  File \"C:\\Users\\Dawis\\ForeverRouteJarvis\\DevinBridge\\autonomy_scope\\workspaces\\foreverroute-route-audit\\tests\\test_route_waypoint_coverage.py\", line 397, in test_recalc_parity_counts\n    self.assertEqual(len(s1[\"rows\"]), 8)\nAssertionError: 17 != 8\n\n----------------------------------------------------------------------\nRan 24 tests in 1.138s\n\nFAILED (failures=6)\n"}], "ts": "2026-11-11T17:01:57Z"}
+{"kind": "transition", "task_id": "RCV-GEN-6116BBA42D-1", "to": "DISPATCHED", "reason": "", "ts": "2026-11-11T17:01:59Z"}
+{"kind": "dispatched", "task_id": "RCV-GEN-6116BBA42D-1", "model": "swe-2-high", "worktree": "C:\\Users\\Dawis\\ForeverRouteJarvis\\DevinBridge\\autonomy_scope\\workspaces\\foreverroute-route-audit", "head": "5f41114c128337a0534cb0bbb361bad580db68ac", "worker_pid": 18304, "ts": "2026-11-11T17:01:59Z"}
+{"kind": "task_added", "task_id": "RCV-GEN-F9D952B221-1", "approved": true, "ts": "2026-11-11T17:01:59Z"}
+{"kind": "recovery_dispatched", "task_id": "GEN-F9D952B221", "child": "RCV-GEN-F9D952B221-1", "rca": "0e92c8aa7e", "category": "wrong_implementation", "dispatched": false, "ts": "2026-11-11T17:02:00Z"}
+{"kind": "transition", "task_id": "RCV-GEN-F9D952B221-1", "to": "READY", "reason": "", "ts": "2026-11-11T17:02:00Z"}
+{"kind": "session_attached", "task_id": "RCV-GEN-6116BBA42D-1", "session_id": "possible-wrist", "ts": "2026-11-11T17:02:02Z"}
+{"kind": "transition", "task_id": "RCV-GEN-6116BBA42D-1", "to": "VERIFYING", "reason": "", "ts": "2026-11-11T17:02:57Z"}
+{"kind": "prompt_done", "task_id": "RCV-GEN-6116BBA42D-1", "session_id": "possible-wrist", "stop_reason": "end_turn", "usage": {"totalTokens": 37879, "inputTokens": 36944, "outputTokens": 935, "cachedReadTokens": 36608}, "ts": "2026-11-11T17:02:57Z"}
+{"kind": "transition", "task_id": "RCV-GEN-6116BBA42D-1", "to": "COMPLETE", "reason": "", "ts": "2026-11-11T17:03:19Z"}
+{"kind": "transition", "task_id": "GEN-6116BBA42D", "to": "VERIFIED_RECOVERED", "reason": "recovery RCV-GEN-6116BBA42D-1 re-passed original acceptance", "ts": "2026-11-11T17:03:19Z"}
+{"kind": "verified_recovered", "task_id": "GEN-6116BBA42D", "child": "RCV-GEN-6116BBA42D-1", "ts": "2026-11-11T17:03:19Z"}
+{"kind": "verified", "task_id": "RCV-GEN-6116BBA42D-1", "verified": true, "checks": [{"check": "file_exists tools/route_authored_prereq_audit.py", "ok": true}, {"check": "file_exists tests/test_authored_prereq_audit.py", "ok": true}, {"check": "test unittest discover -s tests", "ok": true, "exit": 0, "tail": "..............................\n----------------------------------------------------------------------\nRan 30 tests in 18.217s\n\nOK\n"}], "ts": "2026-11-11T17:03:19Z"}
+{"kind": "transition", "task_id": "RCV-GEN-F9D952B221-1", "to": "DISPATCHED", "reason": "", "ts": "2026-11-11T17:03:44Z"}
+{"kind": "dispatched", "task_id": "RCV-GEN-F9D952B221-1", "model": "swe-2-high", "worktree": "C:\\Users\\Dawis\\ForeverRouteJarvis\\DevinBridge\\autonomy_scope\\workspaces\\foreverroute-route-audit", "head": "5f41114c128337a0534cb0bbb361bad580db68ac", "worker_pid": 34064, "ts": "2026-11-11T17:03:44Z"}
+{"kind": "session_attached", "task_id": "RCV-GEN-F9D952B221-1", "session_id": "marred-bakery", "ts": "2026-11-11T17:03:46Z"}
+{"kind": "transition", "task_id": "RCV-GEN-F9D952B221-1", "to": "VERIFYING", "reason": "", "ts": "2026-11-11T17:07:01Z"}
+{"kind": "prompt_done", "task_id": "RCV-GEN-F9D952B221-1", "session_id": "marred-bakery", "stop_reason": "end_turn", "usage": {"totalTokens": 55113, "inputTokens": 54496, "outputTokens": 617, "cachedReadTokens": 54272}, "ts": "2026-11-11T17:07:01Z"}
+{"kind": "transition", "task_id": "RCV-GEN-F9D952B221-1", "to": "COMPLETE", "reason": "", "ts": "2026-11-11T17:07:04Z"}
+{"kind": "transition", "task_id": "GEN-F9D952B221", "to": "VERIFIED_RECOVERED", "reason": "recovery RCV-GEN-F9D952B221-1 re-passed original acceptance", "ts": "2026-11-11T17:07:04Z"}
+{"kind": "verified_recovered", "task_id": "GEN-F9D952B221", "child": "RCV-GEN-F9D952B221-1", "ts": "2026-11-11T17:07:04Z"}
+{"kind": "verified", "task_id": "RCV-GEN-F9D952B221-1", "verified": true, "checks": [{"check": "file_exists tools/route_waypoint_coverage.py", "ok": true}, {"check": "file_exists tests/test_route_waypoint_coverage.py", "ok": true}, {"check": "test unittest discover -s tests", "ok": true, "exit": 0, "tail": "..................ungrounded=8 coverable=6 measured=3 consensus=2 gap=1 quests=4\nungrounded=8 coverable=6 measured=3 consensus=2 gap=1 quests=4\n.route_waypoint_coverage: error: route file missing: Generated/ForeverRoute_V3_Sections.lua\n.....\n----------------------------------------------------------------------\nRan 24 tests in 0.455s\n\nOK\n"}], "ts": "2026-11-11T17:07:04Z"}
+{"kind": "task_added", "task_id": "GOAL-FR-WP-1TO60-S01", "approved": false, "ts": "2026-11-11T17:39:51Z"}
+{"kind": "goal_stage_spawned", "goal": "GOAL-FR-WP-1TO60", "task": "GOAL-FR-WP-1TO60-S01", "approved": false, "stage_kind": "analyze", "ts": "2026-11-11T17:39:51Z"}
+{"kind": "task_added", "task_id": "GOAL-FR-HYJAL-S01", "approved": false, "ts": "2026-11-11T17:39:51Z"}
+{"kind": "goal_stage_spawned", "goal": "GOAL-FR-HYJAL", "task": "GOAL-FR-HYJAL-S01", "approved": false, "stage_kind": "analyze", "ts": "2026-11-11T17:39:51Z"}
+{"kind": "transition", "task_id": "GOAL-FR-WP-1TO60-S01", "to": "DISPATCHED", "reason": "", "ts": "2026-11-11T17:48:03Z"}
+{"kind": "dispatched", "task_id": "GOAL-FR-WP-1TO60-S01", "model": "swe-2-high", "worktree": "C:\\Users\\Dawis\\ForeverRouteJarvis\\DevinBridge\\autonomy_scope\\workspaces\\foreverroute-route-audit", "head": "5f41114c128337a0534cb0bbb361bad580db68ac", "worker_pid": 28068, "ts": "2026-11-11T17:48:03Z"}
+{"kind": "session_attached", "task_id": "GOAL-FR-WP-1TO60-S01", "session_id": "humdrum-algebra", "ts": "2026-11-11T17:48:10Z"}
+{"kind": "prompt_error", "task_id": "GOAL-FR-WP-1TO60-S01", "session_id": "humdrum-algebra", "error": "devin acp exited (code 3221225786): 2026-11-11T17:48:30.195591Z  INFO session_db_call: chisel_agent::session_db: close time.busy=11.9µs time.idle=90.3µs | 2026-11-11T17:48:30.219792Z  INFO session_db_call:session_db_job: chisel_agent::session_db: Saved 4 message nodes for session humdrum-algebra | 2026-11-11T17:48:30.220604Z  INFO session_db_call:session_db_job: chisel_agent::session_db: close tim", "ts": "2026-11-11T17:48:32Z"}
+{"kind": "transition", "task_id": "GOAL-FR-WP-1TO60-S01", "to": "FAILED", "reason": "", "ts": "2026-11-11T17:48:32Z"}
+{"kind": "transition", "task_id": "GOAL-FR-WP-1TO60-S01", "to": "DISPATCHED", "reason": "", "ts": "2026-11-11T17:49:48Z"}
+{"kind": "dispatched", "task_id": "GOAL-FR-WP-1TO60-S01", "model": "swe-2-high", "worktree": "C:\\Users\\Dawis\\ForeverRouteJarvis\\DevinBridge\\autonomy_scope\\workspaces\\foreverroute-route-audit", "head": "5f41114c128337a0534cb0bbb361bad580db68ac", "worker_pid": 13636, "ts": "2026-11-11T17:49:48Z"}
+{"kind": "transition", "task_id": "GOAL-FR-HYJAL-S01", "to": "READY", "reason": "", "ts": "2026-11-11T17:51:40Z"}
+{"kind": "transition", "task_id": "GOAL-FR-WP-1TO60-S01", "to": "VERIFYING", "reason": "", "ts": "2026-11-11T17:52:47Z"}
+{"kind": "prompt_done", "task_id": "GOAL-FR-WP-1TO60-S01", "session_id": "humdrum-algebra", "stop_reason": "end_turn", "usage": {"totalTokens": 97677, "inputTokens": 96201, "outputTokens": 1476, "cachedReadTokens": 89664}, "ts": "2026-11-11T17:52:47Z"}
+{"kind": "transition", "task_id": "GOAL-FR-WP-1TO60-S01", "to": "COMPLETE", "reason": "", "ts": "2026-11-11T17:52:48Z"}
+{"kind": "verified", "task_id": "GOAL-FR-WP-1TO60-S01", "verified": true, "checks": [{"check": "file_exists docs/autonomy/source_inventory.md", "ok": true}], "ts": "2026-11-11T17:52:48Z"}
+{"kind": "transition", "task_id": "GOAL-FR-HYJAL-S01", "to": "DISPATCHED", "reason": "", "ts": "2026-11-11T18:06:36Z"}
+{"kind": "dispatched", "task_id": "GOAL-FR-HYJAL-S01", "model": "swe-2-high", "worktree": "C:\\Users\\Dawis\\ForeverRouteJarvis\\DevinBridge\\autonomy_scope\\workspaces\\foreverroute-route-audit", "head": "5f41114c128337a0534cb0bbb361bad580db68ac", "worker_pid": 18540, "ts": "2026-11-11T18:06:36Z"}
+{"kind": "session_attached", "task_id": "GOAL-FR-HYJAL-S01", "session_id": "swamp-mapusaurus", "ts": "2026-11-11T18:06:37Z"}
+{"kind": "transition", "task_id": "GOAL-FR-HYJAL-S01", "to": "VERIFYING", "reason": "", "ts": "2026-11-11T18:08:20Z"}
+{"kind": "prompt_done", "task_id": "GOAL-FR-HYJAL-S01", "session_id": "swamp-mapusaurus", "stop_reason": "end_turn", "usage": {"totalTokens": 52163, "inputTokens": 51836, "outputTokens": 327, "cachedReadTokens": 51712}, "ts": "2026-11-11T18:08:20Z"}
+{"kind": "transition", "task_id": "GOAL-FR-HYJAL-S01", "to": "COMPLETE", "reason": "", "ts": "2026-11-11T18:08:21Z"}
+{"kind": "verified", "task_id": "GOAL-FR-HYJAL-S01", "verified": true, "checks": [{"check": "file_exists docs/autonomy/hyjal_sources.md", "ok": true}], "ts": "2026-11-11T18:08:21Z"}
+{"kind": "task_added", "task_id": "GOAL-FR-WP-1TO60-S02", "approved": true, "ts": "2026-11-11T18:08:54Z"}
+{"kind": "transition", "task_id": "GOAL-FR-WP-1TO60-S02", "to": "DISPATCHED", "reason": "", "ts": "2026-11-11T18:08:55Z"}
+{"kind": "dispatched", "task_id": "GOAL-FR-WP-1TO60-S02", "model": "swe-2-high", "worktree": "C:\\Users\\Dawis\\ForeverRouteJarvis\\DevinBridge\\autonomy_scope\\workspaces\\foreverroute-route-audit", "head": "5f41114c128337a0534cb0bbb361bad580db68ac", "worker_pid": 8008, "ts": "2026-11-11T18:08:55Z"}
+{"kind": "goal_stage_spawned", "goal": "GOAL-FR-WP-1TO60", "task": "GOAL-FR-WP-1TO60-S02", "approved": true, "stage_kind": "analyze", "ts": "2026-11-11T18:08:55Z"}
+{"kind": "task_added", "task_id": "GOAL-FR-HYJAL-S02", "approved": true, "ts": "2026-11-11T18:08:55Z"}
+{"kind": "goal_stage_spawned", "goal": "GOAL-FR-HYJAL", "task": "GOAL-FR-HYJAL-S02", "approved": true, "stage_kind": "analyze", "ts": "2026-11-11T18:08:56Z"}
+{"kind": "transition", "task_id": "GOAL-FR-HYJAL-S02", "to": "READY", "reason": "", "ts": "2026-11-11T18:08:56Z"}
+{"kind": "session_attached", "task_id": "GOAL-FR-WP-1TO60-S02", "session_id": "freckle-broom", "ts": "2026-11-11T18:08:56Z"}
+{"kind": "transition", "task_id": "GOAL-FR-WP-1TO60-S02", "to": "VERIFYING", "reason": "", "ts": "2026-11-11T18:25:22Z"}
+{"kind": "prompt_done", "task_id": "GOAL-FR-WP-1TO60-S02", "session_id": "freckle-broom", "stop_reason": "end_turn", "usage": {"totalTokens": 29552, "inputTokens": 28798, "outputTokens": 754, "cachedReadTokens": 28416}, "ts": "2026-11-11T18:25:22Z"}
+{"kind": "transition", "task_id": "GOAL-FR-WP-1TO60-S02", "to": "COMPLETE", "reason": "", "ts": "2026-11-11T18:25:23Z"}
+{"kind": "verified", "task_id": "GOAL-FR-WP-1TO60-S02", "verified": true, "checks": [{"check": "file_exists tools/evidence_map_1to60.json", "ok": true}], "ts": "2026-11-11T18:25:23Z"}
+{"kind": "transition", "task_id": "GOAL-FR-HYJAL-S02", "to": "DISPATCHED", "reason": "", "ts": "2026-11-11T18:25:40Z"}
+{"kind": "dispatched", "task_id": "GOAL-FR-HYJAL-S02", "model": "swe-2-high", "worktree": "C:\\Users\\Dawis\\ForeverRouteJarvis\\DevinBridge\\autonomy_scope\\workspaces\\foreverroute-route-audit", "head": "5f41114c128337a0534cb0bbb361bad580db68ac", "worker_pid": 27124, "ts": "2026-11-11T18:25:40Z"}
+{"kind": "session_attached", "task_id": "GOAL-FR-HYJAL-S02", "session_id": "gaudy-kettle", "ts": "2026-11-11T18:25:43Z"}
+{"kind": "task_added", "task_id": "GOAL-FR-WP-1TO60-S03", "approved": true, "ts": "2026-11-11T18:25:55Z"}
+{"kind": "goal_stage_spawned", "goal": "GOAL-FR-WP-1TO60", "task": "GOAL-FR-WP-1TO60-S03", "approved": true, "stage_kind": "repair-small", "ts": "2026-11-11T18:25:55Z"}
+{"kind": "transition", "task_id": "GOAL-FR-WP-1TO60-S03", "to": "READY", "reason": "", "ts": "2026-11-11T18:25:56Z"}
+{"kind": "transition", "task_id": "GOAL-FR-HYJAL-S02", "to": "VERIFYING", "reason": "", "ts": "2026-11-11T18:32:23Z"}
+{"kind": "prompt_done", "task_id": "GOAL-FR-HYJAL-S02", "session_id": "gaudy-kettle", "stop_reason": "end_turn", "usage": {"totalTokens": 169446, "inputTokens": 168183, "outputTokens": 1263, "cachedReadTokens": 160768}, "ts": "2026-11-11T18:32:23Z"}
+{"kind": "transition", "task_id": "GOAL-FR-HYJAL-S02", "to": "COMPLETE", "reason": "", "ts": "2026-11-11T18:32:23Z"}
+{"kind": "verified", "task_id": "GOAL-FR-HYJAL-S02", "verified": true, "checks": [{"check": "file_exists tools/hyjal_evidence.json", "ok": true}], "ts": "2026-11-11T18:32:23Z"}
+{"kind": "transition", "task_id": "GOAL-FR-WP-1TO60-S03", "to": "DISPATCHED", "reason": "", "ts": "2026-11-11T18:32:47Z"}
+{"kind": "dispatched", "task_id": "GOAL-FR-WP-1TO60-S03", "model": "swe-2-high", "worktree": "C:\\Users\\Dawis\\ForeverRouteJarvis\\DevinBridge\\autonomy_scope\\workspaces\\foreverroute-route-audit", "head": "5f41114c128337a0534cb0bbb361bad580db68ac", "worker_pid": 32288, "ts": "2026-11-11T18:32:47Z"}
+{"kind": "session_attached", "task_id": "GOAL-FR-WP-1TO60-S03", "session_id": "playful-corn", "ts": "2026-11-11T18:32:49Z"}
+{"kind": "task_added", "task_id": "GOAL-FR-HYJAL-S03", "approved": true, "ts": "2026-11-11T18:33:14Z"}
+{"kind": "goal_stage_spawned", "goal": "GOAL-FR-HYJAL", "task": "GOAL-FR-HYJAL-S03", "approved": true, "stage_kind": "repair-small", "ts": "2026-11-11T18:33:15Z"}
+{"kind": "transition", "task_id": "GOAL-FR-HYJAL-S03", "to": "READY", "reason": "", "ts": "2026-11-11T18:33:15Z"}
+{"kind": "transition", "task_id": "GOAL-FR-WP-1TO60-S03", "to": "VERIFYING", "reason": "", "ts": "2026-11-11T18:38:37Z"}
+{"kind": "prompt_done", "task_id": "GOAL-FR-WP-1TO60-S03", "session_id": "playful-corn", "stop_reason": "end_turn", "usage": {"totalTokens": 116889, "inputTokens": 115825, "outputTokens": 1064, "cachedReadTokens": 115456}, "ts": "2026-11-11T18:38:37Z"}
+{"kind": "transition", "task_id": "GOAL-FR-WP-1TO60-S03", "to": "FAILED", "reason": "", "ts": "2026-11-11T18:38:38Z"}
+{"kind": "verified", "task_id": "GOAL-FR-WP-1TO60-S03", "verified": false, "failed": true, "checks": [{"check": "file_exists tools/waypoints_1to60.json", "ok": false}], "ts": "2026-11-11T18:38:38Z"}
+{"kind": "transition", "task_id": "GOAL-FR-HYJAL-S03", "to": "DISPATCHED", "reason": "", "ts": "2026-11-11T18:39:34Z"}
+{"kind": "dispatched", "task_id": "GOAL-FR-HYJAL-S03", "model": "swe-2-high", "worktree": "C:\\Users\\Dawis\\ForeverRouteJarvis\\DevinBridge\\autonomy_scope\\workspaces\\foreverroute-route-audit", "head": "5f41114c128337a0534cb0bbb361bad580db68ac", "worker_pid": 33344, "ts": "2026-11-11T18:39:34Z"}
+{"kind": "session_attached", "task_id": "GOAL-FR-HYJAL-S03", "session_id": "frost-noodle", "ts": "2026-11-11T18:39:43Z"}
+{"kind": "transition", "task_id": "GOAL-FR-HYJAL-S03", "to": "VERIFYING", "reason": "", "ts": "2026-11-11T18:48:04Z"}
+{"kind": "prompt_done", "task_id": "GOAL-FR-HYJAL-S03", "session_id": "frost-noodle", "stop_reason": "end_turn", "usage": {"totalTokens": 144844, "inputTokens": 143880, "outputTokens": 964, "cachedReadTokens": 143616}, "ts": "2026-11-11T18:48:04Z"}
+{"kind": "transition", "task_id": "GOAL-FR-HYJAL-S03", "to": "FAILED", "reason": "", "ts": "2026-11-11T18:48:04Z"}
+{"kind": "verified", "task_id": "GOAL-FR-HYJAL-S03", "verified": false, "failed": true, "checks": [{"check": "file_exists tools/hyjal_sections.json", "ok": false}], "ts": "2026-11-11T18:48:04Z"}
+{"kind": "task_added", "task_id": "GOAL-FR-WP-1TO60-S03-R2", "approved": true, "ts": "2026-11-11T19:05:29Z"}
+{"kind": "transition", "task_id": "GOAL-FR-WP-1TO60-S03-R2", "to": "DISPATCHED", "reason": "", "ts": "2026-11-11T19:05:30Z"}
+{"kind": "dispatched", "task_id": "GOAL-FR-WP-1TO60-S03-R2", "model": "swe-2-high", "worktree": "C:\\Users\\Dawis\\ForeverRouteJarvis\\DevinBridge\\autonomy_scope\\workspaces\\foreverroute-route-audit", "head": "5f41114c128337a0534cb0bbb361bad580db68ac", "worker_pid": 31204, "ts": "2026-11-11T19:05:30Z"}
+{"kind": "goal_stage_spawned", "goal": "GOAL-FR-WP-1TO60", "task": "GOAL-FR-WP-1TO60-S03-R2", "approved": true, "stage_kind": "repair-small", "ts": "2026-11-11T19:05:30Z"}
+{"kind": "task_added", "task_id": "GOAL-FR-HYJAL-S03-R2", "approved": true, "ts": "2026-11-11T19:05:30Z"}
+{"kind": "goal_stage_spawned", "goal": "GOAL-FR-HYJAL", "task": "GOAL-FR-HYJAL-S03-R2", "approved": true, "stage_kind": "repair-small", "ts": "2026-11-11T19:05:30Z"}
+{"kind": "session_attached", "task_id": "GOAL-FR-WP-1TO60-S03-R2", "session_id": "spangle-traveler", "ts": "2026-11-11T19:05:55Z"}
+{"kind": "transition", "task_id": "GOAL-FR-HYJAL-S03-R2", "to": "READY", "reason": "", "ts": "2026-11-11T19:06:04Z"}
+{"kind": "transition", "task_id": "GOAL-FR-WP-1TO60-S03-R2", "to": "VERIFYING", "reason": "", "ts": "2026-11-11T19:11:33Z"}
+{"kind": "prompt_done", "task_id": "GOAL-FR-WP-1TO60-S03-R2", "session_id": "spangle-traveler", "stop_reason": "end_turn", "usage": {"totalTokens": 106328, "inputTokens": 105133, "outputTokens": 1195, "cachedReadTokens": 104000}, "ts": "2026-11-11T19:11:33Z"}
+{"kind": "transition", "task_id": "GOAL-FR-WP-1TO60-S03-R2", "to": "COMPLETE", "reason": "", "ts": "2026-11-11T19:11:34Z"}
+{"kind": "verified", "task_id": "GOAL-FR-WP-1TO60-S03-R2", "verified": true, "checks": [{"check": "file_exists tools/waypoints_1to60.json", "ok": true}], "ts": "2026-11-11T19:11:34Z"}
+{"kind": "task_added", "task_id": "GOAL-FR-WP-1TO60-S04", "approved": true, "ts": "2026-11-11T19:11:35Z"}
+{"kind": "transition", "task_id": "GOAL-FR-WP-1TO60-S04", "to": "DISPATCHED", "reason": "", "ts": "2026-11-11T19:11:36Z"}
+{"kind": "dispatched", "task_id": "GOAL-FR-WP-1TO60-S04", "model": "swe-2-high", "worktree": "C:\\Users\\Dawis\\ForeverRouteJarvis\\DevinBridge\\autonomy_scope\\workspaces\\foreverroute-route-audit", "head": "5f41114c128337a0534cb0bbb361bad580db68ac", "worker_pid": 28176, "ts": "2026-11-11T19:11:36Z"}
+{"kind": "goal_stage_spawned", "goal": "GOAL-FR-WP-1TO60", "task": "GOAL-FR-WP-1TO60-S04", "approved": true, "stage_kind": "repair-small", "ts": "2026-11-11T19:11:36Z"}
+{"kind": "session_attached", "task_id": "GOAL-FR-WP-1TO60-S04", "session_id": "phrygian-pancreas", "ts": "2026-11-11T19:11:37Z"}
+{"kind": "transition", "task_id": "GOAL-FR-WP-1TO60-S04", "to": "VERIFYING", "reason": "", "ts": "2026-11-11T19:17:17Z"}
+{"kind": "prompt_done", "task_id": "GOAL-FR-WP-1TO60-S04", "session_id": "phrygian-pancreas", "stop_reason": "end_turn", "usage": {"totalTokens": 116557, "inputTokens": 115925, "outputTokens": 632, "cachedReadTokens": 115712}, "ts": "2026-11-11T19:17:17Z"}
+{"kind": "transition", "task_id": "GOAL-FR-WP-1TO60-S04", "to": "COMPLETE", "reason": "", "ts": "2026-11-11T19:17:17Z"}
+{"kind": "verified", "task_id": "GOAL-FR-WP-1TO60-S04", "verified": true, "checks": [{"check": "file_exists tools/recalc_full_1to60_report.json", "ok": true}], "ts": "2026-11-11T19:17:17Z"}
+{"kind": "task_added", "task_id": "GOAL-FR-WP-1TO60-S05", "approved": true, "ts": "2026-11-11T19:17:18Z"}
+{"kind": "transition", "task_id": "GOAL-FR-WP-1TO60-S05", "to": "DISPATCHED", "reason": "", "ts": "2026-11-11T19:17:19Z"}
+{"kind": "dispatched", "task_id": "GOAL-FR-WP-1TO60-S05", "model": "swe-2-high", "worktree": "C:\\Users\\Dawis\\ForeverRouteJarvis\\DevinBridge\\autonomy_scope\\workspaces\\foreverroute-route-audit", "head": "5f41114c128337a0534cb0bbb361bad580db68ac", "worker_pid": 31760, "ts": "2026-11-11T19:17:19Z"}
+{"kind": "goal_stage_spawned", "goal": "GOAL-FR-WP-1TO60", "task": "GOAL-FR-WP-1TO60-S05", "approved": true, "stage_kind": "test-add", "ts": "2026-11-11T19:17:19Z"}
+{"kind": "session_attached", "task_id": "GOAL-FR-WP-1TO60-S05", "session_id": "green-vein", "ts": "2026-11-11T19:17:21Z"}
+{"kind": "transition", "task_id": "GOAL-FR-WP-1TO60-S05", "to": "VERIFYING", "reason": "", "ts": "2026-11-11T19:19:37Z"}
+{"kind": "prompt_done", "task_id": "GOAL-FR-WP-1TO60-S05", "session_id": "green-vein", "stop_reason": "end_turn", "usage": {"totalTokens": 38838, "inputTokens": 37671, "outputTokens": 1167, "cachedReadTokens": 37440}, "ts": "2026-11-11T19:19:37Z"}
+{"kind": "transition", "task_id": "GOAL-FR-WP-1TO60-S05", "to": "COMPLETE", "reason": "", "ts": "2026-11-11T19:19:37Z"}
+{"kind": "verified", "task_id": "GOAL-FR-WP-1TO60-S05", "verified": true, "checks": [{"check": "test unittest discover -s tests", "ok": true, "exit": 0, "tail": "\n----------------------------------------------------------------------\nRan 0 tests in 0.000s\n\nOK\n"}], "ts": "2026-11-11T19:19:38Z"}
+{"kind": "transition", "task_id": "GOAL-FR-HYJAL-S03-R2", "to": "DISPATCHED", "reason": "", "ts": "2026-11-11T19:20:17Z"}
+{"kind": "dispatched", "task_id": "GOAL-FR-HYJAL-S03-R2", "model": "swe-2-high", "worktree": "C:\\Users\\Dawis\\ForeverRouteJarvis\\DevinBridge\\autonomy_scope\\workspaces\\foreverroute-route-audit", "head": "5f41114c128337a0534cb0bbb361bad580db68ac", "worker_pid": 7140, "ts": "2026-11-11T19:20:17Z"}
+{"kind": "session_attached", "task_id": "GOAL-FR-HYJAL-S03-R2", "session_id": "chisel-sovereign", "ts": "2026-11-11T19:20:18Z"}
+{"kind": "task_added", "task_id": "GOAL-FR-WP-1TO60-S06", "approved": false, "ts": "2026-11-11T19:20:31Z"}
+{"kind": "goal_stage_spawned", "goal": "GOAL-FR-WP-1TO60", "task": "GOAL-FR-WP-1TO60-S06", "approved": false, "stage_kind": "analyze", "ts": "2026-11-11T19:20:31Z"}
+{"kind": "transition", "task_id": "GOAL-FR-WP-1TO60-S06", "to": "READY", "reason": "", "ts": "2026-11-11T19:20:32Z"}
+{"kind": "transition", "task_id": "GOAL-FR-HYJAL-S03-R2", "to": "VERIFYING", "reason": "", "ts": "2026-11-11T19:25:11Z"}
+{"kind": "prompt_done", "task_id": "GOAL-FR-HYJAL-S03-R2", "session_id": "chisel-sovereign", "stop_reason": "end_turn", "usage": {"totalTokens": 102273, "inputTokens": 101313, "outputTokens": 960, "cachedReadTokens": 99840}, "ts": "2026-11-11T19:25:11Z"}
+{"kind": "transition", "task_id": "GOAL-FR-HYJAL-S03-R2", "to": "COMPLETE", "reason": "", "ts": "2026-11-11T19:25:11Z"}
+{"kind": "verified", "task_id": "GOAL-FR-HYJAL-S03-R2", "verified": true, "checks": [{"check": "file_exists tools/hyjal_sections.json", "ok": true}], "ts": "2026-11-11T19:25:11Z"}
+{"kind": "task_added", "task_id": "GOAL-FR-HYJAL-S04", "approved": true, "ts": "2026-11-11T19:25:21Z"}
+{"kind": "transition", "task_id": "GOAL-FR-HYJAL-S04", "to": "DISPATCHED", "reason": "", "ts": "2026-11-11T19:25:22Z"}
+{"kind": "dispatched", "task_id": "GOAL-FR-HYJAL-S04", "model": "swe-2-high", "worktree": "C:\\Users\\Dawis\\ForeverRouteJarvis\\DevinBridge\\autonomy_scope\\workspaces\\foreverroute-route-audit", "head": "5f41114c128337a0534cb0bbb361bad580db68ac", "worker_pid": 9948, "ts": "2026-11-11T19:25:22Z"}
+{"kind": "goal_stage_spawned", "goal": "GOAL-FR-HYJAL", "task": "GOAL-FR-HYJAL-S04", "approved": true, "stage_kind": "test-add", "ts": "2026-11-11T19:25:22Z"}
+{"kind": "session_attached", "task_id": "GOAL-FR-HYJAL-S04", "session_id": "courageous-impulse", "ts": "2026-11-11T19:25:23Z"}
+{"kind": "transition", "task_id": "GOAL-FR-HYJAL-S04", "to": "VERIFYING", "reason": "", "ts": "2026-11-11T19:30:45Z"}
+{"kind": "prompt_done", "task_id": "GOAL-FR-HYJAL-S04", "session_id": "courageous-impulse", "stop_reason": "end_turn", "usage": {"totalTokens": 135478, "inputTokens": 134686, "outputTokens": 792, "cachedReadTokens": 134400}, "ts": "2026-11-11T19:30:45Z"}
+{"kind": "transition", "task_id": "GOAL-FR-HYJAL-S04", "to": "FAILED", "reason": "", "ts": "2026-11-11T19:30:48Z"}
+{"kind": "verified", "task_id": "GOAL-FR-HYJAL-S04", "verified": false, "failed": true, "checks": [{"check": "test unittest discover -s tests", "ok": false, "exit": 1, "tail": "S_FAILED: Traceback (most recent call last):\n  File \"C:\\Users\\Dawis\\ForeverRouteJarvis\\DevinBridge\\autonomy_scope\\workspaces\\foreverroute-route-audit\\tools\\lua51\\lua51_runtime.py\", line 12, in <module>\n    from lupa.lua51 import LuaRuntime\nModuleNotFoundError: No module named 'lupa'\n\n----------------------------------------------------------------------\nRan 31 tests in 2.511s\n\nFAILED (failures=2)\n"}], "ts": "2026-11-11T19:30:48Z"}
+{"kind": "task_added", "task_id": "GOAL-FR-HYJAL-S04-R2", "approved": true, "ts": "2026-11-11T19:31:22Z"}
+{"kind": "transition", "task_id": "GOAL-FR-HYJAL-S04-R2", "to": "DISPATCHED", "reason": "", "ts": "2026-11-11T19:31:23Z"}
+{"kind": "dispatched", "task_id": "GOAL-FR-HYJAL-S04-R2", "model": "swe-2-high", "worktree": "C:\\Users\\Dawis\\ForeverRouteJarvis\\DevinBridge\\autonomy_scope\\workspaces\\foreverroute-route-audit", "head": "5f41114c128337a0534cb0bbb361bad580db68ac", "worker_pid": 13380, "ts": "2026-11-11T19:31:23Z"}
+{"kind": "goal_stage_spawned", "goal": "GOAL-FR-HYJAL", "task": "GOAL-FR-HYJAL-S04-R2", "approved": true, "stage_kind": "test-add", "ts": "2026-11-11T19:31:23Z"}
+{"kind": "session_attached", "task_id": "GOAL-FR-HYJAL-S04-R2", "session_id": "recent-overcoat", "ts": "2026-11-11T19:31:24Z"}
+{"kind": "needs_approval", "task_id": "GOAL-FR-HYJAL-S04-R2", "summary": "write outside workspace: C:\\Users\\Dawis\\ForeverRouteJarvis\\DevinBridge\\autonomy_scope\\seed_hyjal_20261111.py", "fingerprint": "68289570052cc3ca0111", "reason": "", "ts": "2026-11-11T19:35:47Z"}
+{"kind": "granted_path_write", "task_id": "GOAL-FR-HYJAL-S04-R2", "path": "C:\\Users\\Dawis\\ForeverRouteJarvis\\DevinBridge\\autonomy_scope\\seed_hyjal_20261111.py", "ts": "2026-11-11T19:40:12Z"}
+{"kind": "transition", "task_id": "GOAL-FR-HYJAL-S04-R2", "to": "VERIFYING", "reason": "", "ts": "2026-11-11T19:41:53Z"}
+{"kind": "prompt_done", "task_id": "GOAL-FR-HYJAL-S04-R2", "session_id": "recent-overcoat", "stop_reason": "end_turn", "usage": {"totalTokens": 95911, "inputTokens": 94440, "outputTokens": 1471, "cachedReadTokens": 93696}, "ts": "2026-11-11T19:41:53Z"}
+{"kind": "transition", "task_id": "GOAL-FR-HYJAL-S04-R2", "to": "FAILED", "reason": "", "ts": "2026-11-11T19:41:57Z"}
+{"kind": "verified", "task_id": "GOAL-FR-HYJAL-S04-R2", "verified": false, "failed": true, "checks": [{"check": "test unittest discover -s tests", "ok": false, "exit": 1, "tail": "S_FAILED: Traceback (most recent call last):\n  File \"C:\\Users\\Dawis\\ForeverRouteJarvis\\DevinBridge\\autonomy_scope\\workspaces\\foreverroute-route-audit\\tools\\lua51\\lua51_runtime.py\", line 12, in <module>\n    from lupa.lua51 import LuaRuntime\nModuleNotFoundError: No module named 'lupa'\n\n----------------------------------------------------------------------\nRan 31 tests in 3.348s\n\nFAILED (failures=1)\n"}], "ts": "2026-11-11T19:41:57Z"}
+{"kind": "task_added", "task_id": "GOAL-FR-HYJAL-S04-R3", "approved": true, "ts": "2026-11-11T19:42:11Z"}
+{"kind": "transition", "task_id": "GOAL-FR-HYJAL-S04-R3", "to": "DISPATCHED", "reason": "", "ts": "2026-11-11T19:42:15Z"}
+{"kind": "dispatched", "task_id": "GOAL-FR-HYJAL-S04-R3", "model": "swe-2-high", "worktree": "C:\\Users\\Dawis\\ForeverRouteJarvis\\DevinBridge\\autonomy_scope\\workspaces\\foreverroute-route-audit", "head": "5f41114c128337a0534cb0bbb361bad580db68ac", "worker_pid": 23664, "ts": "2026-11-11T19:42:15Z"}
+{"kind": "goal_stage_spawned", "goal": "GOAL-FR-HYJAL", "task": "GOAL-FR-HYJAL-S04-R3", "approved": true, "stage_kind": "test-add", "ts": "2026-11-11T19:42:18Z"}
+{"kind": "session_attached", "task_id": "GOAL-FR-HYJAL-S04-R3", "session_id": "scrawny-goal", "ts": "2026-11-11T19:42:50Z"}
+{"kind": "needs_approval", "task_id": "GOAL-FR-HYJAL-S04-R3", "summary": "write outside workspace: C:\\Users\\Dawis\\ForeverRouteJarvis\\DockerV4\\Snapshots\\T62_0e2d61b\\repo\\reports\\v3_route_sections.json", "fingerprint": "ac1722d5aaa204f6be56", "reason": "", "ts": "2026-11-11T19:57:24Z"}
+{"kind": "transition", "task_id": "GOAL-FR-HYJAL-S04-R3", "to": "VERIFYING", "reason": "", "ts": "2026-11-11T19:59:34Z"}
+{"kind": "prompt_done", "task_id": "GOAL-FR-HYJAL-S04-R3", "session_id": "scrawny-goal", "stop_reason": "end_turn", "usage": {"totalTokens": 59603, "inputTokens": 57914, "outputTokens": 1689, "cachedReadTokens": 57856}, "ts": "2026-11-11T19:59:34Z"}
+{"kind": "transition", "task_id": "GOAL-FR-HYJAL-S04-R3", "to": "NEEDS_APPROVAL", "reason": "", "ts": "2026-11-11T19:59:38Z"}
+{"kind": "held_for_approval", "task_id": "GOAL-FR-HYJAL-S04-R3", "request_id": "7e8312039c7a", "ts": "2026-11-11T19:59:38Z"}
+{"kind": "verified", "task_id": "GOAL-FR-HYJAL-S04-R3", "verified": false, "awaiting_approval": true, "checks": [{"check": "test unittest discover -s tests", "ok": false, "exit": 1, "tail": "S_FAILED: Traceback (most recent call last):\n  File \"C:\\Users\\Dawis\\ForeverRouteJarvis\\DevinBridge\\autonomy_scope\\workspaces\\foreverroute-route-audit\\tools\\lua51\\lua51_runtime.py\", line 12, in <module>\n    from lupa.lua51 import LuaRuntime\nModuleNotFoundError: No module named 'lupa'\n\n----------------------------------------------------------------------\nRan 31 tests in 3.972s\n\nFAILED (failures=1)\n"}], "ts": "2026-11-11T19:59:38Z"}
+{"kind": "approval", "task_id": "GOAL-FR-HYJAL-S04-R3", "fingerprint": "", "decision": "approved", "ts": "2026-11-11T20:32:52Z"}
+{"kind": "transition", "task_id": "GOAL-FR-HYJAL-S04-R3", "to": "RUNNING", "reason": "resumed after approval (follow-up)", "ts": "2026-11-11T20:32:52Z"}
+{"kind": "resumed", "task_id": "GOAL-FR-HYJAL-S04-R3", "worker_pid": 14284, "ts": "2026-11-11T20:32:52Z"}
+{"kind": "approval", "task_id": "GOAL-FR-HYJAL-S04-R3", "fingerprint": "ac1722d5aaa204f6be56", "decision": "approved", "ts": "2026-11-11T20:33:01Z"}
+{"kind": "transition", "task_id": "GOAL-FR-HYJAL-S04-R3", "to": "VERIFYING", "reason": "", "ts": "2026-11-11T20:35:51Z"}
+{"kind": "prompt_done", "task_id": "GOAL-FR-HYJAL-S04-R3", "session_id": "scrawny-goal", "stop_reason": "end_turn", "usage": {"totalTokens": 91357, "inputTokens": 90400, "outputTokens": 957, "cachedReadTokens": 90112}, "ts": "2026-11-11T20:35:51Z"}
+{"kind": "transition", "task_id": "GOAL-FR-HYJAL-S04-R3", "to": "COMPLETE", "reason": "", "ts": "2026-11-11T20:35:57Z"}
+{"kind": "verified", "task_id": "GOAL-FR-HYJAL-S04-R3", "verified": true, "checks": [{"check": "test unittest discover -s tests", "ok": true, "exit": 0, "tail": "...............................\n----------------------------------------------------------------------\nRan 31 tests in 5.287s\n\nOK\n"}], "ts": "2026-11-11T20:35:57Z"}
+{"kind": "task_added", "task_id": "GOAL-FR-HYJAL-S05", "approved": false, "ts": "2026-11-11T20:36:06Z"}
+{"kind": "goal_stage_spawned", "goal": "GOAL-FR-HYJAL", "task": "GOAL-FR-HYJAL-S05", "approved": false, "stage_kind": "analyze", "ts": "2026-11-11T20:36:07Z"}
+{"kind": "transition", "task_id": "GOAL-FR-HYJAL-S05", "to": "READY", "reason": "", "ts": "2026-11-11T20:36:07Z"}
+{"kind": "task_added", "task_id": "GOAL-FR-WP-1TO60-QA1", "approved": true, "ts": "2026-11-11T20:47:13Z"}
+{"kind": "transition", "task_id": "GOAL-FR-WP-1TO60-QA1", "to": "READY", "reason": "", "ts": "2026-11-11T20:47:15Z"}
+{"kind": "transition", "task_id": "GOAL-FR-WP-1TO60-QA1", "to": "DISPATCHED", "reason": "", "ts": "2026-11-11T20:48:03Z"}
+{"kind": "dispatched", "task_id": "GOAL-FR-WP-1TO60-QA1", "model": "swe-2-high", "worktree": "C:\\Users\\Dawis\\ForeverRouteJarvis\\DevinBridge\\autonomy_scope\\workspaces\\foreverroute-route-audit", "head": "5f41114c128337a0534cb0bbb361bad580db68ac", "worker_pid": 15312, "ts": "2026-11-11T20:48:03Z"}
+{"kind": "session_attached", "task_id": "GOAL-FR-WP-1TO60-QA1", "session_id": "lightning-tarp", "ts": "2026-11-11T20:48:04Z"}
+{"kind": "task_added", "task_id": "GOAL-FR-WP-1TO60-DATA1", "approved": true, "ts": "2026-11-11T20:54:12Z"}
+{"kind": "transition", "task_id": "GOAL-FR-WP-1TO60-DATA1", "to": "READY", "reason": "", "ts": "2026-11-11T20:54:30Z"}
+{"kind": "needs_approval", "task_id": "GOAL-FR-WP-1TO60-QA1", "summary": "write outside workspace: H:\\World of Warcraft\\_forever_\\WTF\\Account\\141105993#1\\93\\Epilepsy-Longbow\\SavedVariables\\ForeverRoute.lua", "fingerprint": "3c473ca70166f9828f25", "reason": "", "ts": "2026-11-11T20:55:28Z"}
+{"kind": "transition", "task_id": "GOAL-FR-WP-1TO60-DATA1", "to": "DISPATCHED", "reason": "", "ts": "2026-11-11T20:55:44Z"}
+{"kind": "dispatched", "task_id": "GOAL-FR-WP-1TO60-DATA1", "model": "swe-2-high", "worktree": "C:\\Users\\Dawis\\ForeverRouteJarvis\\DevinBridge\\autonomy_scope\\workspaces\\foreverroute-route-audit", "head": "5f41114c128337a0534cb0bbb361bad580db68ac", "worker_pid": 18968, "ts": "2026-11-11T20:55:44Z"}
+{"kind": "session_attached", "task_id": "GOAL-FR-WP-1TO60-DATA1", "session_id": "shade-slime", "ts": "2026-11-11T20:55:45Z"}
+{"kind": "transition", "task_id": "GOAL-FR-WP-1TO60-QA1", "to": "VERIFYING", "reason": "", "ts": "2026-11-11T21:00:28Z"}
+{"kind": "prompt_done", "task_id": "GOAL-FR-WP-1TO60-QA1", "session_id": "lightning-tarp", "stop_reason": "end_turn", "usage": {"totalTokens": 33583, "inputTokens": 33012, "outputTokens": 571, "cachedReadTokens": 7616}, "ts": "2026-11-11T21:00:28Z"}
+{"kind": "transition", "task_id": "GOAL-FR-WP-1TO60-QA1", "to": "COMPLETE", "reason": "", "ts": "2026-11-11T21:00:28Z"}
+{"kind": "verified", "task_id": "GOAL-FR-WP-1TO60-QA1", "verified": true, "checks": [{"check": "file_exists docs/autonomy/TAINT_RCA_20261111.md", "ok": true}], "ts": "2026-11-11T21:00:28Z"}
+{"kind": "transition", "task_id": "GOAL-FR-WP-1TO60-DATA1", "to": "VERIFYING", "reason": "", "ts": "2026-11-11T21:01:34Z"}
+{"kind": "prompt_done", "task_id": "GOAL-FR-WP-1TO60-DATA1", "session_id": "shade-slime", "stop_reason": "end_turn", "usage": {"totalTokens": 190510, "inputTokens": 189934, "outputTokens": 576, "cachedReadTokens": 188096}, "ts": "2026-11-11T21:01:34Z"}
+{"kind": "transition", "task_id": "GOAL-FR-WP-1TO60-DATA1", "to": "FAILED", "reason": "", "ts": "2026-11-11T21:01:34Z"}
+{"kind": "verified", "task_id": "GOAL-FR-WP-1TO60-DATA1", "verified": false, "failed": true, "checks": [{"check": "file_exists docs/autonomy/data1_output.md", "ok": false}], "ts": "2026-11-11T21:01:34Z"}
+{"kind": "task_added", "task_id": "GOAL-FR-WP-1TO60-DATA1-R2", "approved": true, "ts": "2026-11-11T21:08:34Z"}
+{"kind": "transition", "task_id": "GOAL-FR-WP-1TO60-DATA1-R2", "to": "DISPATCHED", "reason": "", "ts": "2026-11-11T21:08:35Z"}
+{"kind": "dispatched", "task_id": "GOAL-FR-WP-1TO60-DATA1-R2", "model": "swe-2-high", "worktree": "C:\\Users\\Dawis\\ForeverRouteJarvis\\DevinBridge\\autonomy_scope\\workspaces\\foreverroute-route-audit", "head": "5f41114c128337a0534cb0bbb361bad580db68ac", "worker_pid": 32108, "ts": "2026-11-11T21:08:35Z"}
+{"kind": "task_added", "task_id": "GOAL-FR-WP-1TO60-DATA2", "approved": true, "ts": "2026-11-11T21:08:35Z"}
+{"kind": "task_added", "task_id": "GOAL-FR-WP-1TO60-DATA3", "approved": true, "ts": "2026-11-11T21:08:35Z"}
+{"kind": "session_attached", "task_id": "GOAL-FR-WP-1TO60-DATA1-R2", "session_id": "dandy-riddle", "ts": "2026-11-11T21:08:36Z"}
+{"kind": "transition", "task_id": "GOAL-FR-WP-1TO60-DATA2", "to": "READY", "reason": "", "ts": "2026-11-11T21:08:51Z"}
+{"kind": "transition", "task_id": "GOAL-FR-WP-1TO60-DATA3", "to": "READY", "reason": "", "ts": "2026-11-11T21:08:51Z"}
+{"kind": "transition", "task_id": "GOAL-FR-WP-1TO60-DATA1-R2", "to": "VERIFYING", "reason": "", "ts": "2026-11-11T21:11:10Z"}
+{"kind": "prompt_done", "task_id": "GOAL-FR-WP-1TO60-DATA1-R2", "session_id": "dandy-riddle", "stop_reason": "end_turn", "usage": {"totalTokens": 61536, "inputTokens": 60960, "outputTokens": 576, "cachedReadTokens": 59648}, "ts": "2026-11-11T21:11:10Z"}
+{"kind": "transition", "task_id": "GOAL-FR-WP-1TO60-DATA1-R2", "to": "COMPLETE", "reason": "", "ts": "2026-11-11T21:11:12Z"}
+{"kind": "verified", "task_id": "GOAL-FR-WP-1TO60-DATA1-R2", "verified": true, "checks": [{"check": "file_exists docs/autonomy/source_feasibility_20261111.md", "ok": true}], "ts": "2026-11-11T21:11:13Z"}
+{"kind": "transition", "task_id": "GOAL-FR-WP-1TO60-DATA2", "to": "DISPATCHED", "reason": "", "ts": "2026-11-11T21:11:16Z"}
+{"kind": "dispatched", "task_id": "GOAL-FR-WP-1TO60-DATA2", "model": "swe-2-high", "worktree": "C:\\Users\\Dawis\\ForeverRouteJarvis\\DevinBridge\\autonomy_scope\\workspaces\\foreverroute-route-audit", "head": "5f41114c128337a0534cb0bbb361bad580db68ac", "worker_pid": 30428, "ts": "2026-11-11T21:11:16Z"}
+{"kind": "session_attached", "task_id": "GOAL-FR-WP-1TO60-DATA2", "session_id": "typical-midnight", "ts": "2026-11-11T21:11:17Z"}
+{"kind": "transition", "task_id": "GOAL-FR-WP-1TO60-DATA2", "to": "VERIFYING", "reason": "", "ts": "2026-11-11T21:16:27Z"}
+{"kind": "prompt_done", "task_id": "GOAL-FR-WP-1TO60-DATA2", "session_id": "typical-midnight", "stop_reason": "end_turn", "usage": {"totalTokens": 178801, "inputTokens": 178171, "outputTokens": 630, "cachedReadTokens": 177920}, "ts": "2026-11-11T21:16:27Z"}
+{"kind": "transition", "task_id": "GOAL-FR-WP-1TO60-DATA2", "to": "COMPLETE", "reason": "", "ts": "2026-11-11T21:16:27Z"}
+{"kind": "verified", "task_id": "GOAL-FR-WP-1TO60-DATA2", "verified": true, "checks": [{"check": "file_exists tools/objective_research_batch1.json", "ok": true}], "ts": "2026-11-11T21:16:27Z"}
+{"kind": "transition", "task_id": "GOAL-FR-WP-1TO60-DATA3", "to": "DISPATCHED", "reason": "", "ts": "2026-11-11T21:16:42Z"}
+{"kind": "dispatched", "task_id": "GOAL-FR-WP-1TO60-DATA3", "model": "swe-2-high", "worktree": "C:\\Users\\Dawis\\ForeverRouteJarvis\\DevinBridge\\autonomy_scope\\workspaces\\foreverroute-route-audit", "head": "5f41114c128337a0534cb0bbb361bad580db68ac", "worker_pid": 30412, "ts": "2026-11-11T21:16:42Z"}
+{"kind": "session_attached", "task_id": "GOAL-FR-WP-1TO60-DATA3", "session_id": "western-clementine", "ts": "2026-11-11T21:16:43Z"}
+{"kind": "transition", "task_id": "GOAL-FR-WP-1TO60-DATA3", "to": "VERIFYING", "reason": "", "ts": "2026-11-11T21:21:36Z"}
+{"kind": "prompt_done", "task_id": "GOAL-FR-WP-1TO60-DATA3", "session_id": "western-clementine", "stop_reason": "end_turn", "usage": {"totalTokens": 122224, "inputTokens": 120944, "outputTokens": 1280, "cachedReadTokens": 118272}, "ts": "2026-11-11T21:21:36Z"}
+{"kind": "transition", "task_id": "GOAL-FR-WP-1TO60-DATA3", "to": "COMPLETE", "reason": "", "ts": "2026-11-11T21:21:36Z"}
+{"kind": "verified", "task_id": "GOAL-FR-WP-1TO60-DATA3", "verified": true, "checks": [{"check": "file_exists docs/autonomy/gate_inversion_analysis.md", "ok": true}], "ts": "2026-11-11T21:21:36Z"}
+{"kind": "task_added", "task_id": "GOAL-FR-WP-1TO60-INT1", "approved": true, "ts": "2026-11-11T21:28:08Z"}
+{"kind": "transition", "task_id": "GOAL-FR-WP-1TO60-INT1", "to": "DISPATCHED", "reason": "", "ts": "2026-11-11T21:28:08Z"}
+{"kind": "dispatched", "task_id": "GOAL-FR-WP-1TO60-INT1", "model": "swe-2-high", "worktree": "C:\\Users\\Dawis\\ForeverRouteJarvis\\DevinBridge\\autonomy_scope\\workspaces\\foreverroute-route-audit", "head": "5f41114c128337a0534cb0bbb361bad580db68ac", "worker_pid": 23220, "ts": "2026-11-11T21:28:08Z"}
+{"kind": "session_attached", "task_id": "GOAL-FR-WP-1TO60-INT1", "session_id": "sponge-loan", "ts": "2026-11-11T21:28:14Z"}
+{"kind": "task_added", "task_id": "GOAL-FR-WP-1TO60-DATA-N2", "approved": true, "ts": "2026-11-11T21:32:37Z"}
+{"kind": "transition", "task_id": "GOAL-FR-WP-1TO60-DATA-N2", "to": "READY", "reason": "", "ts": "2026-11-11T21:32:46Z"}
+{"kind": "transition", "task_id": "GOAL-FR-WP-1TO60-INT1", "to": "VERIFYING", "reason": "", "ts": "2026-11-11T21:34:34Z"}
+{"kind": "prompt_done", "task_id": "GOAL-FR-WP-1TO60-INT1", "session_id": "sponge-loan", "stop_reason": "end_turn", "usage": {"totalTokens": 122148, "inputTokens": 121587, "outputTokens": 561, "cachedReadTokens": 121344}, "ts": "2026-11-11T21:34:34Z"}
+{"kind": "transition", "task_id": "GOAL-FR-WP-1TO60-INT1", "to": "COMPLETE", "reason": "", "ts": "2026-11-11T21:34:35Z"}
+{"kind": "verified", "task_id": "GOAL-FR-WP-1TO60-INT1", "verified": true, "checks": [{"check": "file_exists tools/integration_report_INT1.json", "ok": true}], "ts": "2026-11-11T21:34:35Z"}
+{"kind": "transition", "task_id": "GOAL-FR-WP-1TO60-DATA-N2", "to": "DISPATCHED", "reason": "", "ts": "2026-11-11T21:35:05Z"}
+{"kind": "dispatched", "task_id": "GOAL-FR-WP-1TO60-DATA-N2", "model": "swe-2-high", "worktree": "C:\\Users\\Dawis\\ForeverRouteJarvis\\DevinBridge\\autonomy_scope\\workspaces\\foreverroute-route-audit", "head": "5f41114c128337a0534cb0bbb361bad580db68ac", "worker_pid": 10444, "ts": "2026-11-11T21:35:05Z"}
+{"kind": "session_attached", "task_id": "GOAL-FR-WP-1TO60-DATA-N2", "session_id": "lace-recorder", "ts": "2026-11-11T21:35:06Z"}
+{"kind": "transition", "task_id": "GOAL-FR-WP-1TO60-DATA-N2", "to": "VERIFYING", "reason": "", "ts": "2026-11-11T21:42:20Z"}
+{"kind": "prompt_done", "task_id": "GOAL-FR-WP-1TO60-DATA-N2", "session_id": "lace-recorder", "stop_reason": "end_turn", "usage": {"totalTokens": 177898, "inputTokens": 177309, "outputTokens": 589, "cachedReadTokens": 177152}, "ts": "2026-11-11T21:42:20Z"}
+{"kind": "transition", "task_id": "GOAL-FR-WP-1TO60-DATA-N2", "to": "COMPLETE", "reason": "", "ts": "2026-11-11T21:42:20Z"}
+{"kind": "verified", "task_id": "GOAL-FR-WP-1TO60-DATA-N2", "verified": true, "checks": [{"check": "file_exists tools/objective_research_batch2.json", "ok": true}], "ts": "2026-11-11T21:42:20Z"}
+{"kind": "task_added", "task_id": "GOAL-FR-WP-1TO60-DATA-N4", "approved": true, "ts": "2026-11-11T21:42:38Z"}
+{"kind": "transition", "task_id": "GOAL-FR-WP-1TO60-DATA-N4", "to": "DISPATCHED", "reason": "", "ts": "2026-11-11T21:42:39Z"}
+{"kind": "dispatched", "task_id": "GOAL-FR-WP-1TO60-DATA-N4", "model": "swe-2-high", "worktree": "C:\\Users\\Dawis\\ForeverRouteJarvis\\DevinBridge\\autonomy_scope\\workspaces\\foreverroute-route-audit", "head": "5f41114c128337a0534cb0bbb361bad580db68ac", "worker_pid": 28616, "ts": "2026-11-11T21:42:39Z"}
+{"kind": "task_added", "task_id": "GOAL-FR-WP-1TO60-INT2", "approved": true, "ts": "2026-11-11T21:42:39Z"}
+{"kind": "transition", "task_id": "GOAL-FR-WP-1TO60-INT2", "to": "READY", "reason": "", "ts": "2026-11-11T21:42:40Z"}
+{"kind": "session_attached", "task_id": "GOAL-FR-WP-1TO60-DATA-N4", "session_id": "modern-jargon", "ts": "2026-11-11T21:42:40Z"}
+{"kind": "transition", "task_id": "GOAL-FR-WP-1TO60-DATA-N4", "to": "VERIFYING", "reason": "", "ts": "2026-11-11T21:52:14Z"}
+{"kind": "prompt_done", "task_id": "GOAL-FR-WP-1TO60-DATA-N4", "session_id": "modern-jargon", "stop_reason": "end_turn", "usage": {"totalTokens": 113495, "inputTokens": 112985, "outputTokens": 510, "cachedReadTokens": 112896}, "ts": "2026-11-11T21:52:14Z"}
+{"kind": "transition", "task_id": "GOAL-FR-WP-1TO60-DATA-N4", "to": "COMPLETE", "reason": "", "ts": "2026-11-11T21:52:14Z"}
+{"kind": "verified", "task_id": "GOAL-FR-WP-1TO60-DATA-N4", "verified": true, "checks": [{"check": "file_exists tools/objective_research_batch4.json", "ok": true}], "ts": "2026-11-11T21:52:14Z"}
+{"kind": "transition", "task_id": "GOAL-FR-WP-1TO60-INT2", "to": "DISPATCHED", "reason": "", "ts": "2026-11-11T21:52:55Z"}
+{"kind": "dispatched", "task_id": "GOAL-FR-WP-1TO60-INT2", "model": "swe-2-high", "worktree": "C:\\Users\\Dawis\\ForeverRouteJarvis\\DevinBridge\\autonomy_scope\\workspaces\\foreverroute-route-audit", "head": "5f41114c128337a0534cb0bbb361bad580db68ac", "worker_pid": 13212, "ts": "2026-11-11T21:52:55Z"}
+{"kind": "session_attached", "task_id": "GOAL-FR-WP-1TO60-INT2", "session_id": "picayune-gruyere", "ts": "2026-11-11T21:52:56Z"}
+{"kind": "task_added", "task_id": "GOAL-FR-WP-1TO60-DATA-N6", "approved": true, "ts": "2026-11-11T21:53:12Z"}
+{"kind": "task_added", "task_id": "GOAL-FR-WP-1TO60-INT4", "approved": true, "ts": "2026-11-11T21:53:13Z"}
+{"kind": "transition", "task_id": "GOAL-FR-WP-1TO60-INT4", "to": "READY", "reason": "", "ts": "2026-11-11T21:53:13Z"}
+{"kind": "transition", "task_id": "GOAL-FR-WP-1TO60-DATA-N6", "to": "READY", "reason": "", "ts": "2026-11-11T21:53:14Z"}
+{"kind": "transition", "task_id": "GOAL-FR-WP-1TO60-INT2", "to": "VERIFYING", "reason": "", "ts": "2026-11-11T22:01:06Z"}
+{"kind": "prompt_done", "task_id": "GOAL-FR-WP-1TO60-INT2", "session_id": "picayune-gruyere", "stop_reason": "end_turn", "usage": {"totalTokens": 156046, "inputTokens": 155367, "outputTokens": 679, "cachedReadTokens": 154112}, "ts": "2026-11-11T22:01:06Z"}
+{"kind": "transition", "task_id": "GOAL-FR-WP-1TO60-INT2", "to": "COMPLETE", "reason": "", "ts": "2026-11-11T22:01:06Z"}
+{"kind": "verified", "task_id": "GOAL-FR-WP-1TO60-INT2", "verified": true, "checks": [{"check": "file_exists tools/integration_report_INT2.json", "ok": true}], "ts": "2026-11-11T22:01:06Z"}
+{"kind": "transition", "task_id": "GOAL-FR-WP-1TO60-INT4", "to": "DISPATCHED", "reason": "", "ts": "2026-11-11T22:01:39Z"}
+{"kind": "dispatched", "task_id": "GOAL-FR-WP-1TO60-INT4", "model": "swe-2-high", "worktree": "C:\\Users\\Dawis\\ForeverRouteJarvis\\DevinBridge\\autonomy_scope\\workspaces\\foreverroute-route-audit", "head": "5f41114c128337a0534cb0bbb361bad580db68ac", "worker_pid": 33268, "ts": "2026-11-11T22:01:39Z"}
+{"kind": "session_attached", "task_id": "GOAL-FR-WP-1TO60-INT4", "session_id": "splashy-pull", "ts": "2026-11-11T22:01:40Z"}
+{"kind": "transition", "task_id": "GOAL-FR-WP-1TO60-INT4", "to": "VERIFYING", "reason": "", "ts": "2026-11-11T22:09:23Z"}
+{"kind": "prompt_done", "task_id": "GOAL-FR-WP-1TO60-INT4", "session_id": "splashy-pull", "stop_reason": "end_turn", "usage": {"totalTokens": 157400, "inputTokens": 156770, "outputTokens": 630, "cachedReadTokens": 155136}, "ts": "2026-11-11T22:09:23Z"}
+{"kind": "transition", "task_id": "GOAL-FR-WP-1TO60-INT4", "to": "COMPLETE", "reason": "", "ts": "2026-11-11T22:09:23Z"}
+{"kind": "verified", "task_id": "GOAL-FR-WP-1TO60-INT4", "verified": true, "checks": [{"check": "file_exists tools/integration_report_INT4.json", "ok": true}], "ts": "2026-11-11T22:09:23Z"}
+{"kind": "transition", "task_id": "GOAL-FR-WP-1TO60-DATA-N6", "to": "DISPATCHED", "reason": "", "ts": "2026-11-11T22:10:08Z"}
+{"kind": "dispatched", "task_id": "GOAL-FR-WP-1TO60-DATA-N6", "model": "swe-2-high", "worktree": "C:\\Users\\Dawis\\ForeverRouteJarvis\\DevinBridge\\autonomy_scope\\workspaces\\foreverroute-route-audit", "head": "5f41114c128337a0534cb0bbb361bad580db68ac", "worker_pid": 30028, "ts": "2026-11-11T22:10:08Z"}
+{"kind": "session_attached", "task_id": "GOAL-FR-WP-1TO60-DATA-N6", "session_id": "disco-shoulder", "ts": "2026-11-11T22:10:09Z"}
+{"kind": "transition", "task_id": "GOAL-FR-WP-1TO60-DATA-N6", "to": "VERIFYING", "reason": "", "ts": "2026-11-11T22:13:25Z"}
+{"kind": "prompt_done", "task_id": "GOAL-FR-WP-1TO60-DATA-N6", "session_id": "disco-shoulder", "stop_reason": "end_turn", "usage": {"totalTokens": 116987, "inputTokens": 115967, "outputTokens": 1020, "cachedReadTokens": 101696}, "ts": "2026-11-11T22:13:25Z"}
+{"kind": "transition", "task_id": "GOAL-FR-WP-1TO60-DATA-N6", "to": "COMPLETE", "reason": "", "ts": "2026-11-11T22:13:25Z"}
+{"kind": "verified", "task_id": "GOAL-FR-WP-1TO60-DATA-N6", "verified": true, "checks": [{"check": "file_exists tools/objective_research_batch6.json", "ok": true}], "ts": "2026-11-11T22:13:25Z"}
+{"kind": "task_added", "task_id": "GOAL-FR-WP-1TO60-DATA-N7", "approved": true, "ts": "2026-11-11T22:13:35Z"}
+{"kind": "transition", "task_id": "GOAL-FR-WP-1TO60-DATA-N7", "to": "DISPATCHED", "reason": "", "ts": "2026-11-11T22:13:35Z"}
+{"kind": "dispatched", "task_id": "GOAL-FR-WP-1TO60-DATA-N7", "model": "swe-2-high", "worktree": "C:\\Users\\Dawis\\ForeverRouteJarvis\\DevinBridge\\autonomy_scope\\workspaces\\foreverroute-route-audit", "head": "5f41114c128337a0534cb0bbb361bad580db68ac", "worker_pid": 32908, "ts": "2026-11-11T22:13:35Z"}
+{"kind": "task_added", "task_id": "GOAL-FR-WP-1TO60-INT6", "approved": true, "ts": "2026-11-11T22:13:35Z"}
+{"kind": "transition", "task_id": "GOAL-FR-WP-1TO60-INT6", "to": "READY", "reason": "", "ts": "2026-11-11T22:13:36Z"}
+{"kind": "session_attached", "task_id": "GOAL-FR-WP-1TO60-DATA-N7", "session_id": "invented-patient", "ts": "2026-11-11T22:13:37Z"}
+{"kind": "transition", "task_id": "GOAL-FR-WP-1TO60-DATA-N7", "to": "VERIFYING", "reason": "", "ts": "2026-11-11T22:17:31Z"}
+{"kind": "prompt_done", "task_id": "GOAL-FR-WP-1TO60-DATA-N7", "session_id": "invented-patient", "stop_reason": "end_turn", "usage": {"totalTokens": 150176, "inputTokens": 149474, "outputTokens": 702, "cachedReadTokens": 148992}, "ts": "2026-11-11T22:17:31Z"}
+{"kind": "transition", "task_id": "GOAL-FR-WP-1TO60-DATA-N7", "to": "COMPLETE", "reason": "", "ts": "2026-11-11T22:17:31Z"}
+{"kind": "verified", "task_id": "GOAL-FR-WP-1TO60-DATA-N7", "verified": true, "checks": [{"check": "file_exists tools/objective_research_batch7.json", "ok": true}], "ts": "2026-11-11T22:17:31Z"}
+{"kind": "transition", "task_id": "GOAL-FR-WP-1TO60-INT6", "to": "DISPATCHED", "reason": "", "ts": "2026-11-11T22:17:40Z"}
+{"kind": "dispatched", "task_id": "GOAL-FR-WP-1TO60-INT6", "model": "swe-2-high", "worktree": "C:\\Users\\Dawis\\ForeverRouteJarvis\\DevinBridge\\autonomy_scope\\workspaces\\foreverroute-route-audit", "head": "5f41114c128337a0534cb0bbb361bad580db68ac", "worker_pid": 22280, "ts": "2026-11-11T22:17:40Z"}
+{"kind": "session_attached", "task_id": "GOAL-FR-WP-1TO60-INT6", "session_id": "chiseled-wander", "ts": "2026-11-11T22:17:42Z"}
+{"kind": "task_added", "task_id": "GOAL-FR-WP-1TO60-INT7", "approved": true, "ts": "2026-11-11T22:18:00Z"}
+{"kind": "transition", "task_id": "GOAL-FR-WP-1TO60-INT7", "to": "READY", "reason": "", "ts": "2026-11-11T22:18:01Z"}
+{"kind": "transition", "task_id": "GOAL-FR-WP-1TO60-INT6", "to": "VERIFYING", "reason": "", "ts": "2026-11-11T22:21:56Z"}
+{"kind": "prompt_done", "task_id": "GOAL-FR-WP-1TO60-INT6", "session_id": "chiseled-wander", "stop_reason": "end_turn", "usage": {"totalTokens": 99790, "inputTokens": 99291, "outputTokens": 499, "cachedReadTokens": 96256}, "ts": "2026-11-11T22:21:56Z"}
+{"kind": "transition", "task_id": "GOAL-FR-WP-1TO60-INT6", "to": "COMPLETE", "reason": "", "ts": "2026-11-11T22:21:56Z"}
+{"kind": "verified", "task_id": "GOAL-FR-WP-1TO60-INT6", "verified": true, "checks": [{"check": "file_exists tools/integration_report_INT6.json", "ok": true}], "ts": "2026-11-11T22:21:56Z"}
+{"kind": "transition", "task_id": "GOAL-FR-WP-1TO60-INT7", "to": "DISPATCHED", "reason": "", "ts": "2026-11-11T22:22:01Z"}
+{"kind": "dispatched", "task_id": "GOAL-FR-WP-1TO60-INT7", "model": "swe-2-high", "worktree": "C:\\Users\\Dawis\\ForeverRouteJarvis\\DevinBridge\\autonomy_scope\\workspaces\\foreverroute-route-audit", "head": "5f41114c128337a0534cb0bbb361bad580db68ac", "worker_pid": 9484, "ts": "2026-11-11T22:22:01Z"}
+{"kind": "session_attached", "task_id": "GOAL-FR-WP-1TO60-INT7", "session_id": "dour-pirate", "ts": "2026-11-11T22:22:02Z"}
+{"kind": "transition", "task_id": "GOAL-FR-WP-1TO60-INT7", "to": "VERIFYING", "reason": "", "ts": "2026-11-11T22:30:02Z"}
+{"kind": "prompt_done", "task_id": "GOAL-FR-WP-1TO60-INT7", "session_id": "dour-pirate", "stop_reason": "end_turn", "usage": {"totalTokens": 139631, "inputTokens": 138750, "outputTokens": 881, "cachedReadTokens": 138496}, "ts": "2026-11-11T22:30:02Z"}
+{"kind": "transition", "task_id": "GOAL-FR-WP-1TO60-INT7", "to": "COMPLETE", "reason": "", "ts": "2026-11-11T22:30:03Z"}
+{"kind": "verified", "task_id": "GOAL-FR-WP-1TO60-INT7", "verified": true, "checks": [{"check": "file_exists tools/integration_report_INT7.json", "ok": true}], "ts": "2026-11-11T22:30:03Z"}
+{"kind": "task_added", "task_id": "GOAL-FR-WP-1TO60-RECALC1", "approved": true, "ts": "2026-11-12T07:59:19Z"}
+{"kind": "transition", "task_id": "GOAL-FR-WP-1TO60-RECALC1", "to": "DISPATCHED", "reason": "", "ts": "2026-11-12T07:59:19Z"}
+{"kind": "dispatched", "task_id": "GOAL-FR-WP-1TO60-RECALC1", "model": "swe-2-high", "worktree": "C:\\Users\\Dawis\\ForeverRouteJarvis\\DevinBridge\\autonomy_scope\\workspaces\\foreverroute-route-audit", "head": "5f41114c128337a0534cb0bbb361bad580db68ac", "worker_pid": 13456, "ts": "2026-11-12T07:59:19Z"}
+{"kind": "session_attached", "task_id": "GOAL-FR-WP-1TO60-RECALC1", "session_id": "prairie-cafe", "ts": "2026-11-12T07:59:22Z"}
+{"kind": "transition", "task_id": "GOAL-FR-WP-1TO60-RECALC1", "to": "VERIFYING", "reason": "", "ts": "2026-11-12T08:09:00Z"}
+{"kind": "prompt_done", "task_id": "GOAL-FR-WP-1TO60-RECALC1", "session_id": "prairie-cafe", "stop_reason": "end_turn", "usage": {"totalTokens": 43105, "inputTokens": 42615, "outputTokens": 490, "cachedReadTokens": 42496}, "ts": "2026-11-12T08:09:00Z"}
+{"kind": "transition", "task_id": "GOAL-FR-WP-1TO60-RECALC1", "to": "COMPLETE", "reason": "", "ts": "2026-11-12T08:09:00Z"}
+{"kind": "verified", "task_id": "GOAL-FR-WP-1TO60-RECALC1", "verified": true, "checks": [{"check": "file_exists tools/recalc_post_int_report.json", "ok": true}], "ts": "2026-11-12T08:09:00Z"}
+{"kind": "task_added", "task_id": "GOAL-FR-HYJAL-DATA1", "approved": true, "ts": "2026-11-12T08:25:29Z"}
+{"kind": "transition", "task_id": "GOAL-FR-HYJAL-DATA1", "to": "DISPATCHED", "reason": "", "ts": "2026-11-12T08:25:29Z"}
+{"kind": "dispatched", "task_id": "GOAL-FR-HYJAL-DATA1", "model": "swe-2-high", "worktree": "C:\\Users\\Dawis\\ForeverRouteJarvis\\DevinBridge\\autonomy_scope\\workspaces\\foreverroute-route-audit", "head": "5f41114c128337a0534cb0bbb361bad580db68ac", "worker_pid": 23660, "ts": "2026-11-12T08:25:29Z"}
+{"kind": "task_added", "task_id": "GOAL-FR-HYJAL-BUILD1", "approved": true, "ts": "2026-11-12T08:25:29Z"}
+{"kind": "session_attached", "task_id": "GOAL-FR-HYJAL-DATA1", "session_id": "basalt-mare", "ts": "2026-11-12T08:25:30Z"}
+{"kind": "transition", "task_id": "GOAL-FR-HYJAL-DATA1", "to": "VERIFYING", "reason": "", "ts": "2026-11-12T08:35:14Z"}
+{"kind": "prompt_done", "task_id": "GOAL-FR-HYJAL-DATA1", "session_id": "basalt-mare", "stop_reason": "end_turn", "usage": {"totalTokens": 79071, "inputTokens": 78314, "outputTokens": 757, "cachedReadTokens": 77696}, "ts": "2026-11-12T08:35:14Z"}
+{"kind": "transition", "task_id": "GOAL-FR-HYJAL-DATA1", "to": "COMPLETE", "reason": "", "ts": "2026-11-12T08:35:14Z"}
+{"kind": "verified", "task_id": "GOAL-FR-HYJAL-DATA1", "verified": true, "checks": [{"check": "file_exists tools/hyjal_horde_research.json", "ok": true}, {"check": "file_exists tools/hyjal_travel_edges.json", "ok": true}], "ts": "2026-11-12T08:35:15Z"}
+{"kind": "transition", "task_id": "GOAL-FR-HYJAL-BUILD1", "to": "READY", "reason": "", "ts": "2026-11-12T08:35:36Z"}
+{"kind": "transition", "task_id": "GOAL-FR-HYJAL-BUILD1", "to": "DISPATCHED", "reason": "", "ts": "2026-11-12T08:36:23Z"}
+{"kind": "dispatched", "task_id": "GOAL-FR-HYJAL-BUILD1", "model": "swe-2-high", "worktree": "C:\\Users\\Dawis\\ForeverRouteJarvis\\DevinBridge\\autonomy_scope\\workspaces\\foreverroute-route-audit", "head": "5f41114c128337a0534cb0bbb361bad580db68ac", "worker_pid": 24068, "ts": "2026-11-12T08:36:23Z"}
+{"kind": "session_attached", "task_id": "GOAL-FR-HYJAL-BUILD1", "session_id": "salt-terrier", "ts": "2026-11-12T08:36:24Z"}
+{"kind": "transition", "task_id": "GOAL-FR-HYJAL-BUILD1", "to": "VERIFYING", "reason": "", "ts": "2026-11-12T09:06:58Z"}
+{"kind": "prompt_done", "task_id": "GOAL-FR-HYJAL-BUILD1", "session_id": "salt-terrier", "stop_reason": "end_turn", "usage": {"totalTokens": 162378, "inputTokens": 161384, "outputTokens": 994, "cachedReadTokens": 161024}, "ts": "2026-11-12T09:06:58Z"}
+{"kind": "transition", "task_id": "GOAL-FR-HYJAL-BUILD1", "to": "COMPLETE", "reason": "", "ts": "2026-11-12T09:06:58Z"}
+{"kind": "verified", "task_id": "GOAL-FR-HYJAL-BUILD1", "verified": true, "checks": [{"check": "file_exists tools/hyjal_horde_build_report.json", "ok": true}], "ts": "2026-11-12T09:06:58Z"}
+{"kind": "task_added", "task_id": "GOAL-FR-WP-1TO60-GATE1", "approved": true, "ts": "2026-11-12T09:19:23Z"}
+{"kind": "transition", "task_id": "GOAL-FR-WP-1TO60-GATE1", "to": "DISPATCHED", "reason": "", "ts": "2026-11-12T09:19:43Z"}
+{"kind": "dispatched", "task_id": "GOAL-FR-WP-1TO60-GATE1", "model": "swe-2-high", "worktree": "C:\\Users\\Dawis\\ForeverRouteJarvis\\DevinBridge\\autonomy_scope\\workspaces\\foreverroute-route-audit", "head": "5f41114c128337a0534cb0bbb361bad580db68ac", "worker_pid": 24608, "ts": "2026-11-12T09:19:43Z"}
+{"kind": "session_attached", "task_id": "GOAL-FR-WP-1TO60-GATE1", "session_id": "achieved-cardigan", "ts": "2026-11-12T09:19:45Z"}
+{"kind": "task_added", "task_id": "GOAL-FR-WP-1TO60-ROW1", "approved": true, "ts": "2026-11-12T09:21:52Z"}
+{"kind": "transition", "task_id": "GOAL-FR-WP-1TO60-ROW1", "to": "READY", "reason": "", "ts": "2026-11-12T09:22:25Z"}
+{"kind": "transition", "task_id": "GOAL-FR-WP-1TO60-GATE1", "to": "VERIFYING", "reason": "", "ts": "2026-11-12T09:25:13Z"}
+{"kind": "prompt_done", "task_id": "GOAL-FR-WP-1TO60-GATE1", "session_id": "achieved-cardigan", "stop_reason": "end_turn", "usage": {"totalTokens": 67959, "inputTokens": 67448, "outputTokens": 511, "cachedReadTokens": 67072}, "ts": "2026-11-12T09:25:13Z"}
+{"kind": "transition", "task_id": "GOAL-FR-WP-1TO60-GATE1", "to": "COMPLETE", "reason": "", "ts": "2026-11-12T09:25:13Z"}
+{"kind": "verified", "task_id": "GOAL-FR-WP-1TO60-GATE1", "verified": true, "checks": [{"check": "file_exists tools/gate_fix_report.json", "ok": true}], "ts": "2026-11-12T09:25:13Z"}
+{"kind": "transition", "task_id": "GOAL-FR-WP-1TO60-ROW1", "to": "DISPATCHED", "reason": "", "ts": "2026-11-12T09:26:08Z"}
+{"kind": "dispatched", "task_id": "GOAL-FR-WP-1TO60-ROW1", "model": "swe-2-high", "worktree": "C:\\Users\\Dawis\\ForeverRouteJarvis\\DevinBridge\\autonomy_scope\\workspaces\\foreverroute-route-audit", "head": "5f41114c128337a0534cb0bbb361bad580db68ac", "worker_pid": 23268, "ts": "2026-11-12T09:26:08Z"}
+{"kind": "session_attached", "task_id": "GOAL-FR-WP-1TO60-ROW1", "session_id": "desert-tower", "ts": "2026-11-12T09:26:09Z"}
+{"kind": "task_added", "task_id": "P0-FR-NAV-ZONE-BOUNCE-ELIGIBILITY-20261112", "approved": true, "ts": "2026-11-12T09:31:11Z"}
+{"kind": "transition", "task_id": "P0-FR-NAV-ZONE-BOUNCE-ELIGIBILITY-20261112", "to": "READY", "reason": "", "ts": "2026-11-12T09:31:20Z"}
+{"kind": "transition", "task_id": "GOAL-FR-WP-1TO60-ROW1", "to": "VERIFYING", "reason": "", "ts": "2026-11-12T09:33:02Z"}
+{"kind": "prompt_done", "task_id": "GOAL-FR-WP-1TO60-ROW1", "session_id": "desert-tower", "stop_reason": "end_turn", "usage": {"totalTokens": 145094, "inputTokens": 144308, "outputTokens": 786, "cachedReadTokens": 144128}, "ts": "2026-11-12T09:33:02Z"}
+{"kind": "transition", "task_id": "GOAL-FR-WP-1TO60-ROW1", "to": "COMPLETE", "reason": "", "ts": "2026-11-12T09:33:02Z"}
+{"kind": "verified", "task_id": "GOAL-FR-WP-1TO60-ROW1", "verified": true, "checks": [{"check": "file_exists tools/row_gap_analysis.json", "ok": true}], "ts": "2026-11-12T09:33:02Z"}
+{"kind": "transition", "task_id": "P0-FR-NAV-ZONE-BOUNCE-ELIGIBILITY-20261112", "to": "DISPATCHED", "reason": "", "ts": "2026-11-12T09:33:25Z"}
+{"kind": "dispatched", "task_id": "P0-FR-NAV-ZONE-BOUNCE-ELIGIBILITY-20261112", "model": "swe-2-high", "worktree": "C:\\Users\\Dawis\\ForeverRouteJarvis\\DevinBridge\\autonomy_scope\\workspaces\\foreverroute-route-audit", "head": "5f41114c128337a0534cb0bbb361bad580db68ac", "worker_pid": 26072, "ts": "2026-11-12T09:33:25Z"}
+{"kind": "session_attached", "task_id": "P0-FR-NAV-ZONE-BOUNCE-ELIGIBILITY-20261112", "session_id": "peach-stage", "ts": "2026-11-12T09:33:31Z"}
+{"kind": "transition", "task_id": "P0-FR-NAV-ZONE-BOUNCE-ELIGIBILITY-20261112", "to": "VERIFYING", "reason": "", "ts": "2026-11-12T10:00:22Z"}
+{"kind": "prompt_done", "task_id": "P0-FR-NAV-ZONE-BOUNCE-ELIGIBILITY-20261112", "session_id": "peach-stage", "stop_reason": "end_turn", "usage": {"totalTokens": 163438, "inputTokens": 162498, "outputTokens": 940, "cachedReadTokens": 161792}, "ts": "2026-11-12T10:00:22Z"}
+{"kind": "transition", "task_id": "P0-FR-NAV-ZONE-BOUNCE-ELIGIBILITY-20261112", "to": "FAILED", "reason": "", "ts": "2026-11-12T10:00:36Z"}
+{"kind": "verified", "task_id": "P0-FR-NAV-ZONE-BOUNCE-ELIGIBILITY-20261112", "verified": false, "failed": true, "checks": [{"check": "test unittest tests.test_p0_nav_zone_eligibility", "ok": true, "exit": 0, "tail": ".................\n----------------------------------------------------------------------\nRan 17 tests in 13.365s\n\nOK\n"}, {"check": "file_contains tools/p0_nav_zone_eligibility_20261112.json", "ok": false}], "ts": "2026-11-12T10:00:36Z"}
+{"kind": "task_added", "task_id": "P0-FR-ROUTE-STANDARD-JARVIS-INTEGRATION-20261112", "approved": true, "ts": "2026-11-12T15:16:45Z"}
+{"kind": "transition", "task_id": "P0-FR-ROUTE-STANDARD-JARVIS-INTEGRATION-20261112", "to": "READY", "reason": "", "ts": "2026-11-12T15:17:02Z"}
+{"kind": "transition", "task_id": "P0-FR-ROUTE-STANDARD-JARVIS-INTEGRATION-20261112", "to": "DISPATCHED", "reason": "", "ts": "2026-11-12T15:17:50Z"}
+{"kind": "dispatched", "task_id": "P0-FR-ROUTE-STANDARD-JARVIS-INTEGRATION-20261112", "model": "swe-2-high", "worktree": "C:\\Users\\Dawis\\ForeverRouteJarvis\\DevinBridge\\autonomy_scope\\workspaces\\foreverroute-route-audit", "head": "5f41114c128337a0534cb0bbb361bad580db68ac", "worker_pid": 21128, "ts": "2026-11-12T15:17:50Z"}
+{"kind": "session_attached", "task_id": "P0-FR-ROUTE-STANDARD-JARVIS-INTEGRATION-20261112", "session_id": "righteous-wolf", "ts": "2026-11-12T15:17:52Z"}
+{"kind": "needs_approval", "task_id": "P0-FR-ROUTE-STANDARD-JARVIS-INTEGRATION-20261112", "summary": "write outside workspace: C:\\Users\\Dawis\\ForeverRouteJarvis\\DevinBridge\\supervisor_graph.py", "fingerprint": "dc3edb2eec6f51f2ba9d", "reason": "", "ts": "2026-11-12T15:18:20Z"}
+{"kind": "transition", "task_id": "P0-FR-ROUTE-STANDARD-JARVIS-INTEGRATION-20261112", "to": "PAUSED", "reason": "manual cancel", "ts": "2026-11-12T15:18:47Z"}
+{"kind": "needs_approval", "task_id": "P0-FR-ROUTE-STANDARD-JARVIS-INTEGRATION-20261112", "summary": "write outside workspace: C:\\Users\\Dawis\\ForeverRouteJarvis\\DevinBridge\\coordinator_state.json", "fingerprint": "57193cca832384a0f0da", "reason": "", "ts": "2026-11-12T15:20:22Z"}
+{"kind": "approval", "task_id": "P0-FR-ROUTE-STANDARD-JARVIS-INTEGRATION-20261112", "fingerprint": "", "decision": "denied", "ts": "2026-11-12T15:22:36Z"}
+{"kind": "transition", "task_id": "P0-FR-ROUTE-STANDARD-JARVIS-INTEGRATION-20261112", "to": "BLOCKED", "reason": "denied by human: cli reject", "ts": "2026-11-12T15:22:36Z"}
+{"kind": "transition", "task_id": "P0-FR-ROUTE-STANDARD-JARVIS-INTEGRATION-20261112", "to": "PAUSED", "reason": "manual cancel", "ts": "2026-11-12T15:22:36Z"}
+{"kind": "task_added", "task_id": "GEN-81475D6D5C", "approved": false, "ts": "2026-11-12T16:09:16Z"}
+{"kind": "transition", "task_id": "GEN-81475D6D5C", "to": "DISPATCHED", "reason": "", "ts": "2026-11-12T16:09:16Z"}
+{"kind": "dispatched", "task_id": "GEN-81475D6D5C", "model": "swe-2-high", "worktree": "C:\\Users\\Dawis\\ForeverRouteJarvis\\DevinBridge\\autonomy_scope\\workspaces\\foreverroute-route-audit", "head": "5f41114c128337a0534cb0bbb361bad580db68ac", "worker_pid": 18508, "ts": "2026-11-12T16:09:16Z"}
+{"kind": "cdp_handoff", "proposal": "81475d6d5c", "task_id": "GEN-81475D6D5C", "program": "FOREVERROUTE_CONTINUOUS_V1", "dispatched": true, "ts": "2026-11-12T16:09:16Z"}
+{"kind": "session_attached", "task_id": "GEN-81475D6D5C", "session_id": "dolomite-gorgonzola", "ts": "2026-11-12T16:09:17Z"}
+{"kind": "needs_approval", "task_id": "GEN-81475D6D5C", "summary": "write outside workspace: C:\\Users\\Dawis\\ForeverRouteJarvis\\DevinBridge\\ai_planner_state.json", "fingerprint": "e05fe3033b54d213c64c", "reason": "", "ts": "2026-11-12T16:10:34Z"}
+{"kind": "needs_approval", "task_id": "GEN-81475D6D5C", "summary": "write outside workspace: C:\\Users\\Dawis\\ForeverRouteJarvis\\DevinBridge\\daemon_health.json", "fingerprint": "77c10635920eef1a6837", "reason": "", "ts": "2026-11-12T16:10:37Z"}
+{"kind": "needs_approval", "task_id": "GEN-81475D6D5C", "summary": "write outside workspace: C:\\Users\\Dawis\\ForeverRouteJarvis\\DevinBridge\\autonomy_scope\\gate_route_recalc_20261111.py", "fingerprint": "f65465fdc2886abf1205", "reason": "", "ts": "2026-11-12T16:10:42Z"}
+{"kind": "needs_approval", "task_id": "GEN-81475D6D5C", "summary": "write outside workspace: C:\\Users\\Dawis\\ForeverRouteJarvis\\DevinBridge\\queued_prompts\\enqueue_p0_nav.py", "fingerprint": "5acee471c07a729f551e", "reason": "", "ts": "2026-11-12T16:10:45Z"}
+{"kind": "transition", "task_id": "GEN-81475D6D5C", "to": "VERIFYING", "reason": "", "ts": "2026-11-12T16:18:33Z"}
+{"kind": "prompt_done", "task_id": "GEN-81475D6D5C", "session_id": "dolomite-gorgonzola", "stop_reason": "end_turn", "usage": {"totalTokens": 111410, "inputTokens": 110340, "outputTokens": 1070, "cachedReadTokens": 109056}, "ts": "2026-11-12T16:18:33Z"}
+{"kind": "transition", "task_id": "GEN-81475D6D5C", "to": "COMPLETE", "reason": "", "ts": "2026-11-12T16:18:49Z"}
+{"kind": "verified", "task_id": "GEN-81475D6D5C", "verified": true, "checks": [{"check": "file_exists docs/autonomy/p0_nav_zone_verification_20261112.md", "ok": true}, {"check": "test unittest tests.test_route_quality_validator", "ok": true, "exit": 0, "tail": ".........\n----------------------------------------------------------------------\nRan 9 tests in 0.000s\n\nOK\n"}], "ts": "2026-11-12T16:18:49Z"}
+{"kind": "task_added", "task_id": "GEN-02BA8144A5", "approved": false, "ts": "2026-11-12T16:50:58Z"}
+{"kind": "transition", "task_id": "GEN-02BA8144A5", "to": "DISPATCHED", "reason": "", "ts": "2026-11-12T16:50:59Z"}
+{"kind": "dispatched", "task_id": "GEN-02BA8144A5", "model": "swe-2-high", "worktree": "C:\\Users\\Dawis\\ForeverRouteJarvis\\DevinBridge\\autonomy_scope\\workspaces\\foreverroute-route-audit", "head": "5f41114c128337a0534cb0bbb361bad580db68ac", "worker_pid": 6264, "ts": "2026-11-12T16:50:59Z"}
+{"kind": "cdp_handoff", "proposal": "02ba8144a5", "task_id": "GEN-02BA8144A5", "program": "FOREVERROUTE_CONTINUOUS_V1", "dispatched": true, "ts": "2026-11-12T16:50:59Z"}
+{"kind": "session_attached", "task_id": "GEN-02BA8144A5", "session_id": "grizzled-saver", "ts": "2026-11-12T16:51:00Z"}
+{"kind": "trial_out_of_scope_denied", "task_id": "GEN-02BA8144A5", "path": "C:\\Users\\Dawis\\Saved Games\\ForeverRoute-Devin-Start-20261110\\sources\\EG-Link-Expanded-20261109\\1.60.1.70862\\loot.json", "ts": "2026-11-12T16:52:51Z"}
+{"kind": "trial_out_of_scope_denied", "task_id": "GEN-02BA8144A5", "path": "C:\\Users\\Dawis\\Saved Games\\ForeverRoute-Devin-Start-20261110\\sources\\EG-Link-Expanded-20261109\\1.60.1.70862\\creatures.json", "ts": "2026-11-12T16:52:51Z"}
+{"kind": "transition", "task_id": "GEN-02BA8144A5", "to": "VERIFYING", "reason": "", "ts": "2026-11-12T17:13:46Z"}
+{"kind": "prompt_done", "task_id": "GEN-02BA8144A5", "session_id": "grizzled-saver", "stop_reason": "end_turn", "usage": {"totalTokens": 155643, "inputTokens": 155002, "outputTokens": 641, "cachedReadTokens": 154624}, "ts": "2026-11-12T17:13:46Z"}
+{"kind": "transition", "task_id": "GEN-02BA8144A5", "to": "COMPLETE", "reason": "", "ts": "2026-11-12T17:13:47Z"}
+{"kind": "verified", "task_id": "GEN-02BA8144A5", "verified": true, "checks": [{"check": "file_exists tools/waypoint_candidates_20261112.json", "ok": true}, {"check": "test unittest tests.test_waypoint_candidates", "ok": true, "exit": 0, "tail": "........................\n----------------------------------------------------------------------\nRan 24 tests in 0.586s\n\nOK\n"}, {"check": "test unittest tests.test_route_quality_validator", "ok": true, "exit": 0, "tail": ".........\n----------------------------------------------------------------------\nRan 9 tests in 0.001s\n\nOK\n"}], "ts": "2026-11-12T17:13:47Z"}
+{"kind": "task_added", "task_id": "GEN-C5AA5C0851", "approved": false, "ts": "2026-11-12T17:32:59Z"}
+{"kind": "transition", "task_id": "GEN-C5AA5C0851", "to": "DISPATCHED", "reason": "", "ts": "2026-11-12T17:32:59Z"}
+{"kind": "dispatched", "task_id": "GEN-C5AA5C0851", "model": "swe-2-high", "worktree": "C:\\Users\\Dawis\\ForeverRouteJarvis\\DevinBridge\\autonomy_scope\\workspaces\\foreverroute-route-audit", "head": "5f41114c128337a0534cb0bbb361bad580db68ac", "worker_pid": 27776, "ts": "2026-11-12T17:32:59Z"}
+{"kind": "cdp_handoff", "proposal": "c5aa5c0851", "task_id": "GEN-C5AA5C0851", "program": "FOREVERROUTE_CONTINUOUS_V1", "dispatched": true, "ts": "2026-11-12T17:32:59Z"}
+{"kind": "session_attached", "task_id": "GEN-C5AA5C0851", "session_id": "solar-slicer", "ts": "2026-11-12T17:33:00Z"}
+{"kind": "trial_out_of_scope_denied", "task_id": "GEN-C5AA5C0851", "path": "C:\\Users\\Dawis\\ForeverRouteJarvis\\DevinBridge\\learner.py", "ts": "2026-11-12T17:33:17Z"}
+{"kind": "trial_out_of_scope_denied", "task_id": "GEN-C5AA5C0851", "path": "C:\\Users\\Dawis\\ForeverRouteJarvis\\DevinBridge\\learner.py", "ts": "2026-11-12T17:33:31Z"}
+{"kind": "trial_out_of_scope_denied", "task_id": "GEN-C5AA5C0851", "path": "C:\\Users\\Dawis\\ForeverRouteJarvis\\DevinBridge\\supervisor_graph.py", "ts": "2026-11-12T17:33:31Z"}
+{"kind": "trial_out_of_scope_denied", "task_id": "GEN-C5AA5C0851", "path": "C:\\Users\\Dawis\\ForeverRouteJarvis\\DevinBridge\\learner.py", "ts": "2026-11-12T17:34:02Z"}
+{"kind": "trial_out_of_scope_denied", "task_id": "GEN-C5AA5C0851", "path": "C:\\Users\\Dawis\\ForeverRouteJarvis\\DevinBridge\\trial_scope.py", "ts": "2026-11-12T17:34:07Z"}
+{"kind": "transition", "task_id": "GEN-C5AA5C0851", "to": "VERIFYING", "reason": "", "ts": "2026-11-12T17:36:50Z"}
+{"kind": "prompt_done", "task_id": "GEN-C5AA5C0851", "session_id": "solar-slicer", "stop_reason": "end_turn", "usage": {"totalTokens": 59462, "inputTokens": 58448, "outputTokens": 1014, "cachedReadTokens": 58112}, "ts": "2026-11-12T17:36:50Z"}
+{"kind": "transition", "task_id": "GEN-C5AA5C0851", "to": "COMPLETE", "reason": "", "ts": "2026-11-12T17:36:50Z"}
+{"kind": "verified", "task_id": "GEN-C5AA5C0851", "verified": true, "checks": [{"check": "file_exists docs/autonomy/langmem_evaluation.md", "ok": true}], "ts": "2026-11-12T17:36:50Z"}
+{"kind": "task_added", "task_id": "GEN-A7B6C3A04B", "approved": false, "ts": "2026-11-12T18:00:54Z"}
+{"kind": "transition", "task_id": "GEN-A7B6C3A04B", "to": "DISPATCHED", "reason": "", "ts": "2026-11-12T18:00:54Z"}
+{"kind": "dispatched", "task_id": "GEN-A7B6C3A04B", "model": "swe-2-high", "worktree": "C:\\Users\\Dawis\\Saved Games\\ForeverRoute-db70338", "head": "f1e93436d960a09b1f4a69d3317f47b0dc79a69b", "worker_pid": 36316, "ts": "2026-11-12T18:00:54Z"}
+{"kind": "cdp_handoff", "proposal": "a7b6c3a04b", "task_id": "GEN-A7B6C3A04B", "program": "FOREVERROUTE_CONTINUOUS_V1", "dispatched": true, "ts": "2026-11-12T18:00:54Z"}
+{"kind": "session_attached", "task_id": "GEN-A7B6C3A04B", "session_id": "quill-office", "ts": "2026-11-12T18:00:55Z"}
+{"kind": "trial_out_of_scope_denied", "task_id": "GEN-A7B6C3A04B", "path": "C:\\Users\\Dawis\\ForeverRouteJarvis\\BetweenChats\\T147_P1_REAL_TRAVEL_PATHS_20261022.md", "ts": "2026-11-12T18:08:43Z"}
+{"kind": "task_added", "task_id": "CHAT-6AA3C774", "approved": false, "ts": "2026-11-12T18:10:12Z"}
+{"kind": "transition", "task_id": "CHAT-6AA3C774", "to": "PAUSED", "reason": "smoke test — verified, not real work", "ts": "2026-11-12T18:10:17Z"}
+{"kind": "transition", "task_id": "GEN-A7B6C3A04B", "to": "VERIFYING", "reason": "", "ts": "2026-11-12T18:18:56Z"}
+{"kind": "prompt_done", "task_id": "GEN-A7B6C3A04B", "session_id": "quill-office", "stop_reason": "end_turn", "usage": {"totalTokens": 169614, "inputTokens": 168871, "outputTokens": 743, "cachedReadTokens": 168704}, "ts": "2026-11-12T18:18:56Z"}
+{"kind": "transition", "task_id": "GEN-A7B6C3A04B", "to": "COMPLETE", "reason": "", "ts": "2026-11-12T18:18:56Z"}
+{"kind": "verified", "task_id": "GEN-A7B6C3A04B", "verified": true, "checks": [{"check": "file_exists reports/zone_bounce_fix.json", "ok": true}, {"check": "test unittest tests.test_t147_route_travel_audit", "ok": true, "exit": 0, "tail": ".....\n----------------------------------------------------------------------\nRan 5 tests in 0.000s\n\nOK\n"}], "ts": "2026-11-12T18:18:56Z"}
+{"kind": "task_added", "task_id": "GEN-4DE00A47C1", "approved": false, "ts": "2026-11-12T18:19:12Z"}
+{"kind": "transition", "task_id": "GEN-4DE00A47C1", "to": "DISPATCHED", "reason": "", "ts": "2026-11-12T18:19:13Z"}
+{"kind": "dispatched", "task_id": "GEN-4DE00A47C1", "model": "swe-2-high", "worktree": "C:\\Users\\Dawis\\ForeverRouteJarvis\\DevinBridge\\autonomy_scope\\workspaces\\foreverroute-route-audit", "head": "5f41114c128337a0534cb0bbb361bad580db68ac", "worker_pid": 31108, "ts": "2026-11-12T18:19:13Z"}
+{"kind": "cdp_handoff", "proposal": "4de00a47c1", "task_id": "GEN-4DE00A47C1", "program": "FOREVERROUTE_CONTINUOUS_V1", "dispatched": true, "ts": "2026-11-12T18:19:13Z"}
+{"kind": "session_attached", "task_id": "GEN-4DE00A47C1", "session_id": "wobbly-balance", "ts": "2026-11-12T18:19:14Z"}
+{"kind": "trial_out_of_scope_denied", "task_id": "GEN-4DE00A47C1", "path": "C:\\Users\\Dawis\\ForeverRouteJarvis\\BetweenChats\\checkpoints\\007099543ac1\\CHECKPOINT.json", "ts": "2026-11-12T18:20:06Z"}
+{"kind": "trial_out_of_scope_denied", "task_id": "GEN-4DE00A47C1", "path": "C:\\Users\\Dawis\\ForeverRouteJarvis\\BetweenChats\\checkpoints\\007099543ac1\\CHECKPOINT.json", "ts": "2026-11-12T18:20:12Z"}
+{"kind": "trial_out_of_scope_denied", "task_id": "GEN-4DE00A47C1", "path": "C:\\Users\\Dawis\\ForeverRouteJarvis\\DockerV4\\Snapshots\\T62_0e2d61b\\repo\\reports\\v3_route_sections.json", "ts": "2026-11-12T18:21:09Z"}
+{"kind": "trial_out_of_scope_denied", "task_id": "GEN-4DE00A47C1", "path": "C:\\Users\\Dawis\\ForeverRouteJarvis\\DockerV4\\Snapshots\\T62_0e2d61b\\repo\\Generated\\ForeverRoute_V3_Sections.lua", "ts": "2026-11-12T18:24:46Z"}
+{"kind": "transition", "task_id": "GEN-4DE00A47C1", "to": "VERIFYING", "reason": "", "ts": "2026-11-12T18:32:47Z"}
+{"kind": "prompt_done", "task_id": "GEN-4DE00A47C1", "session_id": "wobbly-balance", "stop_reason": "end_turn", "usage": {"totalTokens": 68566, "inputTokens": 67732, "outputTokens": 834, "cachedReadTokens": 67584}, "ts": "2026-11-12T18:32:47Z"}
+{"kind": "transition", "task_id": "GEN-4DE00A47C1", "to": "FAILED", "reason": "", "ts": "2026-11-12T18:33:10Z"}
+{"kind": "verified", "task_id": "GEN-4DE00A47C1", "verified": false, "failed": true, "checks": [{"check": "file_exists Generated/ForeverRoute_V3_Sections.lua", "ok": true}, {"check": "test unittest tests.test_hyjal_route_integration", "ok": true, "exit": 0, "tail": "...........\n----------------------------------------------------------------------\nRan 11 tests in 1.224s\n\nOK\n"}, {"check": "test unittest tests.test_p0_nav_zone_eligibility", "ok": true, "exit": 0, "tail": ".................\n----------------------------------------------------------------------\nRan 17 tests in 13.406s\n\nOK\n"}, {"check": "test unittest tests.test_route_gate_safety", "ok": false, "exit": 1, "tail": "\nOK   report internally consistent: 18 detail rows reconcile with totals and band aggregates (band 7=8, band 17=10)\nOK   shipped data parsed: 728 sections, 4679 catalog rows\nFAIL 17-22 CR Alliance Dwarf Rogue q145: reported gate=17 not matched by shipped orderGate(s) [18]\n\n\n\n----------------------------------------------------------------------\nRan 9 tests in 7.706s\n\nFAILED (failures=2, errors=1)\n"}], "ts": "2026-11-12T18:33:10Z"}
+{"kind": "task_added", "task_id": "RCV-GEN-4DE00A47C1-1", "approved": true, "ts": "2026-11-12T18:33:46Z"}
+{"kind": "transition", "task_id": "RCV-GEN-4DE00A47C1-1", "to": "DISPATCHED", "reason": "", "ts": "2026-11-12T18:33:48Z"}
+{"kind": "dispatched", "task_id": "RCV-GEN-4DE00A47C1-1", "model": "swe-2-high", "worktree": "C:\\Users\\Dawis\\ForeverRouteJarvis\\DevinBridge\\autonomy_scope\\workspaces\\foreverroute-route-audit", "head": "5f41114c128337a0534cb0bbb361bad580db68ac", "worker_pid": 25924, "ts": "2026-11-12T18:33:48Z"}
+{"kind": "recovery_dispatched", "task_id": "GEN-4DE00A47C1", "child": "RCV-GEN-4DE00A47C1-1", "rca": "f7a9754106", "category": "wrong_implementation", "dispatched": true, "ts": "2026-11-12T18:33:49Z"}
+{"kind": "session_attached", "task_id": "RCV-GEN-4DE00A47C1-1", "session_id": "gratis-feeling", "ts": "2026-11-12T18:33:57Z"}

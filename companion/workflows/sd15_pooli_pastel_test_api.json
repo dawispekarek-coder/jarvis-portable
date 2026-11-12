@@ -1,0 +1,97 @@
+﻿{
+    "1":  {
+              "class_type":  "CheckpointLoaderSimple",
+              "inputs":  {
+                             "ckpt_name":  "sd15-pruned-emaonly.safetensors"
+                         }
+          },
+    "2":  {
+              "class_type":  "LoadImage",
+              "inputs":  {
+                             "image":  "jarvis_reference_pooli_6bd98d404533.png"
+                         }
+          },
+    "3":  {
+              "class_type":  "VAEEncode",
+              "inputs":  {
+                             "pixels":  [
+                                            "2",
+                                            0
+                                        ],
+                             "vae":  [
+                                         "1",
+                                         2
+                                     ]
+                         }
+          },
+    "4":  {
+              "class_type":  "CLIPTextEncode",
+              "inputs":  {
+                             "text":  "Original cute kawaii 2D storybook raccoon boy, big round head, tiny round body, simple dark eye mask, clear striped tail, blue hoodie and cap, soft pastel color palette, smooth solid color shapes, minimal clean ink outline, flat cel shading, cute sticker animation style, no fur texture, full body, white background",
+                             "clip":  [
+                                          "1",
+                                          1
+                                      ]
+                         }
+          },
+    "5":  {
+              "class_type":  "CLIPTextEncode",
+              "inputs":  {
+                             "text":  "photorealistic, realistic fur, fur strands, detailed hair, 3D render, cinematic lighting, hyperrealistic, intricate texture, grain, glossy, cropped, extra limbs, text, watermark",
+                             "clip":  [
+                                          "1",
+                                          1
+                                      ]
+                         }
+          },
+    "6":  {
+              "class_type":  "KSampler",
+              "inputs":  {
+                             "seed":  18402,
+                             "steps":  28,
+                             "cfg":  6.5,
+                             "sampler_name":  "euler",
+                             "scheduler":  "normal",
+                             "denoise":  0.67,
+                             "model":  [
+                                           "1",
+                                           0
+                                       ],
+                             "positive":  [
+                                              "4",
+                                              0
+                                          ],
+                             "negative":  [
+                                              "5",
+                                              0
+                                          ],
+                             "latent_image":  [
+                                                  "3",
+                                                  0
+                                              ]
+                         }
+          },
+    "7":  {
+              "class_type":  "VAEDecode",
+              "inputs":  {
+                             "samples":  [
+                                             "6",
+                                             0
+                                         ],
+                             "vae":  [
+                                         "1",
+                                         2
+                                     ]
+                         }
+          },
+    "8":  {
+              "class_type":  "SaveImage",
+              "inputs":  {
+                             "filename_prefix":  "Jarvis_ReferenceStudy_pooli",
+                             "images":  [
+                                            "7",
+                                            0
+                                        ]
+                         }
+          }
+}

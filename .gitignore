@@ -1,0 +1,44 @@
+# runtime / regenerated
+.venv/
+venv/
+__pycache__/
+*.pyc
+logs/
+*.log
+archive_state_*/
+
+# runtime state (created at runtime, never shipped)
+DevinBridge/coordinator_state.json
+DevinBridge/supervisor_state.json
+DevinBridge/recovery_state.json
+DevinBridge/ai_planner_state.json
+DevinBridge/cdp_loop_state.json
+DevinBridge/cdp_backlog.json
+DevinBridge/proposals.json
+DevinBridge/daemon_health.json
+DevinBridge/dashboard_state.json
+DevinBridge/approval_requests.json
+DevinBridge/approvals.jsonl
+DevinBridge/approval_audit.jsonl
+DevinBridge/AUTONOMOUS_ENABLED.flag
+DevinBridge/goals.json
+DevinBridge/notifications_ledger.json
+DevinBridge/wow_qa_on_request_state.json
+DevinBridge/*_watch_state.json
+DevinBridge/link_tokens.json
+DevinBridge/mobile_view_*.json
+DevinBridge/*_sessions*.json
+DevinBridge/chat_session.json
+DevinBridge/autonomy_scope/workspaces/
+DevinBridge/autonomy_scope/CDP_PROGRAM.json
+DevinBridge/autonomy_scope/*_AUTHORIZATION.json
+
+# secrets — never commit
+*.key
+*.token
+*.pem
+*.dpapi
+.env
+.env.*
+credentials.toml
+github_token*

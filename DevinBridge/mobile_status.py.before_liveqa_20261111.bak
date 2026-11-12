@@ -1,0 +1,231 @@
+"""Tailscale-only read-only phone status; independent viewer authentication."""
+from __future__ import annotations
+import hashlib
+import html
+import json
+import secrets
+import time
+from datetime import datetime, timezone
+from http import cookies
+from pathlib import Path
+from .bridge_store import atomic_write_json, file_lock, read_json
+
+ROOT = Path(__file__).resolve().parent
+SESSIONS = ROOT / 'mobile_view_sessions.json'
+INVITES = ROOT / 'mobile_view_invites.json'
+LOCK = ROOT / '.mobile_view.lock'
+VIEW_TTL = 30 * 86400
+INVITE_TTL = 15 * 60
+
+def _key(value):
+    return hashlib.sha256(value.encode('utf-8')).hexdigest()
+
+def create_invite():
+    token = secrets.token_urlsafe(32)
+    now = time.time()
+    with file_lock(LOCK):
+        d = read_json(INVITES, {})
+        d = {k:v for k,v in d.items() if v.get('exp',0) > now}
+        d[_key(token)] = {'exp': now + INVITE_TTL}
+        atomic_write_json(INVITES,d)
+    return token
+
+def redeem_invite(token):
+    if not token or len(token) > 256: return None
+    now = time.time()
+    with file_lock(LOCK):
+        d = read_json(INVITES,{})
+        expiry = d.pop(_key(token), {}).get('exp',0)
+        atomic_write_json(INVITES,{k:v for k,v in d.items() if v.get('exp',0) > now})
+        if expiry <= now: return None
+        sid = secrets.token_urlsafe(32)
+        sessions = read_json(SESSIONS,{})
+        sessions = {k:v for k,v in sessions.items() if v.get('exp',0) > now}
+        sessions[_key(sid)] = {'exp':now+VIEW_TTL}
+        atomic_write_json(SESSIONS,sessions)
+    return sid
+
+def valid_view_cookie(header):
+    try:
+        jar = cookies.SimpleCookie();jar.load(header or '')
+        value = jar.get('jr_viewer')
+        if not value: return False
+        session = read_json(SESSIONS,{}).get(_key(value.value),{})
+        return session.get('exp',0) > time.time()
+    except (cookies.CookieError,TypeError,ValueError):
+        return False
+
+def _esc(value):
+    return html.escape(str(value or ''), quote=True)
+
+def _age(ts):
+    try:
+        if isinstance(ts,(int,float)): return max(0,int(time.time()-ts))
+        return max(0,int(time.time()-datetime.fromisoformat(str(ts).replace('Z','+00:00')).timestamp()))
+    except (ValueError,TypeError,OverflowError):
+        return 999999
+
+def _human_age(sec):
+    if sec < 90: return f'{sec} s'
+    if sec < 3600: return f'{sec//60} min'
+    return f'{sec//3600} h'
+
+def _state():
+    coord = read_json(ROOT/'coordinator_state.json',{})
+    dash = read_json(ROOT/'dashboard_state.json',{})
+    obs = read_json(ROOT.parent/'DevinObserver'/'state.json',{})
+    if not isinstance(coord,dict):coord={}
+    if not isinstance(dash,dict):dash={}
+    if not isinstance(obs,dict):obs={}
+    tasks = coord.get('tasks') or {}
+    if not isinstance(tasks,dict):tasks={}
+    jobs = [t for k,t in tasks.items() if k.startswith(('FR-','GEN-','RCV-')) and isinstance(t,dict)]
+    jobs.sort(key=lambda t:(t.get('created_at') or '',t.get('id') or ''))
+    active = [t for t in jobs if t.get('status') in ('RUNNING','DISPATCHED','VERIFYING','NEEDS_APPROVAL')]
+    pending = [t for t in jobs if t.get('status') in ('READY','PENDING')]
+    done = [t for t in jobs if t.get('status') == 'COMPLETE']
+    problem = [t for t in jobs if t.get('status') in ('FAILED','BLOCKED','NEEDS_REVIEW')]
+    from .approvals import ApprovalManager
+    try: approval_count = len(ApprovalManager(ROOT).pending())
+    except Exception: approval_count = None
+    return {'coord':coord,'dashboard':dash,'observer':obs,'active':active,
+            'pending':pending,'done':done,'problem':problem,'approvals':approval_count,
+            'fresh':_age(dash.get('generated_at','')) < 180}
+
+def _job(t,extra=''):
+    status = str(t.get('status') or '?')
+    label = {'RUNNING':'Pracuje','DISPATCHED':'Spousti se','VERIFYING':'Overuje',
+             'NEEDS_APPROVAL':'Ceka na schvaleni','READY':'Pripraven','PENDING':'Ceka',
+             'COMPLETE':'Hotovo','FAILED':'Chyba','BLOCKED':'Blokovano','NEEDS_REVIEW':'Kontrola',
+             'VERIFIED_RECOVERED':'Opraveno a overeno'}
+    safe = _esc(t.get('title','Bez nazvu'))
+    sub = _esc(t.get('id',''))
+    err = _esc(str(t.get('last_error') or '')[:160])
+    return (f'<article class="job"><div class="top"><strong>{safe}</strong>'
+            f'<span class="pill {status.lower()}">{_esc(label.get(status,status))}</span></div>'
+            f'<small>{sub}</small>{f"<p class=err>{err}</p>" if err else ""}</article>')
+
+def render_status():
+    s = _state()
+    coord,obs = s['coord'],s['observer']
+    fresh_age = _age(s['dashboard'].get('generated_at',''))
+    freshness = 'Aktualni' if s['fresh'] else 'POZOR - data mohou byt zastarala'
+    active = s['active']
+    auto = coord.get('mode') == 'autonomous' and (ROOT/'AUTONOMOUS_ENABLED.flag').exists()
+    paused = (ROOT/'PAUSED.flag').exists()
+    mode = ('Jarvis docasne pozastaven - dokoncuje se udrzba' if paused else
+            'Omezena autonomie aktivni' if auto else 'Automaticke predavani vypnuto')
+    running = ''.join(_job(t) for t in active) if active else '<div class="empty">Zadny aktivni ukol.</div>'
+    waiting = ''.join(_job(t) for t in s['pending'][:6]) if s['pending'] else '<div class="empty">Fronta je prozatim prazdna.</div>'
+    finished = ''.join(_job(t) for t in reversed(s['done'][-5:])) or '<div class="empty">Zatim nic.</div>'
+    issues = ''.join(_job(t) for t in s['problem'][-4:])
+    alert = _failure_alert(s)
+    cards = ''
+    for sid,label in [('diagnostic-cricket','Devin - ForeverRoute'),('lydian-crepe','Devin - RealJarvis')]:
+        info = (obs.get('sessions') or {}).get(sid) or {}
+        age = _age(info.get('last_activity_epoch'))
+        cards += (f'<article class="job"><div class="top"><strong>{_esc(label)}</strong>'
+                  f'<span class="pill">Desktop</span></div><small>{_esc(info.get("title",""))}</small>'
+                  f'<p class="meta">Posledni zaznamenana aktivita pred {_human_age(age)}. '
+                  'Nezarucuje, ze zrovna programuje.</p></article>')
+    approval = s['approvals']
+    approval_text = str(approval) if approval is not None else '?'
+    grant = read_json(ROOT/'autonomy_scope'/'CDP_PROGRAM.json', {})
+    ongoing = bool(grant.get('ongoing') and grant.get('owner_authorized'))
+    if ongoing:
+        mode = 'Trvala vyvojova autonomie aktivni' if auto and not paused else mode
+        cdp = ('Bez denni expirace nebo limitu celkoveho poctu uloh. '
+               'Bezpecnostni tempo: ' + str(grant.get('max_dispatches_per_hour', '?')) +
+               ' predani/h; pri selhani nebo chybejicich dukazech system zastavi.')
+    else:
+        cdp = ('CDP program je docasny.' if grant else
+               'Vyber novych oprav nema schvaleny program.')
+    loop = read_json(ROOT/'cdp_loop_state.json', {})
+    why = str((loop.get('handoff') or {}).get('reason') or loop.get('reason') or '')[:210]
+    idle_hint = ('<div class="job"><strong>Vyvoj nyni nepracuji</strong><p class="meta">'
+                 + _esc(why or 'Proveruje se fronta a dostupne dukazy') + '</p></div>') if not active else ''
+    body = f'''<!doctype html><html lang="cs"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta http-equiv="refresh" content="30"><meta name="theme-color" content="#101720">
+<meta name="referrer" content="no-referrer"><title>Jarvis Live</title>
+<link rel="manifest" href="/mobile.webmanifest"><style>
+:root{{color-scheme:dark}}*{{box-sizing:border-box}}body{{margin:0;background:#0b1119;color:#ecf2fa;font:15px system-ui,Segoe UI,sans-serif}}
+main{{max-width:670px;margin:auto;padding:21px 15px 72px}}
+header{{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:10px 0 23px}}
+h1{{font-size:25px;letter-spacing:-.7px;margin:0}}h1 span{{color:#78b7ff}}
+.muted,.meta,small{{color:#a1b1c4}}small{{font-size:12px;line-height:1.5;overflow-wrap:anywhere}}
+.banner{{border:1px solid #284a68;background:linear-gradient(130deg,#172b42,#14202c);border-radius:16px;padding:17px;margin-bottom:15px}}
+.banner strong{{font-size:17px}}.banner p{{margin:6px 0 0;color:#c8d7e9;font-size:13px}}
+section{{margin:24px 0}}h2{{font-size:15px;margin:0 0 11px;letter-spacing:.2px}}
+.job{{padding:14px 15px;margin:9px 0;border-radius:13px;background:#17202b;border:1px solid #293849}}
+.top{{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}}
+.top strong{{line-height:1.35}}.pill{{white-space:nowrap;border-radius:18px;background:#263c57;padding:5px 9px;color:#bbdcff;font-size:11px}}
+.pill.running,.pill.verifying,.pill.complete{{background:#154c38;color:#96f1c3}}
+.pill.blocked,.pill.failed{{background:#583032;color:#ffc6cb}}
+.empty{{padding:16px;background:#141d27;border-radius:13px;color:#b7c5d5}}
+.stats{{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin:15px 0}}
+.metric{{padding:12px 8px;border-radius:13px;border:1px solid #283746;background:#15202b;text-align:center}}
+.metric b{{display:block;font-size:24px}}.metric small{{font-size:11px}}
+.link{{display:inline-flex;text-decoration:none;background:#244a70;color:#e0efff;padding:10px 14px;border-radius:10px;font-weight:600}}
+.note{{color:#9daec0;font-size:12px;line-height:1.6}}.err{{color:#ffaeb0;font-size:12px;overflow-wrap:anywhere}}
+.alert{{background:#3c1c25;border:1px solid #c25868;color:#ffe1e4;border-radius:15px;padding:17px;margin:12px 0 16px}}
+.alert strong{{display:block;font-size:17px}}.alert p{{font-size:13px;line-height:1.5}}.alert .link{{background:#6a2a3b}}
+footer{{border-top:1px solid #293849;padding-top:16px;margin-top:27px}}
+</style></head><body><main>
+<header><h1>JARVIS <span>LIVE</span></h1><a class="link" href="/status">Obnovit</a></header>
+<div class="banner"><strong>{_esc(mode)}</strong><p>{_esc(freshness)} · aktualizace pred {_human_age(fresh_age)} · obnoveni kazdych 30 s</p><p>{_esc(cdp)}</p></div>
+{alert}
+<div class="stats"><div class="metric"><b>{len(active)}</b><small>Prave bezi</small></div><div class="metric"><b>{len(s['pending'])}</b><small>Ve fronte</small></div><div class="metric"><b>{len(s['done'])}</b><small>Hotovo</small></div></div>
+<section><h2>Na cem se pracuje</h2>{idle_hint}{running}</section>
+<section><h2>Co bude nasledovat</h2>{waiting}</section>
+<section><h2>Posledni vysledky</h2>{finished}</section>
+<section><h2>Desktop relace</h2>{cards}</section>
+<section id="errors"><h2>Schvalovani a chyby</h2><article class="job"><strong>Ceka na schvaleni: {_esc(approval_text)}</strong><p class="meta">Pro schvalovani pouzij zabezpeceny odkaz z ntfy. Tato stranka nic neschvaluje.</p></article>{issues}</section>
+<footer><p class="note">Pouze pro cteni. Stav RUNNING pochazi z koordinatoru, ne z dukazu ze Devin prave pise kod. Zdroj: DevinBridge a lokalni read-only DevinObserver. Funguje jen pres Tailscale.</p></footer>
+</main></body></html>'''
+    return body
+
+MANIFEST = json.dumps({'name':'Jarvis Live','short_name':'Jarvis','display':'standalone',
+                      'start_url':'/status','scope':'/status','background_color':'#0b1119',
+                      'theme_color':'#101720'},ensure_ascii=False)
+
+def _failure_alert(state):
+    """Only warn of an actual blocked dependency, not any historic failure."""
+    if state['active']:
+        return ''
+    tasks = state['coord'].get('tasks') or {}
+    blocker = None
+    for pending in state['pending']:
+        todo = list(pending.get('depends_on') or [])
+        visited = set()
+        while todo:
+            dep = todo.pop(0)
+            if dep in visited:
+                continue
+            visited.add(dep)
+            t = tasks.get(dep) or {}
+            if t.get('status') in ('FAILED','BLOCKED','NEEDS_REVIEW'):
+                blocker = t
+                break
+            todo.extend(t.get('depends_on') or [])
+        if blocker:
+            break
+    if not blocker:
+        return ''
+    import re
+    failures = None
+    for check in (blocker.get('evidence') or {}).get('checks', []):
+        match = re.search(r'FAILED \(failures=(\d+)\)', check.get('tail') or '')
+        if match:
+            failures = int(match.group(1))
+            break
+    if failures:
+        headline = f'Vyvoj pozastaven - {failures} neuspesne testy'
+    else:
+        headline = 'Vyvoj pozastaven - neoverena nebo chybna uloha'
+    return (f'<div class="alert" role="alert"><strong>\u26a0 {_esc(headline)}</strong>'
+            f'<p>Posledni blokujici uloha: {_esc(blocker.get("id"))}. '
+            'Dalsi uloha zavisi na jeji uspesne kontrole.</p>'
+            f'<p class="meta">{_esc(str(blocker.get("last_error") or "Kontrola neprosla")[:160])}. '
+            'Samostatna oprava zatim neni potvrzena.</p>'
+            '<a class="link" href="#errors">Zobrazit chyby</a></div>')

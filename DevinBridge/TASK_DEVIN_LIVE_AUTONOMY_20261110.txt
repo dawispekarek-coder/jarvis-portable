@@ -1,0 +1,15 @@
+﻿DEVIN / REALJARVIS: IMPLEMENT LIVE OBSERVATION + GUARDED AUTONOMY
+Continue this EXISTING RealJarvis session lydian-crepe. Do real implementation, tests and live proof. Another Desktop Devin session diagnostic-cricket owns ForeverRoute 1-60. NEVER prompt it, interrupt it, alter its repo, or dispatch a duplicate worker into it.
+
+P0: Read-only observer is already running each 90 s via Scheduled Task "RealJarvis DevinObserver READ ONLY". Files: C:\Users\Dawis\ForeverRouteJarvis\DevinObserver\observe.py and state.json. It reads Devin local SQLite for both existing Desktop sessions and Git HEAD. Read-only bridge tool devin_live_status was added to DevinBridge\jarvis_tools.py and verified. Audit and improve observer robustness: read-only SQLite/WAL, stale activity, meaningful progress, true session identity, no false success, privacy/redaction, safe logs, tests. NEVER write to Devin's own database.
+
+P1: Integrate actual observer evidence into RealJarvis UI/chat. A Czech query like "Jarvisi, co prave dela Devin?" must return active/idle/blocked/uncertain state, current project, recent actions, exact last verified Git commit/tests and timestamp. Never treat an old message as proof of a currently running task. Run real end-to-end tests.
+
+P2: Implement safeguarded planning: verified task outcome and diffs/tests -> evidence-based proposed successor, finite scope, provenance, acceptance checks, one writer per worktree, idempotent dispatch, bounded retries and crash recovery. Monitor pre-existing GUI sessions but do not control them concurrently; any new test agent uses an isolated disposable worktree. No invented task completion.
+P3: Preserve working mobile ntfy approval via Tailscale IP 100.85.14.66:8765, short-lived single-use token, authenticated CSRF POST Approve/Reject. Explicit approval for risky/elevated/out-of-workspace/expanded-scope actions, never through notification GET. GUI has been switched from Bypass Permissions to Code. Do not turn bypass or dangerous modes back on.
+
+P4: Existing holds T81_EXTERNAL_ACTIVE.flag, RESTART_REQUIRED_AFTER_T45.flag, T148 HOLD_UNCONFIRMED_DISPATCH and protected worktrees are non-negotiable. Do not clear/alter holds, publish, push/merge, edit WoW files/SavedVariables or original Jarvis 1.0. No additional paid cloud.
+
+P5: Test a two-step autonomous cycle ONLY on disposable isolated Git sandbox: observe, propose evidence-backed next task, verify, pause for phone approval, resume exactly once, recover without duplicate work; negative security cases and regression tests. Keep bridge mode SAFE and AUTONOMOUS_ENABLED.flag ABSENT pending separate explicit user go-ahead after evidence. No production autonomy activation yet.
+
+Deliver: concise Czech report of exact code changes, tests actually passed/failed, live observer health, what can and cannot be known about both Devin Desktop sessions, and remaining activation blockers. Continue implementing without waiting for trivial questions; ask only when actually needing unsafe/privileged approval. Work now.
