@@ -322,6 +322,25 @@ def handoff_tick(coord) -> dict:
             continue
         if wt not in allowed:
             continue
+        # stale reconcile/followup proposals from the old planner can
+        # never qualify under an ongoing program (only cdp_issue may) —
+        # close them once instead of scanning them as OPEN forever
+        if prog.get("ongoing") and \
+                (p.get("provenance") or {}).get("source") != "cdp_issue":
+            try:
+                pd = base_planner._load(
+                    coord.root / base_planner.PROPOSALS_FILE)
+                rec = pd["proposals"].get(p["proposal_id"])
+                if rec and rec.get("status") == "OPEN":
+                    rec["status"] = "SUPERSEDED"
+                    rec["stop_reason"] = (
+                        "non-cdp provenance; recovery pipeline owns "
+                        "the parent task")
+                    base_planner._save(
+                        coord.root / base_planner.PROPOSALS_FILE, pd)
+            except Exception:
+                pass
+            continue
         if p.get("kind", "analyze") not in kinds:
             continue
         if prog.get("ongoing"):
@@ -334,14 +353,12 @@ def handoff_tick(coord) -> dict:
             acceptance = p.get("acceptance") or []
             if not acceptance:
                 continue
-            repo_wide = any(x in (".", "*") for x in allowed_paths)
             if any(not chk.get("path") or
                    Path(str(chk["path"])).is_absolute() or
                    ".." in Path(str(chk["path"])).parts or
-                   not (repo_wide or
-                        any(str(chk["path"]).replace("\\", "/") == x or
-                            str(chk["path"]).replace("\\", "/").startswith(x + "/")
-                            for x in allowed_paths))
+                   not any(str(chk["path"]).replace("\\", "/") == x or
+                           str(chk["path"]).replace("\\", "/").startswith(x + "/")
+                           for x in allowed_paths)
                    for chk in acceptance if chk.get("type") != "test"):
                 continue
             if p.get("kind") in ("repair-small", "test-add") and not any(
