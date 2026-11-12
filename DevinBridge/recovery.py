@@ -441,6 +441,16 @@ def tick(coord, notifier=None) -> dict:
                         st["recoveries"][rid]["state"] = \
                             "RECOVERY_DISPATCHED"
                         _save(coord.root / STATE_FILE, st)
+            # A recovery child stranded in NEEDS_REVIEW with a provably
+            # dead worker (e.g. daemon restart killed it) gets ONE
+            # automatic requeue — bounded so it can't loop.
+            if (c and c.get("status") == "NEEDS_REVIEW"
+                    and not c.get("auto_requeued")
+                    and coord._worker_dead(c.get("worker_pid"))):
+                coord._mutate(cid, lambda x: (
+                    x.__setitem__("status", "READY"),
+                    x.__setitem__("auto_requeued", True)))
+                acted.append(f"requeued dead-worker recovery {cid}")
         if t.get("status") != "FAILED":
             continue
         recovery_state = (t.get("recovery") or {}).get("state")
