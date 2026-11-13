@@ -338,7 +338,7 @@ class Coordinator:
         running = {t["worktree"] for t in st["tasks"].values()
                    if t["status"] in ("DISPATCHED", "RUNNING", "VERIFYING")}
         best = None
-        why = "no eligible task"
+        whys = []
         for t in sorted(st["tasks"].values(),
                         key=lambda x: (x["priority"], x["created_at"])):
             s = t["status"]
@@ -348,32 +348,32 @@ class Coordinator:
                     self._transition(t["id"], "READY")
                     s = "READY"
                 else:
-                    why = reason
+                    whys.append(reason)
                     continue
             if s != "READY":
                 continue
             if t.get("scope", "production") == "test":
-                why = f"{t['id']} is synthetic test scope — never auto-eligible"
+                whys.append(f"{t['id']} is synthetic test scope — never auto-eligible")
                 continue
             if not t.get("approved"):
-                why = f"{t['id']} awaiting approval"
+                whys.append(f"{t['id']} awaiting approval")
                 continue
             dl = float(t.get("deadline_epoch") or 0)
             if dl and _now() > dl:
-                why = f"{t['id']} past deadline — needs replan, not dispatch"
+                whys.append(f"{t['id']} past deadline — needs replan, not dispatch")
                 continue
             if _now() < float(t.get("not_before", 0)):
-                why = f"{t['id']} backing off until {t['not_before']}"
+                whys.append(f"{t['id']} backing off until {t['not_before']}")
                 continue
             w_holds = self.worktree_holds(t["worktree"])
             if w_holds:
-                why = "; ".join(w_holds)
+                whys.append("; ".join(w_holds))
                 continue
             if t["worktree"] in running:
-                why = f"worktree busy: {t['worktree']}"
+                whys.append(f"worktree busy: {t['worktree']}")
                 continue
             return t, "eligible"
-        return None, why
+        return None, "; ".join(whys[-3:]) or "no eligible task"
 
     # ------------------------------------------------------------- holds
     def global_holds(self) -> list[str]:
