@@ -296,7 +296,14 @@ def maybe_spawn_recovery(coord, task_id: str, notifier=None) -> dict:
         if len(recent) >= pacing:
             return {"spawned": False, "reason": "recovery hourly pacing; automatically retries later"}
         failed_cap = min(max(int(auth.get("max_failures_per_24h", 6)), 1), 12)
-        if failed_day >= failed_cap:
+        # The storm breaker blocks NEW recovery chains. An in-flight
+        # ladder (attempts>=1) still gets its final reconcile step —
+        # that step is bounded, cheap, and produces the evidence the
+        # escalation needs anyway.
+        if failed_day >= failed_cap and attempts == 0:
+            coord._event("recovery_blocked", task_id=task_id,
+                         reason="failure circuit breaker "
+                                f"{failed_day}/{failed_cap}")
             return {"spawned": False, "reason": "rolling failure circuit breaker; retries after the window"}
     rca = plan_recovery(coord, task_id)
     if not rca.get("ok"):
@@ -466,12 +473,15 @@ def tick(coord, notifier=None) -> dict:
         if t.get("scope") != "production":
             continue
         # supersession resolution for finished children — once the
-        # parent is terminal (ESCALATED/VERIFIED_RECOVERED) stop
-        # re-firing on_child_done, or it ping-pongs RETRY_FAILED forever
+        # parent is terminal (ESCALATED/VERIFIED_RECOVERED) or the
+        # child's terminal status was already consumed into
+        # RETRY_FAILED, stop re-firing on_child_done, or it ping-pongs
+        # the event forever
         rec = t.get("recovery") or {}
         cid = rec.get("child_id")
         if cid and rec.get("state") not in ("ESCALATED",
-                                            "VERIFIED_RECOVERED"):
+                                            "VERIFIED_RECOVERED",
+                                            "RETRY_FAILED"):
             c = coord.get_task(cid)
             if c and c.get("status") in ("COMPLETE", "FAILED"):
                 on_child_done(coord, c)
