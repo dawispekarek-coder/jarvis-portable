@@ -245,7 +245,7 @@ def lane_sync(coord, prog) -> list:
                 "lane_synced", True))
             continue
         ev = read_json(coord.root / EVIDENCE_DIR / f"{t['id']}.json", {})
-        copied = []
+        copied, conflicts = [], []
         for f in ev.get("produced_files", []) or []:
             rel = str(f).replace("\\", "/")
             if Path(rel).is_absolute():
@@ -263,6 +263,11 @@ def lane_sync(coord, prog) -> list:
             if dst.exists():
                 if dst.read_bytes() == src.read_bytes():
                     continue
+                qdir = coord.root / "lane_conflicts" / t["id"]
+                qpath = qdir / rel
+                qpath.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copy2(src, qpath)
+                conflicts.append(rel)
                 continue  # never clobber a concurrent lane-1 edit
             dst.parent.mkdir(parents=True, exist_ok=True)
             shutil.copy2(src, dst)
@@ -273,6 +278,11 @@ def lane_sync(coord, prog) -> list:
             coord._event("lane_sync", task_id=t["id"],
                          files=copied[:10])
             synced.append(t["id"])
+        if conflicts:
+            coord._mutate(t["id"], lambda x: x.__setitem__(
+                "lane_conflicts", conflicts))
+            coord._event("lane_sync_conflict", task_id=t["id"],
+                         files=conflicts[:10])
     return synced
 
 
