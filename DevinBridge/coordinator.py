@@ -946,11 +946,21 @@ class Coordinator:
                    if autonomous_dispatch is None else autonomous_dispatch)
         holds = self.global_holds()
         if do_auto and not holds:
-            if cand and not self.worktree_holds(cand["worktree"]):
+            # dispatch every eligible task on a FREE worktree — parallel
+            # lanes bounded by the one-worker-per-worktree rule itself
+            dispatched_any = False
+            for _ in range(4):
+                if not cand or self.worktree_holds(cand["worktree"]):
+                    break
                 res = self.dispatch(cand["id"])
                 actions.append(f"auto-dispatch {cand['id']}: "
                                f"{res.get('session_id') or res.get('reason') or res.get('error')}")
-            else:
+                if res.get("dispatched") or res.get("deduplicated"):
+                    dispatched_any = True
+                    cand, why = self.next_eligible()
+                else:
+                    break
+            if not dispatched_any:
                 actions.append(f"no dispatch: {why}")
         elif do_auto and holds:
             actions.append("auto-dispatch suppressed: " + "; ".join(holds))

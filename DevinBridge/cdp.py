@@ -223,12 +223,69 @@ def _load_program(coord) -> dict:
     return trial_scope.extend_program(coord.root, prog)
 
 
+def lane_sync(coord, prog) -> list:
+    """Copy verified artifacts produced on a SECONDARY lane back into
+    the primary worktree — downstream tasks and the issue generator
+    only see the main workspace. Bounded to program allowed paths;
+    an existing-but-different target is skipped, never clobbered."""
+    wts = [str(Path(w).resolve()) for w in prog.get("worktrees", [])]
+    if len(wts) < 2:
+        return []
+    prim = wts[0]
+    allowed = [str(x).replace("\\", "/").rstrip("/")
+               for x in prog.get("allowed_paths", [])]
+    import shutil
+    synced = []
+    for t in coord.list_tasks():
+        if t.get("status") != "COMPLETE" or t.get("lane_synced"):
+            continue
+        wt = str(Path(t.get("worktree") or "").resolve())
+        if wt == prim or wt not in wts:
+            coord._mutate(t["id"], lambda x: x.__setitem__(
+                "lane_synced", True))
+            continue
+        ev = read_json(coord.root / EVIDENCE_DIR / f"{t['id']}.json", {})
+        copied = []
+        for f in ev.get("produced_files", []) or []:
+            rel = str(f).replace("\\", "/")
+            if Path(rel).is_absolute():
+                try:
+                    rel = str(Path(rel).resolve()
+                              .relative_to(Path(wt))).replace("\\", "/")
+                except ValueError:
+                    continue
+            if ".." in Path(rel).parts or not any(
+                    rel == a or rel.startswith(a + "/") for a in allowed):
+                continue
+            src, dst = Path(wt) / rel, Path(prim) / rel
+            if not src.is_file():
+                continue
+            if dst.exists():
+                if dst.read_bytes() == src.read_bytes():
+                    continue
+                continue  # never clobber a concurrent lane-1 edit
+            dst.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(src, dst)
+            copied.append(rel)
+        coord._mutate(t["id"], lambda x: x.__setitem__(
+            "lane_synced", True))
+        if copied:
+            coord._event("lane_sync", task_id=t["id"],
+                         files=copied[:10])
+            synced.append(t["id"])
+    return synced
+
+
 def handoff_tick(coord) -> dict:
     """Auto-promote+dispatch the best OPEN proposal ONLY if it fits an
     unexpired program authorization exactly. Fail closed otherwise."""
     prog = _load_program(coord)
     if not prog:
         return {"handoff": False, "reason": "no valid program file"}
+    try:
+        lane_sync(coord, prog)
+    except Exception:
+        pass
     if prog.get("ongoing"):
         holds = coord.global_holds()
         if holds:
@@ -237,12 +294,20 @@ def handoff_tick(coord) -> dict:
     allowed = {str(Path(w).resolve()).casefold()
                for w in prog.get("worktrees", [])}
     kinds = set(prog.get("kinds", SAFE_KINDS))
+    # parallel lanes: kind -> worktree path (must also be in worktrees)
+    lanes = {k: str(Path(v).resolve()) for k, v
+             in (prog.get("lanes") or {}).items()}
+    max_par = min(max(int(prog.get("max_parallel_workers") or 1), 1), 4)
     max_tasks = None if prog.get("ongoing") else int(prog.get("max_tasks", 3))
     st = coord._load()
     running = [t for t in st["tasks"].values() if t["status"] in
                ("DISPATCHED", "RUNNING", "VERIFYING", "NEEDS_APPROVAL")]
-    if running:
-        return {"handoff": False, "reason": f"{running[0]['id']} in flight"}
+    if len(running) >= max_par:
+        return {"handoff": False, "reason":
+                f"{len(running)} workers in flight (cap {max_par})"}
+    # only a busy LANE blocks its next proposal — a free lane proceeds
+    busy_wt = {str(Path(t["worktree"]).resolve()).casefold()
+               for t in running}
     done = sum(1 for t in st["tasks"].values()
                if t.get("program_id") == prog["program_id"]
                and t["status"] in ("COMPLETE", "FAILED", "BLOCKED"))
@@ -381,6 +446,18 @@ def handoff_tick(coord) -> dict:
             if p.get("kind") in ("repair-small", "test-add") and not any(
                     x.get("type") == "test" for x in acceptance):
                 continue
+        # lane routing: kind->lane worktree if defined and authorized;
+        # a busy lane only skips ITS next proposal, not the whole tick
+        lane = lanes.get(p.get("kind", "analyze"))
+        if lane:
+            lane_cf = lane.casefold()
+            if lane_cf not in allowed or lane_cf in busy_wt:
+                continue
+            cand_lane = lane
+        else:
+            if wt in busy_wt:
+                continue
+            cand_lane = p["worktree"]
         cand = p
         break
     if not cand:
@@ -389,8 +466,9 @@ def handoff_tick(coord) -> dict:
     if not res.get("ok"):
         return {"handoff": False, "error": res.get("error")}
     tid = res["task_id"]
-    coord._mutate(tid, lambda t: t.__setitem__(
-        "program_id", prog["program_id"]))
+    coord._mutate(tid, lambda t: (
+        t.__setitem__("program_id", prog["program_id"]),
+        t.__setitem__("worktree", str(Path(cand_lane).resolve()))))
     # the program file IS the owner's approval for in-scope work —
     # but only for the kinds it lists and worktrees it names.
     coord.approve(tid)
