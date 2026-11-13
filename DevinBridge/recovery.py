@@ -288,7 +288,12 @@ def maybe_spawn_recovery(coord, task_id: str, notifier=None) -> dict:
                 if 0 <= age < 3600:
                     recent.append(other)
                 if (0 <= age < 86400 and other.get("status") == "FAILED"
-                        and not str(other.get("id", "")).startswith("RCV-")):
+                        and not str(other.get("id", "")).startswith("RCV-")
+                        and str((other.get("recovery") or {})
+                                .get("state") or "") not in
+                        ("ESCALATED", "WAITING_HUMAN", "COOLDOWN",
+                         "RECOVERY_DISPATCHED", "RETRY_FAILED",
+                         "RETRY_AUTHORIZED")):
                     failed_day += 1
             except (ValueError, TypeError, KeyError):
                 pass

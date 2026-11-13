@@ -82,8 +82,28 @@ def build_context(coord, obs: dict) -> dict:
             return False
         return t.get("scope") == "production"
     open_t = [t["id"] for t in tasks.values() if _dispatchable(t)]
+    # plan-ahead backlog: READY work waiting behind whatever runs now,
+    # plus validated proposals still open. backlog==0 while a worker
+    # runs = plan the next task NOW so it exists when the worker ends.
+    ready_behind = sum(1 for t in tasks.values()
+                       if _dispatchable(t) and t["status"] == "READY")
     prog = read_json(
         coord.root / "autonomy_scope" / "CDP_PROGRAM.json", {})
+    try:
+        from . import planner as _pl
+        # count only proposals that can actually promote — stale
+        # non-cdp reconcile spam sits OPEN but never dispatches, and
+        # would fake a healthy backlog while the queue starves
+        all_open = _pl.list_proposals(coord)
+        if prog.get("ongoing"):
+            open_props = sum(
+                1 for p in all_open
+                if (p.get("provenance") or {}).get("source") == "cdp_issue")
+        else:
+            open_props = len(all_open)
+    except Exception:
+        open_props = 0
+    backlog = ready_behind + open_props
     # Load actual terminal task reports and their verified acceptance evidence.
     terminal = sorted((t for t in tasks.values() if t.get("status") in
                        ("COMPLETE", "FAILED", "VERIFIED_RECOVERED")),
@@ -118,6 +138,8 @@ def build_context(coord, obs: dict) -> dict:
         "route_gate": obs.get("route_gate"),
         "open_tasks": open_t[:10],
         "queue_empty": not open_t,
+        "backlog": backlog,
+        "open_proposals": open_props,
         "recent_completed": recent_done,
         "recent_reports": reports,
         "latest_report_key": latest_report_key,
@@ -156,7 +178,7 @@ MANDATORY: any task touching routes/quests/waypoints MUST instruct the worker to
 Also instruct the worker to end its report with one or more "LEARNED: <rule>" lines — a reusable rule distilled from what it did (why this approach, what failed and why). Check learned_lessons in context and build on them instead of re-learning.
 Decide the SINGLE most valuable next engineering task that advances the master goal. It may be a kind of work never done before.
 If recent_failed is non-empty, read each "error": never re-propose the same approach that already failed — either propose a diagnostic task to find the root cause, or a materially different approach, and say in "why" how this avoids the recorded failure.
-IMPORTANT: the master goal is not release-ready until proven. If queue_empty is true, you MUST propose work from the known gaps or discover a new one — NO_ACTION is allowed only for a hard external blocker (permissions, credentials, account actions), never for "nothing to do".
+IMPORTANT: the master goal is not release-ready until proven. If queue_empty is true OR backlog is 0 (nothing READY behind the current work and no open proposal), you MUST propose work from the known gaps or discover a new one — NO_ACTION is allowed only for a hard external blocker (permissions, credentials, account actions), never for "nothing to do".
 Return ONLY a JSON object, no prose. If you reason first, the JSON object MUST be the very last thing in your reply — nothing after it. Exactly this schema:
 {{"action":"PROPOSE","title":"short task title","priority":0-100,
  "kind":"one of {kinds}","problem":"the real gap you found",
@@ -269,8 +291,12 @@ def maybe_consult(coord, context: dict) -> dict:
     gap = COOLDOWN_S if h != st.get("last_ctx_hash") else UNCHANGED_S
     # owner rule: an empty queue while the master goal is unproven must
     # never idle for the full unchanged-context cooldown — retry on the
-    # short cooldown so the planner keeps inventing release work
-    if context.get("queue_empty") and gap > COOLDOWN_S:
+    # short cooldown so the planner keeps inventing release work.
+    # Plan-ahead: a thin backlog (nothing READY behind running work,
+    # no open proposal) gets the same short cadence — the next task
+    # should be PROPOSED before the worker finishes, not after it idles.
+    thin = context.get("backlog", 0) == 0
+    if (context.get("queue_empty") or thin) and gap > COOLDOWN_S:
         gap = COOLDOWN_S
     # a failed consult (timeout/parse/error) produced no work — retry
     # soon instead of burning the full cooldown on nothing
@@ -280,7 +306,7 @@ def maybe_consult(coord, context: dict) -> dict:
     # A newly finished/failed Devin report is a planning trigger, not a
     # reason to wait for the unchanged-context cooldown.
     report_key = context.get("latest_report_key")
-    if context.get("queue_empty") and report_key and report_key != st.get("last_consult_report_key"):
+    if thin and report_key and report_key != st.get("last_consult_report_key"):
         gap = min(gap, 30)
     if now - last < gap:
         return {"status": "IDLE_NO_ACTION",

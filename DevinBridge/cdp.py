@@ -266,10 +266,18 @@ def handoff_tick(coord) -> dict:
                     f"hourly pacing {len(recent)}/{hour_limit}; resumes automatically"}
         # Recovery children (RCV-*) are the repair path, not new
         # failures — counting them would let a failure storm starve the
-        # very mechanism meant to fix it.
+        # very mechanism meant to fix it. Likewise a FAILED parent whose
+        # recovery already ran its course (ESCALATED), waits on a human
+        # grant (WAITING_HUMAN), or has a repair in flight is HANDLED —
+        # the breaker exists for unaddressed failure storms only.
+        _handled = {"ESCALATED", "WAITING_HUMAN", "COOLDOWN",
+                    "RECOVERY_DISPATCHED", "RETRY_FAILED",
+                    "RETRY_AUTHORIZED"}
         failed = sum(1 for t in st["tasks"].values()
                      if recent_task(t, 24) and t.get("status") == "FAILED"
-                     and not str(t.get("id", "")).startswith("RCV-"))
+                     and not str(t.get("id", "")).startswith("RCV-")
+                     and str((t.get("recovery") or {}).get("state") or "")
+                         not in _handled)
         failure_limit = min(max(int(prog.get("max_failures_per_24h", 8)), 1), 12)
         if failed >= failure_limit:
             return {"handoff": False, "reason":
