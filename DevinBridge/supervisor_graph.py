@@ -57,7 +57,7 @@ def n_observe(state: SupState, ctx) -> dict:
     goals = read_json(coord.root / "goals.json", {})
     obs = {
         "ts": time.time(),
-        "goal_open": (goals.get(MASTER_GOAL) or {}).get("status") != "COMPLETE",
+        "goal_open": (goals.get("goals", {}).get(MASTER_GOAL) or {}).get("state") != "COMPLETE",
         "counts": {s: sum(1 for t in tasks if t["status"] == s)
                    for s in ("RUNNING", "PENDING", "READY", "FAILED",
                              "COMPLETE", "NEEDS_APPROVAL",

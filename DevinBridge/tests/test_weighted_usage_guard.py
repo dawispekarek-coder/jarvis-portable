@@ -28,3 +28,10 @@ class CachedMeteringTests(unittest.TestCase):
   self.assertIn('HARD raw-token guard',self.check(3100000,3000000,2980000))
  def test_missing_input_proof_gives_no_cache_discount(self):
   self.assertIn('weighted model-usage guard',self.check(1691002,0,1665024))
+ def test_explicit_owner_unlimited_usage(self):
+  p=self.root/'autonomy_scope'/'CDP_PROGRAM.json'
+  cfg=json.loads(p.read_text())
+  cfg['max_reported_tokens_per_24h']=None
+  cfg['max_raw_reported_tokens_per_24h']=None
+  p.write_text(json.dumps(cfg))
+  self.assertEqual(self.check(9000000,8000000,7000000),'no in-program proposal')

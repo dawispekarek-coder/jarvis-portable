@@ -274,46 +274,55 @@ def handoff_tick(coord) -> dict:
         if failed >= failure_limit:
             return {"handoff": False, "reason":
                     f"failure circuit breaker {failed}/{failure_limit}; needs investigation"}
-        # Meter reported model usage; rolling 24h reset, not daily approval.
-        token_limit = int(prog.get("max_reported_tokens_per_24h", 1500000))
-        if token_limit <= 0:
-            return {"handoff": False, "reason": "model usage ceiling not configured"}
-        # Discount cached reads conservatively, but retain an independent
-        # hard ceiling on all reported tokens to prevent runaway usage.
-        raw_limit = int(prog.get("max_raw_reported_tokens_per_24h", token_limit))
-        weight = float(prog.get("cached_read_weight", 1.0))
-        if raw_limit <= 0 or not 0.5 <= weight <= 1.0:
-            return {"handoff": False, "reason": "invalid model usage guard configuration"}
-        used, raw_used = 0, 0
-        events = coord.root / "coordinator_events.jsonl"
-        if events.is_file():
-            from collections import deque
-            with events.open(encoding="utf-8", errors="replace") as evfile:
-                for line in deque(evfile, maxlen=5000):
-                    try:
-                        event = json.loads(line)
-                        if event.get("kind") != "prompt_done":
+        # Unlimited reported-token usage is explicit owner authorization;
+        # absent/mixed limits are NOT interpreted as unlimited.
+        weighted_cfg = prog.get("max_reported_tokens_per_24h", 1500000)
+        raw_cfg = prog.get("max_raw_reported_tokens_per_24h", weighted_cfg)
+        if (weighted_cfg is None) != (raw_cfg is None):
+            return {"handoff": False, "reason": "inconsistent model usage guard configuration"}
+        if weighted_cfg is None and raw_cfg is None and not prog.get("owner_authorized"):
+            return {"handoff": False, "reason": "unlimited token use not owner authorized"}
+        if weighted_cfg is not None:
+            # Meter reported model usage; rolling 24h reset, not daily approval.
+            token_limit = int(prog.get("max_reported_tokens_per_24h", 1500000))
+            if token_limit <= 0:
+                return {"handoff": False, "reason": "model usage ceiling not configured"}
+            # Discount cached reads conservatively, but retain an independent
+            # hard ceiling on all reported tokens to prevent runaway usage.
+            raw_limit = int(prog.get("max_raw_reported_tokens_per_24h", token_limit))
+            weight = float(prog.get("cached_read_weight", 1.0))
+            if raw_limit <= 0 or not 0.5 <= weight <= 1.0:
+                return {"handoff": False, "reason": "invalid model usage guard configuration"}
+            used, raw_used = 0, 0
+            events = coord.root / "coordinator_events.jsonl"
+            if events.is_file():
+                from collections import deque
+                with events.open(encoding="utf-8", errors="replace") as evfile:
+                    for line in deque(evfile, maxlen=5000):
+                        try:
+                            event = json.loads(line)
+                            if event.get("kind") != "prompt_done":
+                                continue
+                            task = st["tasks"].get(event.get("task_id")) or {}
+                            if task.get("program_id") != prog["program_id"]:
+                                continue
+                            when = datetime.fromisoformat(str(event["ts"]).replace("Z", "+00:00"))
+                            if 0 <= (datetime.now(timezone.utc) - when).total_seconds() < 86400:
+                                usage = event.get("usage") or {}
+                                total = max(0, int(usage.get("totalTokens", 0)))
+                                inp = max(0, int(usage.get("inputTokens", 0)))
+                                cached = max(0, min(total, inp, int(usage.get("cachedReadTokens", 0))))
+                                raw_used += total
+                                used += total - int(cached * (1.0 - weight))
+                        except (ValueError, KeyError, TypeError):
                             continue
-                        task = st["tasks"].get(event.get("task_id")) or {}
-                        if task.get("program_id") != prog["program_id"]:
-                            continue
-                        when = datetime.fromisoformat(str(event["ts"]).replace("Z", "+00:00"))
-                        if 0 <= (datetime.now(timezone.utc) - when).total_seconds() < 86400:
-                            usage = event.get("usage") or {}
-                            total = max(0, int(usage.get("totalTokens", 0)))
-                            inp = max(0, int(usage.get("inputTokens", 0)))
-                            cached = max(0, min(total, inp, int(usage.get("cachedReadTokens", 0))))
-                            raw_used += total
-                            used += total - int(cached * (1.0 - weight))
-                    except (ValueError, KeyError, TypeError):
-                        continue
-        if raw_used >= raw_limit:
-            return {"handoff": False, "reason":
-                    f"rolling 24h HARD raw-token guard {raw_used}/{raw_limit}; auto resets"}
-        if used >= token_limit:
-            return {"handoff": False, "reason":
-                    f"rolling 24h weighted model-usage guard {used}/{token_limit} units "
-                    f"(raw {raw_used}, cache weight {weight}); auto resets"}
+            if raw_used >= raw_limit:
+                return {"handoff": False, "reason":
+                        f"rolling 24h HARD raw-token guard {raw_used}/{raw_limit}; auto resets"}
+            if used >= token_limit:
+                return {"handoff": False, "reason":
+                        f"rolling 24h weighted model-usage guard {used}/{token_limit} units "
+                        f"(raw {raw_used}, cache weight {weight}); auto resets"}
     # pick highest-priority OPEN proposal inside the program
     cand = None
     for p in base_planner.list_proposals(coord):
