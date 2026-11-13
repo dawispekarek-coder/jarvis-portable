@@ -301,9 +301,15 @@ def maybe_spawn_recovery(coord, task_id: str, notifier=None) -> dict:
         # that step is bounded, cheap, and produces the evidence the
         # escalation needs anyway.
         if failed_day >= failed_cap and attempts == 0:
-            coord._event("recovery_blocked", task_id=task_id,
-                         reason="failure circuit breaker "
-                                f"{failed_day}/{failed_cap}")
+            # observable, but not every tick — re-notify at most every 15 min
+            last_blk = float((t.get("recovery") or {}).get("last_blocked_ts") or 0)
+            if time.time() - last_blk > 900:
+                coord._mutate(task_id, lambda x: x.__setitem__(
+                    "recovery", {**(x.get("recovery") or {}),
+                                 "last_blocked_ts": time.time()}))
+                coord._event("recovery_blocked", task_id=task_id,
+                             reason="failure circuit breaker "
+                                    f"{failed_day}/{failed_cap}")
             return {"spawned": False, "reason": "rolling failure circuit breaker; retries after the window"}
     rca = plan_recovery(coord, task_id)
     if not rca.get("ok"):
